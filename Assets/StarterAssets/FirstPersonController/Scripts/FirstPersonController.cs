@@ -21,6 +21,10 @@ namespace StarterAssets
 		public float RotationSpeed = 1.0f;
 		[Tooltip("Acceleration and deceleration")]
 		public float SpeedChangeRate = 10.0f;
+		[Tooltip("Acceleration and deceleration")]
+		public AudioClip LandingAudioClip;
+		public AudioClip[] FootstepAudioClips;
+		[Range(0, 1)] public float FootstepAudioVolume = 0.5f;
 
 		[Space(10)]
 		[Tooltip("The height the player can jump")]
@@ -51,6 +55,8 @@ namespace StarterAssets
 		public float TopClamp = 90.0f;
 		[Tooltip("How far in degrees can you move the camera down")]
 		public float BottomClamp = -90.0f;
+		
+
 
 		// cinemachine
 		private float _cinemachineTargetPitch;
@@ -71,6 +77,8 @@ namespace StarterAssets
 		private int _animIDJump;
 		private int _animIDFreeFall;
 		private int _animIDMotionSpeed;
+		private int _dirX;
+		private int _dirZ;
 	
 #if ENABLE_INPUT_SYSTEM
 		private PlayerInput _playerInput;
@@ -126,6 +134,8 @@ namespace StarterAssets
 			_animIDJump = Animator.StringToHash("Jump");
 			_animIDFreeFall = Animator.StringToHash("FreeFall");
 			_animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+			_dirX = Animator.StringToHash("X");
+			_dirZ = Animator.StringToHash("Z");
 		}
 
 		private void Update()
@@ -223,6 +233,8 @@ namespace StarterAssets
 			if (_animationBlend < 0.01f) _animationBlend = 0f;
 			if (_hasAnimator)
 			{
+				_animator.SetFloat(_dirX,inputDirection.x );
+				_animator.SetFloat(_dirZ,inputDirection.z );
 				_animator.SetFloat(_animIDSpeed, _animationBlend);
 				_animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
 			}
@@ -311,5 +323,25 @@ namespace StarterAssets
 			// when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
 			Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
 		}
+		private void OnFootstep(AnimationEvent animationEvent)
+		{
+			if (animationEvent.animatorClipInfo.weight > 0.5f)
+			{
+				if (FootstepAudioClips.Length > 0)
+				{
+					var index = Random.Range(0, FootstepAudioClips.Length);
+					AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_controller.center), FootstepAudioVolume);
+				}
+			}
+		}
+
+		private void OnLand(AnimationEvent animationEvent)
+		{
+			if (animationEvent.animatorClipInfo.weight > 0.5f)
+			{
+				AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+			}
+		}
 	}
+	
 }
