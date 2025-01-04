@@ -86,11 +86,14 @@ namespace StarterAssets
 		private CharacterController _controller;
 		private StarterAssetsInputs _input;
 		private GameObject _mainCamera;
-
 		private const float _threshold = 0.01f;
-
+		private Vector2 lerpSpeed;
 		private bool _hasAnimator;
 		private Animator _animator;
+		public float xRotation;
+		public GameObject headPointAiming;
+		public GameObject aimingPoint;
+		public GameObject head;
 		private bool IsCurrentDeviceMouse
 		{
 			get
@@ -144,6 +147,7 @@ namespace StarterAssets
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
+			ExtrudeHeadPointAndAiming();
 		}
 
 		private void LateUpdate()
@@ -175,15 +179,21 @@ namespace StarterAssets
 
 				// clamp our pitch rotation
 				_cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
-
 				// Update Cinemachine camera target pitch
-				CinemachineCameraTarget.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, 0.0f, 0.0f);
+				/*CinemachineCameraTarget.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, 0.0f, 0.0f);*/
 
 				// rotate the player left and right
 				transform.Rotate(Vector3.up * _rotationVelocity);
 			}
 		}
 
+		private void ExtrudeHeadPointAndAiming()
+		{
+
+			aimingPoint.transform.localPosition = Quaternion.Euler(_cinemachineTargetPitch, 0, 0) * Vector3.forward * 1;
+			
+
+		}
 		private void Move()
 		{
 			// set target speed based on move speed, sprint speed and if sprint is pressed
@@ -221,6 +231,7 @@ namespace StarterAssets
 
 			// note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
 			// if there is a move input rotate player when the player is moving
+
 			if (_input.move != Vector2.zero)
 			{
 				// move
@@ -233,8 +244,14 @@ namespace StarterAssets
 			if (_animationBlend < 0.01f) _animationBlend = 0f;
 			if (_hasAnimator)
 			{
-				_animator.SetFloat(_dirX,inputDirection.x );
-				_animator.SetFloat(_dirZ,inputDirection.z );
+				lerpSpeed.x = Mathf.Lerp(lerpSpeed.x, targetSpeed*_input.move.x, Time.deltaTime * SpeedChangeRate);
+				lerpSpeed.y = Mathf.Lerp(lerpSpeed.y, targetSpeed*_input.move.y, Time.deltaTime * SpeedChangeRate);
+				Debug.Log("X "+ lerpSpeed.x);
+				Debug.Log("Z "+lerpSpeed.y);
+				
+				_animator.SetFloat(_dirX,lerpSpeed.x);
+				_animator.SetFloat(_dirZ,lerpSpeed.y);
+				
 				_animator.SetFloat(_animIDSpeed, _animationBlend);
 				_animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
 			}
@@ -276,6 +293,7 @@ namespace StarterAssets
 			}
 			else
 			{
+	
 				// reset the jump timeout timer
 				_jumpTimeoutDelta = JumpTimeout;
 
