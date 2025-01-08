@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SocialPlatforms;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -55,12 +56,13 @@ namespace StarterAssets
 		public float TopClamp = 90.0f;
 		[Tooltip("How far in degrees can you move the camera down")]
 		public float BottomClamp = -90.0f;
-		
 
+		public GameObject headsImpact;
+		private Vector3 defultHipsPosition;
 
 		// cinemachine
 		private float _cinemachineTargetPitch;
-
+		public Transform[] HeadsImpactTransform;
 		// player
 		private float _speed;
 		private float _rotationVelocity;
@@ -79,6 +81,8 @@ namespace StarterAssets
 		private int _animIDMotionSpeed;
 		private int _dirX;
 		private int _dirZ;
+		
+		private Quaternion generalHeadOffset;
 	
 #if ENABLE_INPUT_SYSTEM
 		private PlayerInput _playerInput;
@@ -94,6 +98,7 @@ namespace StarterAssets
 		public GameObject headPointAiming;
 		public GameObject aimingPoint;
 		public GameObject head;
+		private Vector3 _headDefultPosition;
 		private bool IsCurrentDeviceMouse
 		{
 			get
@@ -119,6 +124,8 @@ namespace StarterAssets
 		{
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<StarterAssetsInputs>();
+			defultHipsPosition = headsImpact.transform.localPosition;
+			Debug.Log(defultHipsPosition);
 			AssignAnimationIDs();
 #if ENABLE_INPUT_SYSTEM
 			_playerInput = GetComponent<PlayerInput>();
@@ -129,6 +136,7 @@ namespace StarterAssets
 			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
 			_fallTimeoutDelta = FallTimeout;
+			_headDefultPosition = headsImpact.transform.localPosition;
 		}
 		private void AssignAnimationIDs()
 		{
@@ -147,12 +155,14 @@ namespace StarterAssets
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
-			ExtrudeHeadPointAndAiming();
+
 		}
 
 		private void LateUpdate()
 		{
+			
 			CameraRotation();
+			ExtrudeHeadPointAndAiming();
 		}
 
 		private void GroundedCheck()
@@ -189,9 +199,17 @@ namespace StarterAssets
 
 		private void ExtrudeHeadPointAndAiming()
 		{
-
-			aimingPoint.transform.localPosition = Quaternion.Euler(_cinemachineTargetPitch, 0, 0) * Vector3.forward * 1;
 			
+			Vector3 basePosition = new Vector3(transform.position.x, transform.position.y+1.69f, transform.position.z);
+			Vector3 offset = new Vector3(0, 0, 5);
+			Vector3 rotation = new Vector3(_cinemachineTargetPitch, 0, 0);
+
+			aimingPoint.transform.position = basePosition + (transform.rotation * Quaternion.Euler(rotation)) * offset;
+
+			head.transform.LookAt(aimingPoint.transform.position);
+			CinemachineCameraTarget.transform.LookAt(aimingPoint.transform.position);
+
+
 
 		}
 		private void Move()
@@ -246,8 +264,6 @@ namespace StarterAssets
 			{
 				lerpSpeed.x = Mathf.Lerp(lerpSpeed.x, targetSpeed*_input.move.x, Time.deltaTime * SpeedChangeRate);
 				lerpSpeed.y = Mathf.Lerp(lerpSpeed.y, targetSpeed*_input.move.y, Time.deltaTime * SpeedChangeRate);
-				Debug.Log("X "+ lerpSpeed.x);
-				Debug.Log("Z "+lerpSpeed.y);
 				
 				_animator.SetFloat(_dirX,lerpSpeed.x);
 				_animator.SetFloat(_dirZ,lerpSpeed.y);
