@@ -71,6 +71,14 @@ public class InventorySystem : MonoBehaviour
 
     void Start()
     {
+        for (int i = 0; i < itemAmount.Length; i++)
+        {
+            itemAmount[i] = 0;
+        }
+        for (int i = 0; i < itemInSlots.Length; i++)
+        {
+            itemInSlots[i] = null;
+        }
         imageArrayChecker = new HashSet<GameObject>(slotsImages);
         slotsArrayChecker = new HashSet<GameObject>(slots);
         for (int i = 0; i < slots.Length; i++)
@@ -389,8 +397,13 @@ public class InventorySystem : MonoBehaviour
     {
         for (int i = 0; i < slots.Length; i++)
         {
+            if (!slotsImages[i].GetComponent<Image>().enabled) slotsImages[i].GetComponent<Image>().enabled = true;
             slotsImages[i].GetComponent<Image>().sprite = itemInSlots[i].icon;
             slotsTexts[i].GetComponent<Text>().text = itemAmount[i].ToString();
+            if (itemAmount[i] <= 1)
+            {
+                slotsTexts[i].GetComponent<Text>().text =  "";
+            }
         }
     }
 }
