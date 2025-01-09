@@ -44,7 +44,7 @@ public class InventorySystem : MonoBehaviour
     private int currentSlot;
 
     [Header("Drag and Drop")]
-    private bool dragging;
+    public bool dragging;
     private RectTransform rectTransform;
     private Transform originalParent;
     private int originalParentIndex;
@@ -67,10 +67,6 @@ public class InventorySystem : MonoBehaviour
         OnRemoveItemFromInventory = RemoveItemsFromInventoryM;
         OnDragAndDropManagerDelegat = DragAndDropManager;
         OnInventoryManagerDelegat = InventoryManager;
-    }
-
-    void Start()
-    {
         for (int i = 0; i < itemAmount.Length; i++)
         {
             itemAmount[i] = 0;
@@ -79,28 +75,52 @@ public class InventorySystem : MonoBehaviour
         {
             itemInSlots[i] = null;
         }
-        imageArrayChecker = new HashSet<GameObject>(slotsImages);
-        slotsArrayChecker = new HashSet<GameObject>(slots);
+
         for (int i = 0; i < slots.Length; i++)
         {
             if (i < hotBar.transform.childCount)
             {
                 slots[i] = hotBar.transform.GetChild(i).gameObject;
-                i++;
+          
             }
-            else if(i < inventory.transform.childCount)
+            else if(i-hotBar.transform.childCount < inventory.transform.childCount)
             {
-                slots[i] = inventory.transform.GetChild(i-(hotBar.transform.childCount)).gameObject;
-                i++;
+                slots[i] = inventory.transform.GetChild(i-hotBar.transform.childCount).gameObject;
+               
             }
-            Debug.Log("i " + i);
-            Debug.Log("i - Hot bar child count" + (i-hotBar.transform.childCount));
         }
 
         for (int i = 0; i < slots.Length; i++)
         {
-            slotsImages[i] = slots[i].transform.GetChild(0).gameObject;
-            slotsTexts[i] = slots[i].transform.GetChild(0).gameObject.transform.GetChild(0).gameObject;
+            if (slots[i] != null)
+            {
+                slotsImages[i] = slots[i].transform.GetChild(0).gameObject;
+                slotsTexts[i] = slots[i].transform.GetChild(0).gameObject.transform.GetChild(0).gameObject;
+                /*Debug.Log($"Image: {slots[i].transform.GetChild(0).gameObject}, index: {i}");
+                Debug.Log($"Text: {slots[i].transform.GetChild(0).gameObject.transform.GetChild(0).gameObject}, index: {i}");*/
+            }
+            else
+            {
+                Debug.Log($"Inventory slots not found, index{i}");
+            }
+
+        }
+        imageArrayChecker = new HashSet<GameObject>(slotsImages);
+        slotsArrayChecker = new HashSet<GameObject>(slots);
+    }
+
+    void Start()
+    {
+        for (int i = 0; i < slotsImages.Length; i++)
+        {
+            if (slotsImages[i] != null)
+            {
+                slotsImages[i].GetComponent<Image>().enabled = false;
+            }
+            else
+            {
+                Debug.Log($"Image: {slotsImages[i].transform.GetChild(0).gameObject}, index: {i} is null");
+            }
         }
 
     }
@@ -109,25 +129,38 @@ public class InventorySystem : MonoBehaviour
     void Update()
     {
         InventorySystem.OnInventoryManagerDelegat?.Invoke();
+        InventorySystem.OnDragAndDropManagerDelegat?.Invoke();
     }
 
     private void DragAndDropManager()
     {
         
-        
-        if (Input.GetMouseButtonDown(0)&&!dragging)
+        Debug.Log($"Dragging: {dragging}");
+        if (Input.GetMouseButtonDown(0)&&dragging == false)
         {
             
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, Input.mousePosition, canvas.worldCamera, out Vector2 localMousePosition);
-
+            RectTransform canvasRect = canvas.transform as RectTransform;
+            Camera cam = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, Input.mousePosition, cam, out Vector2 localMousePosition);
             // Ищем все RectTransform на холсте
-            RectTransform[] rectTransforms = canvas.GetComponentsInChildren<RectTransform>();
 
+            RectTransform[] rectTransforms = canvas.GetComponentsInChildren<RectTransform>();
+            Debug.Log("Mouse Position: " + Input.mousePosition);
+            Debug.Log("Local Mouse Position: " + localMousePosition);
+            Debug.Log("RectTransforms Count: " + rectTransforms.Length);
+            Debug.Log("imageArrayChecker Count: " + imageArrayChecker.Count);
+            foreach (GameObject go in imageArrayChecker)
+            {
+                Debug.Log("imageArrayChecker Object: " + go.name);
+            }
             foreach (RectTransform rectTransform in rectTransforms)
             {
+                Debug.Log("RectTransform Name: " + rectTransform.name);
+                Debug.Log("RectTransform Rect: " + rectTransform.rect);
                 // Проверяем, находится ли позиция мыши внутри RectTransform
                 if (rectTransform.rect.Contains(localMousePosition)&&imageArrayChecker.Contains(rectTransform.gameObject))
                 {
+                    
                     this.rectTransform  = rectTransform;
                     canvasGroup = rectTransform.GetComponent<CanvasGroup>();
                     if (slotsArrayChecker.Contains(rectTransform.transform.parent.gameObject))
@@ -276,7 +309,7 @@ public class InventorySystem : MonoBehaviour
     }
     private void TestInventory()
     {
-        if (Input.GetKey(KeyCode.G))
+        if (Input.GetKeyDown(KeyCode.G))
         {
             AddItemsToInventoryM(1, testItem1);
         }
@@ -310,7 +343,15 @@ public class InventorySystem : MonoBehaviour
         {
             if (itemInSlots[i] == null || (itemInSlots[i] == item && this.itemAmount[i] < itemInSlots[i].maxStackSize))
             {
-                int lastSpace = itemInSlots[i].maxStackSize - this.itemAmount[i];
+                int lastSpace;
+                if (itemInSlots[i] != null)
+                {
+                    lastSpace = itemInSlots[i].maxStackSize - this.itemAmount[i];
+                }
+                else
+                {
+                    lastSpace = itemAmount;
+                }
                 if (itemAmount <= lastSpace)
                 {                
                     AddItemToSlot(itemAmount, item, i);
@@ -379,11 +420,9 @@ public class InventorySystem : MonoBehaviour
             slotsTexts[slot].GetComponent<Text>().text = "";
             
         }
-        else
-        {
+
             UpdateGui();
-        }
-        
+
     }
     private void AddItemToSlot(int amount, Item item, int slot)
     {
@@ -397,12 +436,37 @@ public class InventorySystem : MonoBehaviour
     {
         for (int i = 0; i < slots.Length; i++)
         {
-            if (!slotsImages[i].GetComponent<Image>().enabled) slotsImages[i].GetComponent<Image>().enabled = true;
-            slotsImages[i].GetComponent<Image>().sprite = itemInSlots[i].icon;
-            slotsTexts[i].GetComponent<Text>().text = itemAmount[i].ToString();
+            Image slotImage = slotsImages[i].GetComponent<Image>();
+            if (slotImage.enabled == false &&itemAmount[i]>0)
+            {
+                slotsImages[i].GetComponent<Image>().enabled = true;
+            }
+            else if(itemAmount[i]<=0)
+            {
+
+                slotsImages[i].GetComponent<Image>().enabled = false;
+            }
+            if(itemInSlots[i] != null){ slotsImages[i].GetComponent<Image>().sprite = itemInSlots[i].icon;}
+            else
+            {
+                if(slotsImages[i] != null) {slotsImages[i].GetComponent<Image>().sprite = null;}
+                else
+                {
+                    Debug.Log($"slots Images is {slotsImages[i]}, index {i}");
+                }
+            }
+            if(slotsTexts[i] != null){ slotsTexts[i].GetComponent<Text>().text = itemAmount[i].ToString();}
+            else
+            {
+                Debug.Log($"slots Texts is {slotsTexts[i]}, index {i}");
+            }
             if (itemAmount[i] <= 1)
             {
-                slotsTexts[i].GetComponent<Text>().text =  "";
+                if(slotsTexts[i] != null){ slotsTexts[i].GetComponent<Text>().text =  "";}
+                else
+                {
+                    Debug.Log($"slots Texts is {slotsTexts[i]}, index {i}");
+                }
             }
         }
     }
