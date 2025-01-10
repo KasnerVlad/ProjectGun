@@ -88,7 +88,7 @@ namespace StarterAssets
 		private PlayerInput _playerInput;
 #endif
 		private CharacterController _controller;
-		private StarterAssetsInputs _input;
+		public StarterAssetsInputs _input;
 		private GameObject _mainCamera;
 		private const float _threshold = 0.01f;
 		private Vector2 lerpSpeed;
