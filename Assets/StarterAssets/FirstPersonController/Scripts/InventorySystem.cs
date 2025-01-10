@@ -266,10 +266,12 @@ public class InventorySystem : MonoBehaviour
     private void MoveItems(int targetSlot, int amountToMove, int originalSlotNewAmount, int originalSlot)
     {
 
-
-        AddItemToSlot(amountToMove,itemInSlots[targetSlot], targetSlot);
-        RemoveItemFromSlot(itemAmount[originalSlot], originalSlot);
-        AddItemToSlot(originalSlotNewAmount, itemInSlots[originalSlot], originalSlot);
+        Item originalItem = itemInSlots[originalSlot];
+        Item targetItem = itemInSlots[targetSlot];
+        int originalAmount = itemAmount[originalSlot];
+        AddItemToSlot(amountToMove,targetItem, targetSlot);
+        RemoveItemFromSlot(originalAmount, originalSlot);
+        AddItemToSlot(originalSlotNewAmount, originalItem, originalSlot);
 
         UpdateGui();
         
@@ -285,11 +287,11 @@ public class InventorySystem : MonoBehaviour
         
         RemoveItemFromSlot(itemAmount[targetSlot], targetSlot);
         RemoveItemFromSlot(itemAmount[originalSlot], originalSlot);
-        
-        AddItemToSlot(targetAmount, targetItem, targetSlot);
-        AddItemToSlot(originalAmount, originalItem, originalSlot);
-        
         UpdateGui();
+        AddItemToSlot(targetAmount, targetItem, originalSlot);
+        AddItemToSlot(originalAmount, originalItem, targetSlot);
+        UpdateGui();
+
         
         
     }
@@ -333,14 +335,23 @@ public class InventorySystem : MonoBehaviour
     }
     private void AddItemsToInventoryM(int itemAmount, Item item)
     {
+        int slotIndexWithItem=-1;
+
         for(int i = 0; i < slots.Length; i++)
         {
-            if (itemInSlots[i] == null || (itemInSlots[i] == item && this.itemAmount[i] < itemInSlots[i].maxStackSize))
+            for (int j = 0; j < slots.Length; j++)
+            {
+                if (itemInSlots[j] == item&&this.itemAmount[j]<itemInSlots[j].maxStackSize)
+                {
+                    slotIndexWithItem = j;
+                }
+            }
+            if (slotIndexWithItem!=-1)
             {
                 int lastSpace;
-                if (itemInSlots[i] != null)
+                if (itemInSlots[slotIndexWithItem] != null)
                 {
-                    lastSpace = itemInSlots[i].maxStackSize - this.itemAmount[i];
+                    lastSpace = itemInSlots[slotIndexWithItem].maxStackSize - this.itemAmount[slotIndexWithItem];
                 }
                 else
                 {
@@ -348,16 +359,43 @@ public class InventorySystem : MonoBehaviour
                 }
                 if (itemAmount <= lastSpace)
                 {                
-                    AddItemToSlot(itemAmount, item, i);
+                    AddItemToSlot(itemAmount, item, slotIndexWithItem);
                     return;
                 }
                 else
                 {
-                    AddItemToSlot(lastSpace, item, i);
+                    AddItemToSlot(lastSpace, item, slotIndexWithItem);
                     itemAmount -= lastSpace;
                 }
-
             }
+            else
+            {
+                if (itemInSlots[i] == null || (itemInSlots[i] == item && this.itemAmount[i] < itemInSlots[i].maxStackSize))
+                {
+
+                    int lastSpace;
+                    if (itemInSlots[i] != null)
+                    {
+                        lastSpace = itemInSlots[i].maxStackSize - this.itemAmount[i];
+                    }
+                    else
+                    {
+                        lastSpace = itemAmount;
+                    }
+                    if (itemAmount <= lastSpace)
+                    {                
+                        AddItemToSlot(itemAmount, item, i);
+                        return;
+                    }
+                    else
+                    {
+                        AddItemToSlot(lastSpace, item, i);
+                        itemAmount -= lastSpace;
+                    }
+
+                }
+            }
+
         }
     }
 
