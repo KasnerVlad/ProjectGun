@@ -1318,7 +1318,7 @@ MonoBehaviour:
   hotBar: {fileID: 1165867955}
   dragging: 0
   canvas: {fileID: 752620586}
-  dragSpeed: 1
+  dragSpeed: 20
   testItem1: {fileID: 11400000, guid: 964b5a1c7b2e19549a9f5e05463f313c, type: 2}
   testItem2: {fileID: 11400000, guid: 4a12515ed8cfc9540a285111c933a217, type: 2}
 --- !u!1001 &783374239

@@ -135,48 +135,42 @@ public class InventorySystem : MonoBehaviour
     private void DragAndDropManager()
     {
         
-        Debug.Log($"Dragging: {dragging}");
         if (Input.GetMouseButtonDown(0)&&dragging == false)
         {
             
-            RectTransform canvasRect = canvas.transform as RectTransform;
-            Camera cam = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, Input.mousePosition, cam, out Vector2 localMousePosition);
-            // Ищем все RectTransform на холсте
+            PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+            eventDataCurrentPosition.position = Input.mousePosition;
 
-            RectTransform[] rectTransforms = canvas.GetComponentsInChildren<RectTransform>();
-            Debug.Log("Mouse Position: " + Input.mousePosition);
-            Debug.Log("Local Mouse Position: " + localMousePosition);
-            Debug.Log("RectTransforms Count: " + rectTransforms.Length);
-            Debug.Log("imageArrayChecker Count: " + imageArrayChecker.Count);
-            foreach (GameObject go in imageArrayChecker)
+            List<RaycastResult> results = new List<RaycastResult>();
+            GraphicRaycaster gr = canvas.GetComponent<GraphicRaycaster>(); // Получаем GraphicRaycaster с Canvas
+            gr.Raycast(eventDataCurrentPosition, results);
+
+            if (results.Count > 0)
             {
-                Debug.Log("imageArrayChecker Object: " + go.name);
-            }
-            foreach (RectTransform rectTransform in rectTransforms)
-            {
-                Debug.Log("RectTransform Name: " + rectTransform.name);
-                Debug.Log("RectTransform Rect: " + rectTransform.rect);
-                // Проверяем, находится ли позиция мыши внутри RectTransform
-                if (rectTransform.rect.Contains(localMousePosition)&&imageArrayChecker.Contains(rectTransform.gameObject))
+                foreach (RaycastResult result in results)
                 {
-                    
-                    this.rectTransform  = rectTransform;
-                    canvasGroup = rectTransform.GetComponent<CanvasGroup>();
-                    if (slotsArrayChecker.Contains(rectTransform.transform.parent.gameObject))
+                    if (imageArrayChecker.Contains(result.gameObject))
                     {
-                        originalParent = rectTransform.transform.parent;
-
-                        for (int i = 0; i < slots.Length; i++)
+                        Debug.Log("RectTransform Name: " + result.gameObject.name);
+                        Debug.Log("RectTransform Rect: " + result.gameObject.GetComponent<RectTransform>());
+                        rectTransform  = result.gameObject.GetComponent<RectTransform>();
+                        canvasGroup = result.gameObject.GetComponent<CanvasGroup>();
+                        if (slotsArrayChecker.Contains(result.gameObject.transform.parent.gameObject))
                         {
-                            if (slots[i] == rectTransform.transform.parent.gameObject)
+                            originalParent = result.gameObject.transform.parent;
+                       
+                            for (int i = 0; i < slots.Length; i++)
                             {
-                                originalParentIndex = i;
-                                dragging = true;
+                                if (slots[i] == result.gameObject.transform.parent.gameObject)
+                                {
+                                    originalParentIndex = i;
+                                    dragging = true;
+                                }
                             }
-                        }
-                        
+                                               
+                        } 
                     }
+
 
                 }
             }
@@ -318,12 +312,12 @@ public class InventorySystem : MonoBehaviour
             AddItemsToInventoryM(1, testItem2);
         }
 
-        if (Input.GetKey(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             RemoveItemsFromInventoryM(1);
         }
-
-        if (Input.GetKey(KeyCode.C))
+        
+        if (Input.GetKeyDown(KeyCode.C))
         {
             ClearInventoryM();
         }
@@ -372,9 +366,9 @@ public class InventorySystem : MonoBehaviour
         int lastItemAmount = itemAmount;
         for (int i = 0; i < slots.Length; i++)
         {
-            
-            RemoveItemFromSlot(Mathf.Min(lastItemAmount, this.itemAmount[i]), i);
-            lastItemAmount -= Mathf.Min(lastItemAmount, this.itemAmount[i]);
+            int lastMinAmount = Mathf.Min(lastItemAmount, this.itemAmount[i]);
+            RemoveItemFromSlot(lastMinAmount, i);
+            lastItemAmount -= lastMinAmount;
             if (lastItemAmount <= 0)
             {
                 return;
@@ -407,6 +401,7 @@ public class InventorySystem : MonoBehaviour
             itemInSlots[i] = null;
             slotsImages[i].GetComponent<Image>().sprite = null;
             slotsTexts[i].GetComponent<Text>().text = "";
+            UpdateGui();
         }
     }
     private void RemoveItemFromSlot(int amount, int slot)
@@ -416,12 +411,10 @@ public class InventorySystem : MonoBehaviour
         {
             itemAmount[slot] = 0;
             itemInSlots[slot] = null;
-            slotsImages[slot].GetComponent<Image>().sprite = null;
-            slotsTexts[slot].GetComponent<Text>().text = "";
+            UpdateGui();
             
         }
-
-            UpdateGui();
+        UpdateGui();
 
     }
     private void AddItemToSlot(int amount, Item item, int slot)
