@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using StarterAssets;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.Timeline.Actions;
@@ -9,6 +10,8 @@ using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 using UnityEngine.EventSystems;
+using Cursor = UnityEngine.Cursor;
+
 public class InventorySystem : MonoBehaviour
 {
     [Header("Inventory")]
@@ -54,10 +57,17 @@ public class InventorySystem : MonoBehaviour
     public Canvas canvas;
     private CanvasGroup canvasGroup;
     public float dragSpeed = 1f;
+
+
     
     [Header("TestInventory")]
     [SerializeField] private Item testItem1;
     [SerializeField] private Item testItem2;
+    
+    [Header("Others")]
+    private FirstPersonController firstPersonController;
+    [SerializeField] private Transform spawnPrefabPoint;
+    [SerializeField] private GameObject player;
  // Объявление как поле класса
     private void Awake()
     {
@@ -111,6 +121,7 @@ public class InventorySystem : MonoBehaviour
 
     void Start()
     {
+        firstPersonController = player.GetComponent<FirstPersonController>();
         for (int i = 0; i < slotsImages.Length; i++)
         {
             if (slotsImages[i] != null)
@@ -122,9 +133,13 @@ public class InventorySystem : MonoBehaviour
                 Debug.Log($"Image: {slotsImages[i].transform.GetChild(0).gameObject}, index: {i} is null");
             }
         }
-
+        Invoke("UnActiveInventoryPanel", 0.1f);
     }
 
+    private void UnActiveInventoryPanel()
+    {
+        inventory.SetActive(false);
+    }
     // Update is called once per frame
     void Update()
     {
@@ -135,7 +150,7 @@ public class InventorySystem : MonoBehaviour
     private void DragAndDropManager()
     {
         
-        if (Input.GetMouseButtonDown(0)&&dragging == false)
+        if (Input.GetMouseButtonDown(0)&&dragging == false&&inventory.activeSelf)
         {
             
             PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
@@ -165,6 +180,12 @@ public class InventorySystem : MonoBehaviour
                                 {
                                     originalParentIndex = i;
                                     dragging = true;
+                                    if (canvasGroup != null && rectTransform != null)
+                                    {
+                                        canvasGroup.alpha = .6f;
+                                        canvasGroup.blocksRaycasts = false;
+                                        rectTransform.SetAsLastSibling();
+                                    }
                                 }
                             }
                                                
@@ -175,15 +196,10 @@ public class InventorySystem : MonoBehaviour
                 }
             }
             
-            if (canvasGroup != null && rectTransform != null)
-            {
-                canvasGroup.alpha = .6f;
-                canvasGroup.blocksRaycasts = false;
-                rectTransform.SetAsLastSibling();
-            }
+
         }
 
-        if (Input.GetMouseButton(0) && dragging)
+        if (Input.GetMouseButton(0) && dragging&&inventory.activeSelf)
         {
 
             Vector2 delta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
@@ -191,7 +207,7 @@ public class InventorySystem : MonoBehaviour
             rectTransform.anchoredPosition += delta * dragSpeed;
         }
 
-        if (Input.GetMouseButtonUp(0) && dragging)
+        if (Input.GetMouseButtonUp(0) && dragging&&inventory.activeSelf)
         {
             dragging = false;
             canvasGroup.alpha = 1f;
@@ -203,8 +219,18 @@ public class InventorySystem : MonoBehaviour
             List<RaycastResult> results = new List<RaycastResult>();
             // 3. Выполняем Raycast
             EventSystem.current.RaycastAll(eventData, results);
+            if (results.Count <= 0&&itemInSlots[originalParentIndex].prefab!=null)
+            {
+                Instantiate(itemInSlots[originalParentIndex].prefab, spawnPrefabPoint.position, spawnPrefabPoint.rotation);
+                RemoveItemFromSlot(itemAmount[originalParentIndex], originalParentIndex);
+            }
+            else if(results.Count <= 0)
+            {
+                Debug.Log($"Prefab in {itemInSlots[originalParentIndex]} not found");
+            }
             foreach (RaycastResult result in results)
             {
+                
                 List<GameObject> slotss = new List<GameObject>(slots);
                 foreach (GameObject g in slots)
                 {
@@ -328,10 +354,17 @@ public class InventorySystem : MonoBehaviour
     private void InventoryManager()
     {
         TestInventory();
-        if (Input.GetKey(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E))
         {
             inventory.SetActive(!inventory.activeSelf);
+            firstPersonController._input.cursorLocked = !inventory.activeSelf;
+            firstPersonController._input.cursorInputForLook = !inventory.activeSelf;
+            firstPersonController._input.look = Vector2.zero;
+            Cursor.visible = inventory.activeSelf;
+            Cursor.lockState = inventory.activeSelf? CursorLockMode.None : CursorLockMode.Locked;
         }
+        
+        
     }
     private void AddItemsToInventoryM(int itemAmount, Item item)
     {
