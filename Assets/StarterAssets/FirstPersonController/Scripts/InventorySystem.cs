@@ -133,7 +133,7 @@ public class InventorySystem : MonoBehaviour
                 Debug.Log($"Image: {slotsImages[i].transform.GetChild(0).gameObject}, index: {i} is null");
             }
         }
-        Invoke("UnActiveInventoryPanel", 0.1f);
+        Invoke("UnActiveInventoryPanel", 0.01f);
     }
 
     private void UnActiveInventoryPanel()
@@ -219,12 +219,13 @@ public class InventorySystem : MonoBehaviour
             List<RaycastResult> results = new List<RaycastResult>();
             // 3. Выполняем Raycast
             EventSystem.current.RaycastAll(eventData, results);
+            Debug.Log(results.Count+" Results Count");
             if (results.Count <= 0&&itemInSlots[originalParentIndex].prefab!=null)
             {
                 Instantiate(itemInSlots[originalParentIndex].prefab, spawnPrefabPoint.position, spawnPrefabPoint.rotation);
                 RemoveItemFromSlot(itemAmount[originalParentIndex], originalParentIndex);
             }
-            else if(results.Count <= 0)
+            else if(results.Count <= 1)
             {
                 Debug.Log($"Prefab in {itemInSlots[originalParentIndex]} not found");
             }
