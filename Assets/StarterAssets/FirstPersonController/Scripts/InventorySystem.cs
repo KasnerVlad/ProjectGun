@@ -1,49 +1,84 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using StarterAssets;
-using Unity.VisualScripting;
-using UnityEditor;
-using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 using UnityEngine.EventSystems;
 using Cursor = UnityEngine.Cursor;
 
+public class InventorySlot
+{
+    private GameObject slot;
+    private Image slotImage;
+    private Text slotText;
+    private int itemAmount;
+    private Item itemInSlot;
+    public void ClearSlot()
+    {
+        itemAmount = 0;
+        itemInSlot = null;
+        slotImage.sprite = null;
+        slotText.text = "";
+        Debug.Log($"inventory slot cleared, amount: {itemAmount}, item: {itemInSlot}, slot Image: {slotImage.gameObject.name}, slot Text: {slotText.name}");
+    }
+    public bool AddItem(Item item, int amount)
+    {
+        if (itemAmount + amount <= item.maxStackSize)
+        {
+            itemInSlot = item;
+            itemAmount += amount;
+            UpdateGui(); return true;
+        }
+        else { return false; }
+    }
+    public bool RemoveItem(int amount)
+    {
+        itemAmount -= amount;
+        if (itemAmount <= 0)
+        {
+            itemAmount = 0;
+            itemInSlot = null;
+            UpdateGui(); return false;
+        }
+        UpdateGui(); return true;
+    }
+    public void UpdateGui()
+    {
+        if (slotImage != null)
+        {
+            slotImage.sprite=itemInSlot==null?null:itemInSlot.icon;
+            if (itemAmount <= 0) { slotImage.enabled = false; }
+            else { slotImage.enabled = true; }
+            
+        }
+        else { throw new Exception("Can't update image in slot"); }
+        if (slotText != null)
+        {
+            slotText.text = itemAmount.ToString();
+            if (itemAmount <= 1) { slotText.text = ""; }
+        }
+        else { throw new Exception("Can't update text in slot"); }
+    }
+    public void SetSlotAmount(int amount) { itemAmount = amount; UpdateGui(); }
+    public int GetAmount() { return itemAmount; }
+    public void SetSlotItem(Item item) { itemInSlot = item; UpdateGui(); }
+    public Item GetItem() { return itemInSlot; }
+    public void SetInventorySlot(GameObject slot) { this.slot = slot; }
+    public GameObject GetInventorySlot() { return slot; }
+    public void SetSlotImage(Image image) { slotImage = image; }
+    public Image GetSlotImage() { return slotImage; }
+    public void SetSlotText(Text text) { slotText = text; }
+    public Text GetSlotText() { return slotText; }
+}
+
 public class InventorySystem : MonoBehaviour
 {
     [Header("Inventory")]
-    private GameObject[] slots = new GameObject[32];
-    private GameObject[] slotsImages = new GameObject[32];
-    private GameObject[] slotsTexts = new GameObject[32];
-    private int[] itemAmount = new int[32];
-    private Item[] itemInSlots = new Item[32];
+    [SerializeField] private List<InventorySlot> inventorySlots = new List<InventorySlot>(32);
     [SerializeField] private GameObject inventory;
     [SerializeField] private GameObject hotBar;
 
-    public delegate void AddItemToInventoryDelegate(int itemAmount, Item item);
-    
-    public delegate void RemoveItemFromInventoryDelegate(int itemAmount, Item item);
-    
-    public delegate void ClearInventoryDelegate();
-    
-    public delegate void RemoveItemFromInventory(int itemAmount);
-
-    public delegate void DragAndDropManagerDelegat();
-    
-    public delegate void InventoryManagerDelegat();
-    
-    public static AddItemToInventoryDelegate OnAddItemToInventoryDelegate;
-    public static RemoveItemFromInventoryDelegate OnRemoveItemFromInventoryDelegate;
-    public static ClearInventoryDelegate OnClearInventoryDelegate;
-    public static RemoveItemFromInventory OnRemoveItemFromInventory;
-    
-    public static DragAndDropManagerDelegat OnDragAndDropManagerDelegat;
-    
-    public static InventoryManagerDelegat OnInventoryManagerDelegat;
-    
     private int currentSlot;
 
     [Header("Drag and Drop")]
@@ -51,7 +86,7 @@ public class InventorySystem : MonoBehaviour
     private RectTransform rectTransform;
     private Transform originalParent;
     private int originalParentIndex;
-    private HashSet<GameObject> imageArrayChecker;
+    private HashSet<Image> imageArrayChecker;
     private HashSet<GameObject> slotsArrayChecker;
     
     public Canvas canvas;
@@ -69,73 +104,92 @@ public class InventorySystem : MonoBehaviour
     [SerializeField] private Transform spawnPrefabPoint;
     [SerializeField] private GameObject player;
  // Объявление как поле класса
-    private void Awake()
+
+    private void ResetSlotsValues()
     {
-        OnAddItemToInventoryDelegate = AddItemsToInventoryM;
-        OnRemoveItemFromInventoryDelegate = RemoveItemsFromInventoryMD;
-        OnClearInventoryDelegate = ClearInventoryM;
-        OnRemoveItemFromInventory = RemoveItemsFromInventoryM;
-        OnDragAndDropManagerDelegat = DragAndDropManager;
-        OnInventoryManagerDelegat = InventoryManager;
-        for (int i = 0; i < itemAmount.Length; i++)
+        for (int i = 0; i < inventorySlots.Count; i++)
         {
-            itemAmount[i] = 0;
-        }
-        for (int i = 0; i < itemInSlots.Length; i++)
-        {
-            itemInSlots[i] = null;
-        }
-
-        for (int i = 0; i < slots.Length; i++)
-        {
-            if (i < hotBar.transform.childCount)
-            {
-                slots[i] = hotBar.transform.GetChild(i).gameObject;
-          
-            }
-            else if(i-hotBar.transform.childCount < inventory.transform.childCount)
-            {
-                slots[i] = inventory.transform.GetChild(i-hotBar.transform.childCount).gameObject;
-               
-            }
-        }
-
-        for (int i = 0; i < slots.Length; i++)
-        {
-            if (slots[i] != null)
-            {
-                slotsImages[i] = slots[i].transform.GetChild(0).gameObject;
-                slotsTexts[i] = slots[i].transform.GetChild(0).gameObject.transform.GetChild(0).gameObject;
-                /*Debug.Log($"Image: {slots[i].transform.GetChild(0).gameObject}, index: {i}");
-                Debug.Log($"Text: {slots[i].transform.GetChild(0).gameObject.transform.GetChild(0).gameObject}, index: {i}");*/
-            }
-            else
-            {
-                Debug.Log($"Inventory slots not found, index{i}");
-            }
+            inventorySlots[i].ClearSlot();
 
         }
-        imageArrayChecker = new HashSet<GameObject>(slotsImages);
-        slotsArrayChecker = new HashSet<GameObject>(slots);
+
     }
 
+    private void GetInventorySlots()
+    {
+        for (int i = 0; i < inventorySlots.Count; i++)
+        {
+            inventorySlots[i].SetInventorySlot(i<hotBar.transform.childCount ? 
+                hotBar.transform.GetChild(i).gameObject :
+                inventory.transform.GetChild(i-hotBar.transform.childCount).gameObject);
+
+        }
+
+    }
+
+    private void GetInventoryOutputs()
+    {
+        for (int i = 0; i < inventorySlots.Count; i++)
+        {
+            inventorySlots[i].SetSlotImage(inventorySlots[i].GetInventorySlot().transform.GetChild(0).gameObject.GetComponent<Image>());
+            inventorySlots[i].SetSlotText(inventorySlots[i].GetInventorySlot().transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Text>());
+
+        }
+
+    }
+
+    private Image[] GetSlotImage()
+    {
+        Image[] imageArray = new Image[inventorySlots.Count];
+        for (int i = 0; i < inventorySlots.Count; i++)
+        {
+            imageArray[i] = inventorySlots[i].GetSlotImage();
+        }
+        return imageArray;
+    }
+
+    private GameObject[] GetInventorySlotsArray()
+    {
+        GameObject[] slotsArray = new GameObject[inventorySlots.Count];
+        for (int i = 0; i < inventorySlots.Count; i++)
+        {
+            slotsArray[i] = inventorySlots[i].GetInventorySlot();
+        }
+        return slotsArray;
+    }
     void Start()
     {
         firstPersonController = player.GetComponent<FirstPersonController>();
-        for (int i = 0; i < slotsImages.Length; i++)
+        for (int i = 0; i < 32; i++) // Или inventorySlots.Capacity, если вы хотите использовать заданную вместимость
         {
-            if (slotsImages[i] != null)
+            inventorySlots.Add(new InventorySlot()); // Создаем новый экземпляр слота
+        }
+        GetInventorySlots();
+        GetInventoryOutputs();
+        ResetSlotsValues();
+        StartLogic();
+        imageArrayChecker = new HashSet<Image>(GetSlotImage());
+        slotsArrayChecker = new HashSet<GameObject>(GetInventorySlotsArray());
+        UpdateGuiInArray();
+
+    }
+
+    private void StartLogic()
+    {
+
+        for (int i = 0; i < inventorySlots.Count; i++)
+        {
+            if (inventorySlots[i].GetSlotImage() != null)
             {
-                slotsImages[i].GetComponent<Image>().enabled = false;
+                inventorySlots[i].GetSlotImage().enabled = false;
             }
             else
             {
-                Debug.Log($"Image: {slotsImages[i].transform.GetChild(0).gameObject}, index: {i} is null");
+                Debug.Log($"Image: {GetInventorySlotsArray()[i].transform.GetChild(0).gameObject}, index: {i} is null");
             }
         }
         Invoke("UnActiveInventoryPanel", 0.01f);
     }
-
     private void UnActiveInventoryPanel()
     {
         inventory.SetActive(false);
@@ -143,8 +197,8 @@ public class InventorySystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        InventorySystem.OnInventoryManagerDelegat?.Invoke();
-        InventorySystem.OnDragAndDropManagerDelegat?.Invoke();
+        DragAndDropManager();
+        InventoryManager();
     }
 
     private void DragAndDropManager()
@@ -164,7 +218,7 @@ public class InventorySystem : MonoBehaviour
             {
                 foreach (RaycastResult result in results)
                 {
-                    if (imageArrayChecker.Contains(result.gameObject))
+                    if (imageArrayChecker.Contains(result.gameObject.GetComponent<Image>()))
                     {
                         Debug.Log("RectTransform Name: " + result.gameObject.name);
                         Debug.Log("RectTransform Rect: " + result.gameObject.GetComponent<RectTransform>());
@@ -174,9 +228,9 @@ public class InventorySystem : MonoBehaviour
                         {
                             originalParent = result.gameObject.transform.parent;
                        
-                            for (int i = 0; i < slots.Length; i++)
+                            for (int i = 0; i < inventorySlots.Count; i++)
                             {
-                                if (slots[i] == result.gameObject.transform.parent.gameObject)
+                                if (inventorySlots[i].GetInventorySlot() == result.gameObject.transform.parent.gameObject)
                                 {
                                     originalParentIndex = i;
                                     dragging = true;
@@ -195,8 +249,10 @@ public class InventorySystem : MonoBehaviour
 
                 }
             }
-            
-
+            else
+            {
+                Debug.Log("Results.Count = 0");
+            }
         }
 
         if (Input.GetMouseButton(0) && dragging&&inventory.activeSelf)
@@ -220,54 +276,54 @@ public class InventorySystem : MonoBehaviour
             // 3. Выполняем Raycast
             EventSystem.current.RaycastAll(eventData, results);
             Debug.Log(results.Count+" Results Count");
-            if (results.Count <= 0&&itemInSlots[originalParentIndex].prefab!=null)
+            if (results.Count <= 1&&inventorySlots[originalParentIndex].GetItem().prefab!=null)
             {
-                Instantiate(itemInSlots[originalParentIndex].prefab, spawnPrefabPoint.position, spawnPrefabPoint.rotation);
-                RemoveItemFromSlot(itemAmount[originalParentIndex], originalParentIndex);
+                Instantiate(inventorySlots[originalParentIndex].GetItem().prefab, spawnPrefabPoint.position, spawnPrefabPoint.rotation);
+                inventorySlots[originalParentIndex].RemoveItem(inventorySlots[originalParentIndex].GetAmount());
             }
             else if(results.Count <= 1)
             {
-                Debug.Log($"Prefab in {itemInSlots[originalParentIndex]} not found");
+                Debug.Log($"Prefab in {inventorySlots[originalParentIndex].GetItem()} not found");
             }
             foreach (RaycastResult result in results)
             {
                 
-                List<GameObject> slotss = new List<GameObject>(slots);
-                foreach (GameObject g in slots)
+                List<GameObject> slotss = new List<GameObject>(GetInventorySlotsArray());
+                foreach (GameObject g in slotss)
                 {
                     if (g == result.gameObject)
                     {
                         GameObject targetSlot  = result.gameObject;
-                        if (targetSlot == slots[originalParentIndex])
+                        if (targetSlot == slotss[originalParentIndex])
                         {
                             ReturnToOriginalSlot(rectTransform);
                             return;
                             
                         }
-
-                        if (itemInSlots[slotss.IndexOf(g)] == itemInSlots[originalParentIndex])
+                        if (inventorySlots[slotss.IndexOf(g)].GetItem() == inventorySlots[originalParentIndex].GetItem())
                         {
-                            if (itemAmount[slotss.IndexOf(g)] == itemInSlots[slotss.IndexOf(g)].maxStackSize)
+                            if (inventorySlots[slotss.IndexOf(g)].GetAmount() == inventorySlots[slotss.IndexOf(g)].GetItem().maxStackSize)
                             {
                                 SwapItems(originalParentIndex, slotss.IndexOf(g));
                                 Debug.Log("Swapped Item");
                                 ReturnToOriginalSlot(rectTransform);
                                 return;
                             }
-                            int remainingSpace = itemInSlots[slotss.IndexOf(g)].maxStackSize - itemAmount[slotss.IndexOf(g)];
-                            int amountToMove = Mathf.Min(itemAmount[originalParentIndex], remainingSpace);
-                            int originalSlotNewAmount = itemAmount[originalParentIndex] - amountToMove;
+                            int remainingSpace = inventorySlots[slotss.IndexOf(g)].GetItem().maxStackSize - inventorySlots[slotss.IndexOf(g)].GetAmount();
+                            int amountToMove = Mathf.Min(inventorySlots[originalParentIndex].GetAmount(), remainingSpace);
+                            int originalSlotNewAmount = inventorySlots[originalParentIndex].GetAmount() - amountToMove;
                             MoveItems(slotss.IndexOf(g), amountToMove, originalSlotNewAmount, originalParentIndex);
                             ReturnToOriginalSlot(rectTransform);
                             return;
                         }
-                        else if (itemInSlots[slotss.IndexOf(g)] == null)
+                        else if (inventorySlots[slotss.IndexOf(g)].GetItem() == null)
                         {
                             MoveAllItems(slotss.IndexOf(g), originalParentIndex);
                             ReturnToOriginalSlot(rectTransform);
                             return;
                         }
-                        else if (itemInSlots[slotss.IndexOf(g)]!= null && itemInSlots[slotss.IndexOf(g)] != itemInSlots[originalParentIndex])
+                        else if (inventorySlots[slotss.IndexOf(g)].GetItem()!= null &&
+                                 inventorySlots[slotss.IndexOf(g)].GetItem() != inventorySlots[originalParentIndex].GetItem())
                         {
                             SwapItems(originalParentIndex, slotss.IndexOf(g));
                             ReturnToOriginalSlot(rectTransform);
@@ -284,47 +340,45 @@ public class InventorySystem : MonoBehaviour
 
     private void MoveAllItems(int targetSlot, int originalSlot)
     {
-        Item originalItem = itemInSlots[originalSlot];
-        int originalAmount = itemAmount[originalSlot];
-        AddItemToSlot(originalAmount, originalItem, targetSlot);
-        RemoveItemFromSlot(originalAmount, originalSlot);
-        UpdateGui();
+        Item originalItem = inventorySlots[originalSlot].GetItem();
+        int originalAmount = inventorySlots[originalSlot].GetAmount();
+
+        inventorySlots[targetSlot].AddItem(originalItem, originalAmount);
+        inventorySlots[originalSlot].RemoveItem(originalAmount);
+        UpdateGuiInArray();
     }
     private void MoveItems(int targetSlot, int amountToMove, int originalSlotNewAmount, int originalSlot)
     {
 
-        Item originalItem = itemInSlots[originalSlot];
-        Item targetItem = itemInSlots[targetSlot];
-        int originalAmount = itemAmount[originalSlot];
-        AddItemToSlot(amountToMove,targetItem, targetSlot);
-        RemoveItemFromSlot(originalAmount, originalSlot);
-        AddItemToSlot(originalSlotNewAmount, originalItem, originalSlot);
-
-        UpdateGui();
-        
-
+        Item originalItem = inventorySlots[originalSlot].GetItem();
+        Item targetItem = inventorySlots[targetSlot].GetItem();
+        int originalAmount = inventorySlots[originalSlot].GetAmount();
+        inventorySlots[targetSlot].AddItem(targetItem, amountToMove);
+        inventorySlots[originalSlot].RemoveItem(originalAmount);
+        inventorySlots[originalSlot].AddItem(originalItem, originalSlotNewAmount);
+        UpdateGuiInArray();
     }
     private void SwapItems(int originalSlot, int targetSlot)
     {
-        Item targetItem = itemInSlots[targetSlot];
-        int targetAmount = itemAmount[targetSlot];
+        Item targetItem = inventorySlots[targetSlot].GetItem();
+        int targetAmount = inventorySlots[targetSlot].GetAmount();
         
-        Item originalItem = itemInSlots[originalSlot];
-        int originalAmount = itemAmount[originalSlot];
+        Item originalItem = inventorySlots[originalSlot].GetItem();
+        int originalAmount = inventorySlots[originalSlot].GetAmount();
         
-        RemoveItemFromSlot(itemAmount[targetSlot], targetSlot);
-        RemoveItemFromSlot(itemAmount[originalSlot], originalSlot);
-        UpdateGui();
-        AddItemToSlot(targetAmount, targetItem, originalSlot);
-        AddItemToSlot(originalAmount, originalItem, targetSlot);
-        UpdateGui();
-
+        inventorySlots[targetSlot].RemoveItem(inventorySlots[targetSlot].GetAmount());
+        inventorySlots[originalSlot].RemoveItem(inventorySlots[originalSlot].GetAmount());
+        
+        inventorySlots[originalSlot].AddItem(targetItem, targetAmount);
+        inventorySlots[targetSlot].AddItem(originalItem, originalAmount);
+        
+        UpdateGuiInArray();
         
         
     }
     private void ReturnToOriginalSlot(RectTransform targetObject)
     {
-        if (slots[originalParentIndex] != null)
+        if (inventorySlots[originalParentIndex].GetInventorySlot() != null)
         {
             targetObject.transform.SetParent(originalParent);
             targetObject.transform.localPosition = Vector3.zero;
@@ -371,11 +425,11 @@ public class InventorySystem : MonoBehaviour
     {
         int slotIndexWithItem=-1;
 
-        for(int i = 0; i < slots.Length; i++)
+        for(int i = 0; i < inventorySlots.Count; i++)
         {
-            for (int j = 0; j < slots.Length; j++)
+            for (int j = 0; j < inventorySlots.Count; j++)
             {
-                if (itemInSlots[j] == item&&this.itemAmount[j]<itemInSlots[j].maxStackSize)
+                if (inventorySlots[j].GetItem() == item && inventorySlots[j].GetAmount()<inventorySlots[j].GetItem().maxStackSize)
                 {
                     slotIndexWithItem = j;
                 }
@@ -383,9 +437,9 @@ public class InventorySystem : MonoBehaviour
             if (slotIndexWithItem!=-1)
             {
                 int lastSpace;
-                if (itemInSlots[slotIndexWithItem] != null)
+                if (inventorySlots[slotIndexWithItem].GetItem() != null)
                 {
-                    lastSpace = itemInSlots[slotIndexWithItem].maxStackSize - this.itemAmount[slotIndexWithItem];
+                    lastSpace = inventorySlots[slotIndexWithItem].GetItem().maxStackSize - inventorySlots[slotIndexWithItem].GetAmount();
                 }
                 else
                 {
@@ -393,24 +447,25 @@ public class InventorySystem : MonoBehaviour
                 }
                 if (itemAmount <= lastSpace)
                 {                
-                    AddItemToSlot(itemAmount, item, slotIndexWithItem);
+                    inventorySlots[slotIndexWithItem].AddItem(item, itemAmount);
                     return;
                 }
                 else
                 {
-                    AddItemToSlot(lastSpace, item, slotIndexWithItem);
+
+                    inventorySlots[slotIndexWithItem].AddItem(item, lastSpace);
                     itemAmount -= lastSpace;
                 }
             }
             else
             {
-                if (itemInSlots[i] == null || (itemInSlots[i] == item && this.itemAmount[i] < itemInSlots[i].maxStackSize))
+                if (inventorySlots[i].GetItem() == null || (inventorySlots[i].GetItem() == item && inventorySlots[i].GetAmount() < inventorySlots[i].GetItem().maxStackSize))
                 {
 
                     int lastSpace;
-                    if (itemInSlots[i] != null)
+                    if (inventorySlots[i].GetItem() != null)
                     {
-                        lastSpace = itemInSlots[i].maxStackSize - this.itemAmount[i];
+                        lastSpace = inventorySlots[i].GetItem().maxStackSize - inventorySlots[i].GetAmount();
                     }
                     else
                     {
@@ -418,12 +473,12 @@ public class InventorySystem : MonoBehaviour
                     }
                     if (itemAmount <= lastSpace)
                     {                
-                        AddItemToSlot(itemAmount, item, i);
+                        inventorySlots[i].AddItem(item, itemAmount);
                         return;
                     }
                     else
                     {
-                        AddItemToSlot(lastSpace, item, i);
+                        inventorySlots[i].AddItem(item, lastSpace);
                         itemAmount -= lastSpace;
                     }
 
@@ -436,10 +491,10 @@ public class InventorySystem : MonoBehaviour
     private void RemoveItemsFromInventoryM(int itemAmount)
     {
         int lastItemAmount = itemAmount;
-        for (int i = 0; i < slots.Length; i++)
+        for (int i = 0; i < inventorySlots.Count; i++)
         {
-            int lastMinAmount = Mathf.Min(lastItemAmount, this.itemAmount[i]);
-            RemoveItemFromSlot(lastMinAmount, i);
+            int lastMinAmount = Mathf.Min(lastItemAmount, inventorySlots[i].GetAmount());
+            inventorySlots[i].RemoveItem(lastMinAmount);
             lastItemAmount -= lastMinAmount;
             if (lastItemAmount <= 0)
             {
@@ -447,92 +502,19 @@ public class InventorySystem : MonoBehaviour
             }
         }
     }
-    private void RemoveItemsFromInventoryMD(int itemAmount, Item item)
-    {
-        int lastItemAmount = itemAmount;
-        for (int i = 0; i < slots.Length; i++)
-        {
-            if (itemInSlots[i] == item)
-            {
-                RemoveItemFromSlot(Mathf.Min(lastItemAmount, this.itemAmount[i]), i);
-                lastItemAmount -= Mathf.Min(lastItemAmount, this.itemAmount[i]);
-                if (lastItemAmount <= 0)
-                {
-                    return;
-                }
-            }
-
-        }
-    }
-
     private void ClearInventoryM()
     {
-        for (int i = 0; i < slots.Length; i++)
+        for (int i = 0; i < inventorySlots.Count; i++)
         {
-            itemAmount[i] = 0;
-            itemInSlots[i] = null;
-            slotsImages[i].GetComponent<Image>().sprite = null;
-            slotsTexts[i].GetComponent<Text>().text = "";
-            UpdateGui();
+            inventorySlots[i].ClearSlot();
         }
     }
-    private void RemoveItemFromSlot(int amount, int slot)
+
+    private void UpdateGuiInArray()
     {
-        itemAmount[slot] -= amount;
-        if (itemAmount[slot] <= 0)
+        for (int i = 0; i < inventorySlots.Count; i++)
         {
-            itemAmount[slot] = 0;
-            itemInSlots[slot] = null;
-            UpdateGui();
-            
-        }
-        UpdateGui();
-
-    }
-    private void AddItemToSlot(int amount, Item item, int slot)
-    {
-        itemInSlots[slot] = item;
-        itemAmount[slot] += amount;
-        UpdateGui();
-        
-    }
-
-    private void UpdateGui()
-    {
-        for (int i = 0; i < slots.Length; i++)
-        {
-            Image slotImage = slotsImages[i].GetComponent<Image>();
-            if (slotImage.enabled == false &&itemAmount[i]>0)
-            {
-                slotsImages[i].GetComponent<Image>().enabled = true;
-            }
-            else if(itemAmount[i]<=0)
-            {
-
-                slotsImages[i].GetComponent<Image>().enabled = false;
-            }
-            if(itemInSlots[i] != null){ slotsImages[i].GetComponent<Image>().sprite = itemInSlots[i].icon;}
-            else
-            {
-                if(slotsImages[i] != null) {slotsImages[i].GetComponent<Image>().sprite = null;}
-                else
-                {
-                    Debug.Log($"slots Images is {slotsImages[i]}, index {i}");
-                }
-            }
-            if(slotsTexts[i] != null){ slotsTexts[i].GetComponent<Text>().text = itemAmount[i].ToString();}
-            else
-            {
-                Debug.Log($"slots Texts is {slotsTexts[i]}, index {i}");
-            }
-            if (itemAmount[i] <= 1)
-            {
-                if(slotsTexts[i] != null){ slotsTexts[i].GetComponent<Text>().text =  "";}
-                else
-                {
-                    Debug.Log($"slots Texts is {slotsTexts[i]}, index {i}");
-                }
-            }
+            inventorySlots[i].UpdateGui();
         }
     }
 }
