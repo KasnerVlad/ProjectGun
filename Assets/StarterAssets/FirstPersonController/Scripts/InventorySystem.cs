@@ -83,13 +83,14 @@ public class DradAndDrop
     private HashSet<GameObject> slotsArrayChecker;
     private int originalParentIndex;
     private Transform originalParent;
-    
+    private List<InventorySlot> inventorySlots;
     public void SetCanvas(Canvas canvas) { this.canvas = canvas; }
     public void SetInventory(GameObject inventory) { this.inventory = inventory; }
     public void SetImageArray(HashSet<Image> imageArrayChecker) { this.imageArrayChecker = imageArrayChecker; }
     public void SetSlotArray(HashSet<GameObject> slotsArrayChecker) { this.slotsArrayChecker = slotsArrayChecker; }
+    public void SetInventorySlots(List<InventorySlot> inventorySlots) { this.inventorySlots = inventorySlots; }
     
-    private void StartDraging(List<InventorySlot> inventorySlots)
+    private void StartDraging()
     {
         if (Input.GetMouseButtonDown(0)&&dragging == false&&inventory.activeSelf)
         {
@@ -151,7 +152,7 @@ public class DradAndDrop
         }
     }
 
-    private void EndDragging(List<InventorySlot> inventorySlots)
+    private void EndDragging()
     {
         if (Input.GetMouseButtonUp(0) && dragging&&inventory.activeSelf)
         {
@@ -173,12 +174,12 @@ public class DradAndDrop
             }
             else if(results.Count <= 1)
             {
-                Debug.Log($"Prefab in {inventorySlots[originalParentIndex].GetItem()} not found");
+                throw new Exception($"Prefab in {inventorySlots[originalParentIndex].GetItem()} not found");
             }
             foreach (RaycastResult result in results)
             {
                 
-                List<GameObject> slotss = new List<GameObject>(GetInventorySlotsArray(inventorySlots));
+                List<GameObject> slotss = new List<GameObject>(GetInventorySlotsArray());
                 foreach (GameObject g in slotss)
                 {
                     if (g == result.gameObject)
@@ -186,7 +187,7 @@ public class DradAndDrop
                         GameObject targetSlot  = result.gameObject;
                         if (targetSlot == slotss[originalParentIndex])
                         {
-                            ReturnToOriginalSlot(inventorySlots);
+                            ReturnToOriginalSlot();
                             return;
                             
                         }
@@ -194,29 +195,29 @@ public class DradAndDrop
                         {
                             if (inventorySlots[slotss.IndexOf(g)].GetAmount() == inventorySlots[slotss.IndexOf(g)].GetItem().maxStackSize)
                             {
-                                SwapItems( slotss.IndexOf(g),inventorySlots);
+                                SwapItems( slotss.IndexOf(g));
                                 Debug.Log("Swapped Item");
-                                ReturnToOriginalSlot(inventorySlots);
+                                ReturnToOriginalSlot();
                                 return;
                             }
                             int remainingSpace = inventorySlots[slotss.IndexOf(g)].GetItem().maxStackSize - inventorySlots[slotss.IndexOf(g)].GetAmount();
                             int amountToMove = Mathf.Min(inventorySlots[originalParentIndex].GetAmount(), remainingSpace);
                             int originalSlotNewAmount = inventorySlots[originalParentIndex].GetAmount() - amountToMove;
-                            MoveItems(slotss.IndexOf(g), amountToMove, originalSlotNewAmount,  inventorySlots);
-                            ReturnToOriginalSlot(inventorySlots);
+                            MoveItems(slotss.IndexOf(g), amountToMove, originalSlotNewAmount);
+                            ReturnToOriginalSlot();
                             return;
                         }
                         else if (inventorySlots[slotss.IndexOf(g)].GetItem() == null)
                         {
-                            MoveAllItems(slotss.IndexOf(g), inventorySlots);
-                            ReturnToOriginalSlot(inventorySlots);
+                            MoveAllItems(slotss.IndexOf(g));
+                            ReturnToOriginalSlot();
                             return;
                         }
                         else if (inventorySlots[slotss.IndexOf(g)].GetItem()!= null &&
                                  inventorySlots[slotss.IndexOf(g)].GetItem() != inventorySlots[originalParentIndex].GetItem())
                         {
-                            SwapItems(slotss.IndexOf(g), inventorySlots);
-                            ReturnToOriginalSlot(inventorySlots);
+                            SwapItems(slotss.IndexOf(g));
+                            ReturnToOriginalSlot();
                             return;
                         }
                     }
@@ -224,26 +225,26 @@ public class DradAndDrop
 
             }
 
-            ReturnToOriginalSlot(inventorySlots);
+            ReturnToOriginalSlot();
         }
     }
-    public void DragAndDropManager(List<InventorySlot> inventorySlots, float dragSpeed)
+    public void DragAndDropManager(float dragSpeed)
     {
-        StartDraging(inventorySlots);
+        StartDraging();
         Dragging(dragSpeed);
-        EndDragging(inventorySlots);
+        EndDragging();
     }
 
-    private void MoveAllItems(int targetSlot, List<InventorySlot> inventorySlots)
+    private void MoveAllItems(int targetSlot)
     {
         Item originalItem = inventorySlots[originalParentIndex].GetItem();
         int originalAmount = inventorySlots[originalParentIndex].GetAmount();
 
         inventorySlots[targetSlot].AddItem(originalItem, originalAmount);
         inventorySlots[originalParentIndex].RemoveItem(originalAmount);
-        UpdateGuiInArray(inventorySlots);
+        UpdateGuiInArray();
     }
-    private void MoveItems(int targetSlot, int amountToMove, int originalSlotNewAmount, List<InventorySlot> inventorySlots)
+    private void MoveItems(int targetSlot, int amountToMove, int originalSlotNewAmount)
     {
 
         Item originalItem = inventorySlots[originalParentIndex].GetItem();
@@ -252,9 +253,9 @@ public class DradAndDrop
         inventorySlots[targetSlot].AddItem(targetItem, amountToMove);
         inventorySlots[originalParentIndex].RemoveItem(originalAmount);
         inventorySlots[originalParentIndex].AddItem(originalItem, originalSlotNewAmount);
-        UpdateGuiInArray(inventorySlots);
+        UpdateGuiInArray();
     }
-    private void SwapItems(int targetSlot, List<InventorySlot> inventorySlots)
+    private void SwapItems(int targetSlot)
     {
         Item targetItem = inventorySlots[targetSlot].GetItem();
         int targetAmount = inventorySlots[targetSlot].GetAmount();
@@ -268,11 +269,11 @@ public class DradAndDrop
         inventorySlots[originalParentIndex].AddItem(targetItem, targetAmount);
         inventorySlots[targetSlot].AddItem(originalItem, originalAmount);
         
-        UpdateGuiInArray(inventorySlots);
+        UpdateGuiInArray();
         
         
     }
-    private void ReturnToOriginalSlot(List<InventorySlot> inventorySlots)
+    private void ReturnToOriginalSlot()
     {
         if (inventorySlots[originalParentIndex].GetInventorySlot() != null)
         {
@@ -281,12 +282,9 @@ public class DradAndDrop
         }
     }
 
-    private void UpdateGuiInArray(List<InventorySlot> inventorySlots)
-    {
-        for (int i = 0; i < inventorySlots.Count; i++) { inventorySlots[i].UpdateGui(); }
-    }
+    private void UpdateGuiInArray() { for (int i = 0; i < inventorySlots.Count; i++) { inventorySlots[i].UpdateGui(); } }
 
-    private GameObject[] GetInventorySlotsArray(List<InventorySlot> inventorySlots)
+    private GameObject[] GetInventorySlotsArray()
     {
         GameObject[] slotsArray = new GameObject[inventorySlots.Count];
         for (int i = 0; i < inventorySlots.Count; i++)
@@ -324,15 +322,7 @@ public class InventorySystem : MonoBehaviour
     [SerializeField] private GameObject player;
  // Объявление как поле класса
 
-    private void ResetSlotsValues()
-    {
-        for (int i = 0; i < inventorySlots.Count; i++)
-        {
-            inventorySlots[i].ClearSlot();
 
-        }
-
-    }
 
     private void GetInventorySlots()
     {
@@ -385,7 +375,7 @@ public class InventorySystem : MonoBehaviour
         }
         GetInventorySlots();
         GetInventoryOutputs();
-        ResetSlotsValues();
+        ClearInventoryM();
         StartLogic();
         imageArrayChecker = new HashSet<Image>(GetSlotImage());
         slotsArrayChecker = new HashSet<GameObject>(GetInventorySlotsArray());
@@ -394,6 +384,7 @@ public class InventorySystem : MonoBehaviour
         _dradAndDrop.SetCanvas(canvas);
         _dradAndDrop.SetSlotArray(slotsArrayChecker);
         _dradAndDrop.SetInventory(inventory);
+        _dradAndDrop.SetInventorySlots(inventorySlots);
 
     }
 
@@ -413,18 +404,13 @@ public class InventorySystem : MonoBehaviour
         }
         Invoke("UnActiveInventoryPanel", 0.01f);
     }
-    private void UnActiveInventoryPanel()
-    {
-        inventory.SetActive(false);
-    }
+    private void UnActiveInventoryPanel() { inventory.SetActive(false); }
     // Update is called once per frame
     void Update()
     {
-        _dradAndDrop.DragAndDropManager(inventorySlots, dragSpeed);
+        _dradAndDrop.DragAndDropManager(dragSpeed);
         InventoryManager();
     }
-
-    
     private void TestInventory()
     {
         if (Input.GetKeyDown(KeyCode.G))
@@ -465,66 +451,38 @@ public class InventorySystem : MonoBehaviour
     private void AddItemsToInventoryM(int itemAmount, Item item)
     {
         int slotIndexWithItem=-1;
-
         for(int i = 0; i < inventorySlots.Count; i++)
         {
             for (int j = 0; j < inventorySlots.Count; j++)
             {
-                if (inventorySlots[j].GetItem() == item && inventorySlots[j].GetAmount()<inventorySlots[j].GetItem().maxStackSize)
-                {
-                    slotIndexWithItem = j;
-                }
+                if (inventorySlots[j].GetItem() == item && inventorySlots[j].GetAmount()<inventorySlots[j].GetItem().maxStackSize) { slotIndexWithItem = j; }
             }
-            if (slotIndexWithItem!=-1)
+            if (inventorySlots[i].GetItem() == null || (inventorySlots[i].GetItem() == item && inventorySlots[i].GetAmount() < inventorySlots[i].GetItem().maxStackSize))
             {
+
                 int lastSpace;
-                if (inventorySlots[slotIndexWithItem].GetItem() != null)
+                int index = slotIndexWithItem != -1 ? slotIndexWithItem : i;
+                if (inventorySlots[index].GetItem() != null)
                 {
-                    lastSpace = inventorySlots[slotIndexWithItem].GetItem().maxStackSize - inventorySlots[slotIndexWithItem].GetAmount();
+                    lastSpace = inventorySlots[index].GetItem().maxStackSize - inventorySlots[index].GetAmount();
                 }
                 else
-                {
+                { 
                     lastSpace = itemAmount;
                 }
                 if (itemAmount <= lastSpace)
                 {                
-                    inventorySlots[slotIndexWithItem].AddItem(item, itemAmount);
+                    inventorySlots[index].AddItem(item, itemAmount);
                     return;
                 }
                 else
                 {
-
-                    inventorySlots[slotIndexWithItem].AddItem(item, lastSpace);
+                    inventorySlots[index].AddItem(item, lastSpace);
                     itemAmount -= lastSpace;
                 }
-            }
-            else
-            {
-                if (inventorySlots[i].GetItem() == null || (inventorySlots[i].GetItem() == item && inventorySlots[i].GetAmount() < inventorySlots[i].GetItem().maxStackSize))
-                {
 
-                    int lastSpace;
-                    if (inventorySlots[i].GetItem() != null)
-                    {
-                        lastSpace = inventorySlots[i].GetItem().maxStackSize - inventorySlots[i].GetAmount();
-                    }
-                    else
-                    {
-                        lastSpace = itemAmount;
-                    }
-                    if (itemAmount <= lastSpace)
-                    {                
-                        inventorySlots[i].AddItem(item, itemAmount);
-                        return;
-                    }
-                    else
-                    {
-                        inventorySlots[i].AddItem(item, lastSpace);
-                        itemAmount -= lastSpace;
-                    }
-
-                }
             }
+            
 
         }
     }
@@ -537,25 +495,10 @@ public class InventorySystem : MonoBehaviour
             int lastMinAmount = Mathf.Min(lastItemAmount, inventorySlots[i].GetAmount());
             inventorySlots[i].RemoveItem(lastMinAmount);
             lastItemAmount -= lastMinAmount;
-            if (lastItemAmount <= 0)
-            {
-                return;
-            }
+            if (lastItemAmount <= 0) return;
         }
     }
-    private void ClearInventoryM()
-    {
-        for (int i = 0; i < inventorySlots.Count; i++)
-        {
-            inventorySlots[i].ClearSlot();
-        }
-    }
+    private void ClearInventoryM() { for (int i = 0; i < inventorySlots.Count; i++) { inventorySlots[i].ClearSlot(); } }
 
-    private void UpdateGuiInArray()
-    {
-        for (int i = 0; i < inventorySlots.Count; i++)
-        {
-            inventorySlots[i].UpdateGui();
-        }
-    }
+    private void UpdateGuiInArray() { for (int i = 0; i < inventorySlots.Count; i++) { inventorySlots[i].UpdateGui(); } }
 }
