@@ -459,17 +459,10 @@ public class InventorySystem : MonoBehaviour
             }
             if (inventorySlots[i].GetItem() == null || (inventorySlots[i].GetItem() == item && inventorySlots[i].GetAmount() < inventorySlots[i].GetItem().maxStackSize))
             {
-
                 int lastSpace;
                 int index = slotIndexWithItem != -1 ? slotIndexWithItem : i;
-                if (inventorySlots[index].GetItem() != null)
-                {
-                    lastSpace = inventorySlots[index].GetItem().maxStackSize - inventorySlots[index].GetAmount();
-                }
-                else
-                { 
-                    lastSpace = itemAmount;
-                }
+                if (inventorySlots[index].GetItem() != null) {lastSpace = inventorySlots[index].GetItem().maxStackSize - inventorySlots[index].GetAmount(); }
+                else { lastSpace = itemAmount; }
                 if (itemAmount <= lastSpace)
                 {                
                     inventorySlots[index].AddItem(item, itemAmount);
