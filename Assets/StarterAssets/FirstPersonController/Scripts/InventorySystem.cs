@@ -72,29 +72,248 @@ public class InventorySlot
     public Text GetSlotText() { return slotText; }
 }
 
+public class DradAndDrop
+{
+    private bool dragging;
+    private RectTransform rectTransform;
+    private Canvas canvas;
+    private CanvasGroup canvasGroup;
+    private GameObject inventory;
+    private HashSet<Image> imageArrayChecker;
+    private HashSet<GameObject> slotsArrayChecker;
+    private int originalParentIndex;
+    private Transform originalParent;
+    
+    public void SetCanvas(Canvas canvas) { this.canvas = canvas; }
+    public void SetInventory(GameObject inventory) { this.inventory = inventory; }
+    public void SetImageArray(HashSet<Image> imageArrayChecker) { this.imageArrayChecker = imageArrayChecker; }
+    public void SetSlotArray(HashSet<GameObject> slotsArrayChecker) { this.slotsArrayChecker = slotsArrayChecker; }
+    
+    private void StartDraging(List<InventorySlot> inventorySlots)
+    {
+        if (Input.GetMouseButtonDown(0)&&dragging == false&&inventory.activeSelf)
+        {
+            
+            PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+            eventDataCurrentPosition.position = Input.mousePosition;
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            GraphicRaycaster gr = canvas.GetComponent<GraphicRaycaster>(); // Получаем GraphicRaycaster с Canvas
+            gr.Raycast(eventDataCurrentPosition, results);
+
+            if (results.Count > 0)
+            {
+                foreach (RaycastResult result in results)
+                {
+                    if (imageArrayChecker.Contains(result.gameObject.GetComponent<Image>()))
+                    {
+                        Debug.Log("RectTransform Name: " + result.gameObject.name);
+                        Debug.Log("RectTransform Rect: " + result.gameObject.GetComponent<RectTransform>());
+                        rectTransform  = result.gameObject.GetComponent<RectTransform>();
+                        canvasGroup = result.gameObject.GetComponent<CanvasGroup>();
+                        if (slotsArrayChecker.Contains(result.gameObject.transform.parent.gameObject))
+                        {
+                            originalParent = result.gameObject.transform.parent;
+                       
+                            for (int i = 0; i < inventorySlots.Count; i++)
+                            {
+                                if (inventorySlots[i].GetInventorySlot() == result.gameObject.transform.parent.gameObject)
+                                {
+                                    originalParentIndex = i;
+                                    dragging = true;
+                                    if (canvasGroup != null && rectTransform != null)
+                                    {
+                                        canvasGroup.alpha = .6f;
+                                        canvasGroup.blocksRaycasts = false;
+                                        rectTransform.SetAsLastSibling();
+                                    }
+                                }
+                            }
+                        } 
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log("Results.Count = 0");
+            }
+        }
+    }
+
+    private void Dragging(float dragSpeed)
+    {
+        if (Input.GetMouseButton(0) && dragging&&inventory.activeSelf)
+        {
+
+            Vector2 delta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+
+            rectTransform.anchoredPosition += delta * dragSpeed;
+        }
+    }
+
+    private void EndDragging(List<InventorySlot> inventorySlots)
+    {
+        if (Input.GetMouseButtonUp(0) && dragging&&inventory.activeSelf)
+        {
+            dragging = false;
+            canvasGroup.alpha = 1f;
+            canvasGroup.blocksRaycasts = true;
+            PointerEventData eventData;
+            eventData = new PointerEventData(EventSystem.current);
+            // 2. Устанавливаем позицию указателя
+            eventData.position = Input.mousePosition;
+            List<RaycastResult> results = new List<RaycastResult>();
+            // 3. Выполняем Raycast
+            EventSystem.current.RaycastAll(eventData, results);
+            Debug.Log(results.Count+" Results Count");
+            if (results.Count <= 1&&inventorySlots[originalParentIndex].GetItem().prefab!=null)
+            {
+                /*Instantiate(inventorySlots[originalParentIndex].GetItem().prefab, spawnPrefabPoint.position, spawnPrefabPoint.rotation);*/
+                inventorySlots[originalParentIndex].RemoveItem(inventorySlots[originalParentIndex].GetAmount());
+            }
+            else if(results.Count <= 1)
+            {
+                Debug.Log($"Prefab in {inventorySlots[originalParentIndex].GetItem()} not found");
+            }
+            foreach (RaycastResult result in results)
+            {
+                
+                List<GameObject> slotss = new List<GameObject>(GetInventorySlotsArray(inventorySlots));
+                foreach (GameObject g in slotss)
+                {
+                    if (g == result.gameObject)
+                    {
+                        GameObject targetSlot  = result.gameObject;
+                        if (targetSlot == slotss[originalParentIndex])
+                        {
+                            ReturnToOriginalSlot(inventorySlots);
+                            return;
+                            
+                        }
+                        if (inventorySlots[slotss.IndexOf(g)].GetItem() == inventorySlots[originalParentIndex].GetItem())
+                        {
+                            if (inventorySlots[slotss.IndexOf(g)].GetAmount() == inventorySlots[slotss.IndexOf(g)].GetItem().maxStackSize)
+                            {
+                                SwapItems( slotss.IndexOf(g),inventorySlots);
+                                Debug.Log("Swapped Item");
+                                ReturnToOriginalSlot(inventorySlots);
+                                return;
+                            }
+                            int remainingSpace = inventorySlots[slotss.IndexOf(g)].GetItem().maxStackSize - inventorySlots[slotss.IndexOf(g)].GetAmount();
+                            int amountToMove = Mathf.Min(inventorySlots[originalParentIndex].GetAmount(), remainingSpace);
+                            int originalSlotNewAmount = inventorySlots[originalParentIndex].GetAmount() - amountToMove;
+                            MoveItems(slotss.IndexOf(g), amountToMove, originalSlotNewAmount,  inventorySlots);
+                            ReturnToOriginalSlot(inventorySlots);
+                            return;
+                        }
+                        else if (inventorySlots[slotss.IndexOf(g)].GetItem() == null)
+                        {
+                            MoveAllItems(slotss.IndexOf(g), inventorySlots);
+                            ReturnToOriginalSlot(inventorySlots);
+                            return;
+                        }
+                        else if (inventorySlots[slotss.IndexOf(g)].GetItem()!= null &&
+                                 inventorySlots[slotss.IndexOf(g)].GetItem() != inventorySlots[originalParentIndex].GetItem())
+                        {
+                            SwapItems(slotss.IndexOf(g), inventorySlots);
+                            ReturnToOriginalSlot(inventorySlots);
+                            return;
+                        }
+                    }
+                }
+
+            }
+
+            ReturnToOriginalSlot(inventorySlots);
+        }
+    }
+    public void DragAndDropManager(List<InventorySlot> inventorySlots, float dragSpeed)
+    {
+        StartDraging(inventorySlots);
+        Dragging(dragSpeed);
+        EndDragging(inventorySlots);
+    }
+
+    private void MoveAllItems(int targetSlot, List<InventorySlot> inventorySlots)
+    {
+        Item originalItem = inventorySlots[originalParentIndex].GetItem();
+        int originalAmount = inventorySlots[originalParentIndex].GetAmount();
+
+        inventorySlots[targetSlot].AddItem(originalItem, originalAmount);
+        inventorySlots[originalParentIndex].RemoveItem(originalAmount);
+        UpdateGuiInArray(inventorySlots);
+    }
+    private void MoveItems(int targetSlot, int amountToMove, int originalSlotNewAmount, List<InventorySlot> inventorySlots)
+    {
+
+        Item originalItem = inventorySlots[originalParentIndex].GetItem();
+        Item targetItem = inventorySlots[targetSlot].GetItem();
+        int originalAmount = inventorySlots[originalParentIndex].GetAmount();
+        inventorySlots[targetSlot].AddItem(targetItem, amountToMove);
+        inventorySlots[originalParentIndex].RemoveItem(originalAmount);
+        inventorySlots[originalParentIndex].AddItem(originalItem, originalSlotNewAmount);
+        UpdateGuiInArray(inventorySlots);
+    }
+    private void SwapItems(int targetSlot, List<InventorySlot> inventorySlots)
+    {
+        Item targetItem = inventorySlots[targetSlot].GetItem();
+        int targetAmount = inventorySlots[targetSlot].GetAmount();
+        
+        Item originalItem = inventorySlots[originalParentIndex].GetItem();
+        int originalAmount = inventorySlots[originalParentIndex].GetAmount();
+        
+        inventorySlots[targetSlot].RemoveItem(inventorySlots[targetSlot].GetAmount());
+        inventorySlots[originalParentIndex].RemoveItem(inventorySlots[originalParentIndex].GetAmount());
+        
+        inventorySlots[originalParentIndex].AddItem(targetItem, targetAmount);
+        inventorySlots[targetSlot].AddItem(originalItem, originalAmount);
+        
+        UpdateGuiInArray(inventorySlots);
+        
+        
+    }
+    private void ReturnToOriginalSlot(List<InventorySlot> inventorySlots)
+    {
+        if (inventorySlots[originalParentIndex].GetInventorySlot() != null)
+        {
+            rectTransform.transform.SetParent(originalParent);
+            rectTransform.transform.localPosition = Vector3.zero;
+        }
+    }
+
+    private void UpdateGuiInArray(List<InventorySlot> inventorySlots)
+    {
+        for (int i = 0; i < inventorySlots.Count; i++) { inventorySlots[i].UpdateGui(); }
+    }
+
+    private GameObject[] GetInventorySlotsArray(List<InventorySlot> inventorySlots)
+    {
+        GameObject[] slotsArray = new GameObject[inventorySlots.Count];
+        for (int i = 0; i < inventorySlots.Count; i++)
+        {
+            slotsArray[i] = inventorySlots[i].GetInventorySlot();
+        }
+        return slotsArray;
+    }
+}
+
 public class InventorySystem : MonoBehaviour
 {
     [Header("Inventory")]
     [SerializeField] private List<InventorySlot> inventorySlots = new List<InventorySlot>(32);
     [SerializeField] private GameObject inventory;
     [SerializeField] private GameObject hotBar;
+    private DradAndDrop _dradAndDrop = new DradAndDrop();
 
     private int currentSlot;
 
     [Header("Drag and Drop")]
-    public bool dragging;
-    private RectTransform rectTransform;
-    private Transform originalParent;
-    private int originalParentIndex;
     private HashSet<Image> imageArrayChecker;
     private HashSet<GameObject> slotsArrayChecker;
     
     public Canvas canvas;
-    private CanvasGroup canvasGroup;
     public float dragSpeed = 1f;
 
-
-    
     [Header("TestInventory")]
     [SerializeField] private Item testItem1;
     [SerializeField] private Item testItem2;
@@ -171,6 +390,10 @@ public class InventorySystem : MonoBehaviour
         imageArrayChecker = new HashSet<Image>(GetSlotImage());
         slotsArrayChecker = new HashSet<GameObject>(GetInventorySlotsArray());
         UpdateGuiInArray();
+        _dradAndDrop.SetImageArray(imageArrayChecker);
+        _dradAndDrop.SetCanvas(canvas);
+        _dradAndDrop.SetSlotArray(slotsArrayChecker);
+        _dradAndDrop.SetInventory(inventory);
 
     }
 
@@ -197,193 +420,11 @@ public class InventorySystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        DragAndDropManager();
+        _dradAndDrop.DragAndDropManager(inventorySlots, dragSpeed);
         InventoryManager();
     }
 
-    private void DragAndDropManager()
-    {
-        
-        if (Input.GetMouseButtonDown(0)&&dragging == false&&inventory.activeSelf)
-        {
-            
-            PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
-            eventDataCurrentPosition.position = Input.mousePosition;
-
-            List<RaycastResult> results = new List<RaycastResult>();
-            GraphicRaycaster gr = canvas.GetComponent<GraphicRaycaster>(); // Получаем GraphicRaycaster с Canvas
-            gr.Raycast(eventDataCurrentPosition, results);
-
-            if (results.Count > 0)
-            {
-                foreach (RaycastResult result in results)
-                {
-                    if (imageArrayChecker.Contains(result.gameObject.GetComponent<Image>()))
-                    {
-                        Debug.Log("RectTransform Name: " + result.gameObject.name);
-                        Debug.Log("RectTransform Rect: " + result.gameObject.GetComponent<RectTransform>());
-                        rectTransform  = result.gameObject.GetComponent<RectTransform>();
-                        canvasGroup = result.gameObject.GetComponent<CanvasGroup>();
-                        if (slotsArrayChecker.Contains(result.gameObject.transform.parent.gameObject))
-                        {
-                            originalParent = result.gameObject.transform.parent;
-                       
-                            for (int i = 0; i < inventorySlots.Count; i++)
-                            {
-                                if (inventorySlots[i].GetInventorySlot() == result.gameObject.transform.parent.gameObject)
-                                {
-                                    originalParentIndex = i;
-                                    dragging = true;
-                                    if (canvasGroup != null && rectTransform != null)
-                                    {
-                                        canvasGroup.alpha = .6f;
-                                        canvasGroup.blocksRaycasts = false;
-                                        rectTransform.SetAsLastSibling();
-                                    }
-                                }
-                            }
-                                               
-                        } 
-                    }
-
-
-                }
-            }
-            else
-            {
-                Debug.Log("Results.Count = 0");
-            }
-        }
-
-        if (Input.GetMouseButton(0) && dragging&&inventory.activeSelf)
-        {
-
-            Vector2 delta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-
-            rectTransform.anchoredPosition += delta * dragSpeed;
-        }
-
-        if (Input.GetMouseButtonUp(0) && dragging&&inventory.activeSelf)
-        {
-            dragging = false;
-            canvasGroup.alpha = 1f;
-            canvasGroup.blocksRaycasts = true;
-            PointerEventData eventData;
-            eventData = new PointerEventData(EventSystem.current);
-            // 2. Устанавливаем позицию указателя
-            eventData.position = Input.mousePosition;
-            List<RaycastResult> results = new List<RaycastResult>();
-            // 3. Выполняем Raycast
-            EventSystem.current.RaycastAll(eventData, results);
-            Debug.Log(results.Count+" Results Count");
-            if (results.Count <= 1&&inventorySlots[originalParentIndex].GetItem().prefab!=null)
-            {
-                Instantiate(inventorySlots[originalParentIndex].GetItem().prefab, spawnPrefabPoint.position, spawnPrefabPoint.rotation);
-                inventorySlots[originalParentIndex].RemoveItem(inventorySlots[originalParentIndex].GetAmount());
-            }
-            else if(results.Count <= 1)
-            {
-                Debug.Log($"Prefab in {inventorySlots[originalParentIndex].GetItem()} not found");
-            }
-            foreach (RaycastResult result in results)
-            {
-                
-                List<GameObject> slotss = new List<GameObject>(GetInventorySlotsArray());
-                foreach (GameObject g in slotss)
-                {
-                    if (g == result.gameObject)
-                    {
-                        GameObject targetSlot  = result.gameObject;
-                        if (targetSlot == slotss[originalParentIndex])
-                        {
-                            ReturnToOriginalSlot(rectTransform);
-                            return;
-                            
-                        }
-                        if (inventorySlots[slotss.IndexOf(g)].GetItem() == inventorySlots[originalParentIndex].GetItem())
-                        {
-                            if (inventorySlots[slotss.IndexOf(g)].GetAmount() == inventorySlots[slotss.IndexOf(g)].GetItem().maxStackSize)
-                            {
-                                SwapItems(originalParentIndex, slotss.IndexOf(g));
-                                Debug.Log("Swapped Item");
-                                ReturnToOriginalSlot(rectTransform);
-                                return;
-                            }
-                            int remainingSpace = inventorySlots[slotss.IndexOf(g)].GetItem().maxStackSize - inventorySlots[slotss.IndexOf(g)].GetAmount();
-                            int amountToMove = Mathf.Min(inventorySlots[originalParentIndex].GetAmount(), remainingSpace);
-                            int originalSlotNewAmount = inventorySlots[originalParentIndex].GetAmount() - amountToMove;
-                            MoveItems(slotss.IndexOf(g), amountToMove, originalSlotNewAmount, originalParentIndex);
-                            ReturnToOriginalSlot(rectTransform);
-                            return;
-                        }
-                        else if (inventorySlots[slotss.IndexOf(g)].GetItem() == null)
-                        {
-                            MoveAllItems(slotss.IndexOf(g), originalParentIndex);
-                            ReturnToOriginalSlot(rectTransform);
-                            return;
-                        }
-                        else if (inventorySlots[slotss.IndexOf(g)].GetItem()!= null &&
-                                 inventorySlots[slotss.IndexOf(g)].GetItem() != inventorySlots[originalParentIndex].GetItem())
-                        {
-                            SwapItems(originalParentIndex, slotss.IndexOf(g));
-                            ReturnToOriginalSlot(rectTransform);
-                            return;
-                        }
-                    }
-                }
-
-            }
-
-            ReturnToOriginalSlot(rectTransform);
-        }
-    }
-
-    private void MoveAllItems(int targetSlot, int originalSlot)
-    {
-        Item originalItem = inventorySlots[originalSlot].GetItem();
-        int originalAmount = inventorySlots[originalSlot].GetAmount();
-
-        inventorySlots[targetSlot].AddItem(originalItem, originalAmount);
-        inventorySlots[originalSlot].RemoveItem(originalAmount);
-        UpdateGuiInArray();
-    }
-    private void MoveItems(int targetSlot, int amountToMove, int originalSlotNewAmount, int originalSlot)
-    {
-
-        Item originalItem = inventorySlots[originalSlot].GetItem();
-        Item targetItem = inventorySlots[targetSlot].GetItem();
-        int originalAmount = inventorySlots[originalSlot].GetAmount();
-        inventorySlots[targetSlot].AddItem(targetItem, amountToMove);
-        inventorySlots[originalSlot].RemoveItem(originalAmount);
-        inventorySlots[originalSlot].AddItem(originalItem, originalSlotNewAmount);
-        UpdateGuiInArray();
-    }
-    private void SwapItems(int originalSlot, int targetSlot)
-    {
-        Item targetItem = inventorySlots[targetSlot].GetItem();
-        int targetAmount = inventorySlots[targetSlot].GetAmount();
-        
-        Item originalItem = inventorySlots[originalSlot].GetItem();
-        int originalAmount = inventorySlots[originalSlot].GetAmount();
-        
-        inventorySlots[targetSlot].RemoveItem(inventorySlots[targetSlot].GetAmount());
-        inventorySlots[originalSlot].RemoveItem(inventorySlots[originalSlot].GetAmount());
-        
-        inventorySlots[originalSlot].AddItem(targetItem, targetAmount);
-        inventorySlots[targetSlot].AddItem(originalItem, originalAmount);
-        
-        UpdateGuiInArray();
-        
-        
-    }
-    private void ReturnToOriginalSlot(RectTransform targetObject)
-    {
-        if (inventorySlots[originalParentIndex].GetInventorySlot() != null)
-        {
-            targetObject.transform.SetParent(originalParent);
-            targetObject.transform.localPosition = Vector3.zero;
-        }
-    }
+    
     private void TestInventory()
     {
         if (Input.GetKeyDown(KeyCode.G))

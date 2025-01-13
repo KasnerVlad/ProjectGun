@@ -1347,7 +1347,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: {fileID: 1936183348}
   hotBar: {fileID: 1165867955}
-  dragging: 0
   canvas: {fileID: 752620586}
   dragSpeed: 20
   testItem1: {fileID: 11400000, guid: 964b5a1c7b2e19549a9f5e05463f313c, type: 2}
