@@ -18,8 +18,8 @@ public class InventorySlot
     {
         itemAmount = 0;
         itemInSlot = null;
-        slotImage.sprite = null;
-        slotText.text = "";
+        UpdateGui();
+
         Debug.Log($"inventory slot cleared, amount: {itemAmount}, item: {itemInSlot}, slot Image: {slotImage.gameObject.name}, slot Text: {slotText.name}");
     }
     public bool AddItem(Item item, int amount)
@@ -134,10 +134,7 @@ public class DradAndDrop
                     }
                 }
             }
-            else
-            {
-                Debug.Log("Results.Count = 0");
-            }
+            else { Debug.Log("Results.Count = 0"); }
         }
     }
 
@@ -169,7 +166,16 @@ public class DradAndDrop
             Debug.Log(results.Count+" Results Count");
             if (results.Count <= 1&&inventorySlots[originalParentIndex].GetItem().prefab!=null)
             {
-                /*Instantiate(inventorySlots[originalParentIndex].GetItem().prefab, spawnPrefabPoint.position, spawnPrefabPoint.rotation);*/
+
+                InventorySystem inventorySystem = canvas.gameObject.GetComponent<InventorySystem>();
+                GameObject itemPrefab = inventorySystem.InstatePrefab(inventorySlots[originalParentIndex].GetItem().prefab);
+                if (itemPrefab != null)
+                {
+                    if (itemPrefab.GetComponent<ObjectLicens>() != null)
+                    {
+                        itemPrefab.GetComponent<ObjectLicens>().SetAmount(inventorySlots[originalParentIndex].GetAmount());
+                    }
+                }
                 inventorySlots[originalParentIndex].RemoveItem(inventorySlots[originalParentIndex].GetAmount());
             }
             else if(results.Count <= 1)
@@ -308,22 +314,30 @@ public class InventorySystem : MonoBehaviour
     [Header("Drag and Drop")]
     private HashSet<Image> imageArrayChecker;
     private HashSet<GameObject> slotsArrayChecker;
-    
     public Canvas canvas;
-    public float dragSpeed = 1f;
 
     [Header("TestInventory")]
     [SerializeField] private Item testItem1;
     [SerializeField] private Item testItem2;
     
+    [Header("Delegats")]
+    
+    public static DragAndDropHandler OnDragAndDrop;
+    public static InventoryManagerHandler OnInventory;
+    public static AddItemToInventoryHandler OnAddItemToInventory;
+    public static RemoveItemFromInventoryHandler OnRemoveItemFromInventory;
+    public delegate void DragAndDropHandler(float dragSpeed);
+    public delegate void InventoryManagerHandler();
+    public delegate bool AddItemToInventoryHandler(int amount,Item item);
+    public delegate bool RemoveItemFromInventoryHandler(int amount);
+
+    
     [Header("Others")]
     private FirstPersonController firstPersonController;
     [SerializeField] private Transform spawnPrefabPoint;
     [SerializeField] private GameObject player;
- // Объявление как поле класса
 
-
-
+    public GameObject InstatePrefab(GameObject prefab) { GameObject g = Instantiate(prefab, spawnPrefabPoint.position, Quaternion.identity); return g; }
     private void GetInventorySlots()
     {
         for (int i = 0; i < inventorySlots.Count; i++)
@@ -344,7 +358,6 @@ public class InventorySystem : MonoBehaviour
             inventorySlots[i].SetSlotText(inventorySlots[i].GetInventorySlot().transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Text>());
 
         }
-
     }
 
     private Image[] GetSlotImage()
@@ -385,6 +398,10 @@ public class InventorySystem : MonoBehaviour
         _dradAndDrop.SetSlotArray(slotsArrayChecker);
         _dradAndDrop.SetInventory(inventory);
         _dradAndDrop.SetInventorySlots(inventorySlots);
+        OnDragAndDrop = _dradAndDrop.DragAndDropManager;
+        OnInventory = InventoryManager;
+        OnAddItemToInventory = AddItemsToInventoryM;
+        OnRemoveItemFromInventory = RemoveItemsFromInventoryM;
 
     }
 
@@ -408,8 +425,9 @@ public class InventorySystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        _dradAndDrop.DragAndDropManager(dragSpeed);
-        InventoryManager();
+        /*_dradAndDrop.DragAndDropManager(dragSpeed);
+        InventoryManager();*/
+
     }
     private void TestInventory()
     {
@@ -448,7 +466,7 @@ public class InventorySystem : MonoBehaviour
         
         
     }
-    private void AddItemsToInventoryM(int itemAmount, Item item)
+    private bool AddItemsToInventoryM(int itemAmount, Item item)
     {
         int slotIndexWithItem=-1;
         for(int i = 0; i < inventorySlots.Count; i++)
@@ -466,7 +484,7 @@ public class InventorySystem : MonoBehaviour
                 if (itemAmount <= lastSpace)
                 {                
                     inventorySlots[index].AddItem(item, itemAmount);
-                    return;
+                    return true;
                 }
                 else
                 {
@@ -478,9 +496,11 @@ public class InventorySystem : MonoBehaviour
             
 
         }
+        Debug.Log("No space to add item in inventory");
+        return false;
     }
 
-    private void RemoveItemsFromInventoryM(int itemAmount)
+    private bool RemoveItemsFromInventoryM(int itemAmount)
     {
         int lastItemAmount = itemAmount;
         for (int i = 0; i < inventorySlots.Count; i++)
@@ -488,8 +508,10 @@ public class InventorySystem : MonoBehaviour
             int lastMinAmount = Mathf.Min(lastItemAmount, inventorySlots[i].GetAmount());
             inventorySlots[i].RemoveItem(lastMinAmount);
             lastItemAmount -= lastMinAmount;
-            if (lastItemAmount <= 0) return;
+            if (lastItemAmount <= 0) return true;
         }
+        Debug.Log("No items to remove in inventory");
+        return false;
     }
     private void ClearInventoryM() { for (int i = 0; i < inventorySlots.Count; i++) { inventorySlots[i].ClearSlot(); } }
 

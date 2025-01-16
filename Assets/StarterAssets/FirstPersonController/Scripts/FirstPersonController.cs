@@ -45,7 +45,7 @@ namespace StarterAssets
 		[Tooltip("Useful for rough ground")]
 		public float GroundedOffset = -0.14f;
 		[Tooltip("The radius of the grounded check. Should match the radius of the CharacterController")]
-		public float GroundedRadius = 0.5f;
+		public float GroundedRadius = 0.3f;
 		[Tooltip("What layers the character uses as ground")]
 		public LayerMask GroundLayers;
 
@@ -99,6 +99,9 @@ namespace StarterAssets
 		public GameObject aimingPoint;
 		public GameObject head;
 		private Vector3 _headDefultPosition;
+		
+		[Header("InventorySystem")]
+		[SerializeField] private float dragSpeed = 20.0f;
 		private bool IsCurrentDeviceMouse
 		{
 			get
@@ -155,9 +158,11 @@ namespace StarterAssets
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
+			InventorySystem.OnDragAndDrop.Invoke(dragSpeed);
+			InventorySystem.OnInventory.Invoke();
 
 		}
-
+		
 		private void LateUpdate()
 		{
 			
