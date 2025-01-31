@@ -14,6 +14,6 @@ public class Item : ScriptableObject
     public ItemType type;
     public int maxStackSize = 99;
     public GameObject prefab;
-
+    
 }
 
