@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using System.Threading.Tasks;
 
 public class InventorySystem2 : InventoryBase
 {
@@ -36,8 +36,8 @@ public class InventorySystem2 : InventoryBase
     private void Update()
     {
         dragAndDrop.DragAndDropManager(dragspeed);
+        
     }
-
     public GameObject[] GetSlotsGameObject()
     {
         GameObject[] slotsArray = new GameObject[maxSlots];
@@ -73,9 +73,9 @@ public class InventorySystem2 : InventoryBase
     }
     
 
-    public override bool AddItem(Item item, int amount)
+    public override async Task<bool> AddItem(Item item, int amount)
     {
-
+        await Task.Yield();
         foreach (var slot in slots)
         {
             if (slot.IsEmpty()||(slot.Item == item && parameters.AllowStacking && slot.Amount + amount <= item.maxStackSize))
@@ -90,8 +90,9 @@ public class InventorySystem2 : InventoryBase
         return false;
     }
 
-    public override bool RemoveItem(int amount)
+    public override async Task<bool> RemoveItem(int amount)
     {
+        await Task.Yield();
         foreach (var slot in slots)
         {
             if (slot.Amount>=1)
@@ -109,8 +110,9 @@ public class InventorySystem2 : InventoryBase
         return false;
     }
 
-    public override void ClearInventory()
+    public override async Task ClearInventory()
     {
+        await Task.Yield();
         foreach (var slot in slots)
         {
             slot.ClearSlot();

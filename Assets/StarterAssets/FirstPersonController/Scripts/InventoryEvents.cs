@@ -1,17 +1,17 @@
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 public static class InventoryEvents
 {
-    public delegate void InventoryUpdatedHandler(List<InventorySlots> slots);
+    public delegate Task InventoryUpdatedHandler(List<InventorySlots> slots);
     public static event InventoryUpdatedHandler OnInventoryUpdated;
 
-    public delegate bool ItemAddedHandler(Item item, int amount);
+    public delegate Task<bool> ItemAddedHandler(Item item, int amount);
     public static event ItemAddedHandler OnItemAdded;
 
-    public delegate bool ItemRemovedHandler(int amount);
+    public delegate Task<bool> ItemRemovedHandler(int amount);
     public static event ItemRemovedHandler OnItemRemoved;
     
-    public delegate void ClearInventory();
+    public delegate Task ClearInventory();
     public static event ClearInventory OnClearInventory;
     public static void InvokeInventoryUpdated(List<InventorySlots> inventorySlotsList) => OnInventoryUpdated?.Invoke(inventorySlotsList);
     public static void InvokeItemAdded(Item item, int amount) => OnItemAdded?.Invoke(item, amount);

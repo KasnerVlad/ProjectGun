@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using System.Threading.Tasks;
 public class InventoryUI : MonoBehaviour
 {
     [SerializeField] private List<InventorySlots> slots;
@@ -30,8 +30,9 @@ public class InventoryUI : MonoBehaviour
         InventoryEvents.OnInventoryUpdated -= UpdateUI;
     }
     
-    private void UpdateUI(List<InventorySlots> slots)
+    private async Task UpdateUI(List<InventorySlots> slots)
     {
+        await Task.Yield();
         Debug.Log("Inventory UI Updated");
         for (int i = 0; i < slots.Count; i++)
         {

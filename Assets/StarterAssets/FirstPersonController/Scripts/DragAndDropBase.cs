@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using System.Threading.Tasks;
 public abstract class DragAndDropBase : MonoBehaviour
 {
     protected bool dragging;
@@ -14,9 +14,9 @@ public abstract class DragAndDropBase : MonoBehaviour
     protected int originalParentIndex;
     protected Transform originalParent;
     public List<InventorySlots> inventorySlots;
-    public abstract void StartDragging();
-    public abstract void Dragging(float dragSpeed);
-    public abstract void EndDragging();
+    public abstract Task StartDragging();
+    public abstract Task Dragging(float dragSpeed);
+    public abstract Task EndDragging();
     public abstract void DragAndDropManager(float dragSpeed);
     
 }

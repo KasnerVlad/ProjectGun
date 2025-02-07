@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
+using System.Threading.Tasks;
 public class DragAndDrop : DragAndDropBase
 {
 
@@ -12,8 +12,9 @@ public class DragAndDrop : DragAndDropBase
     public void SetSlotSet(HashSet<GameObject> slotSet) => this.slotSet = slotSet;
     public void SetInventorySlots(List<InventorySlots> inventorySlots) => this.inventorySlots = inventorySlots;
 
-    public override void StartDragging()
+    public override async Task StartDragging()
     {
+        await Task.Yield();
         if (!InventoryInput.StartDragging || dragging || !inventory.activeSelf) return;
         
         PointerEventData eventData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
@@ -43,14 +44,16 @@ public class DragAndDrop : DragAndDropBase
         }
     }
 
-    public override void Dragging(float dragSpeed)
+    public override async Task Dragging(float dragSpeed)
     {
+        await Task.Yield();
         if (!dragging || !InventoryInput.Dragging || !inventory.activeSelf) return;
         rectTransform.anchoredPosition += new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * dragSpeed;
     }
 
-    public override void EndDragging()
+    public override async Task EndDragging()
     {
+        await Task.Yield();
         if (!InventoryInput.EndDragging || !dragging || !inventory.activeSelf) return;
         
         dragging = false;

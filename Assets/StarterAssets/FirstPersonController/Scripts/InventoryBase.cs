@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading.Tasks;
 
 public abstract class InventoryBase : MonoBehaviour
 {
@@ -34,8 +35,8 @@ public abstract class InventoryBase : MonoBehaviour
     public abstract void InitializeInventory();
     public abstract void SingOnEvents();
     public abstract void SingOffEvents();
-    public abstract bool AddItem(Item item, int amount);
-    public abstract bool RemoveItem(int amount);
-    public abstract void ClearInventory();
+    public abstract Task<bool> AddItem(Item item, int amount);
+    public abstract Task<bool> RemoveItem(int amount);
+    public abstract Task ClearInventory();
     
 }
