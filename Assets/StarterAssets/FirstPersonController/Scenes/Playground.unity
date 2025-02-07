@@ -1225,6 +1225,10 @@ GameObject:
   - component: {fileID: 752620585}
   - component: {fileID: 752620584}
   - component: {fileID: 752620588}
+  - component: {fileID: 752620589}
+  - component: {fileID: 752620590}
+  - component: {fileID: 752620591}
+  - component: {fileID: 752620592}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1324,7 +1328,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 752620583}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 47d2a76d009650b458a1e4361ad6aa31, type: 3}
   m_Name: 
@@ -1336,6 +1340,62 @@ MonoBehaviour:
   testItem2: {fileID: 11400000, guid: 4a12515ed8cfc9540a285111c933a217, type: 2}
   spawnPrefabPoint: {fileID: 606238117}
   player: {fileID: 1809162556}
+--- !u!114 &752620589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752620583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6100884fe5d4e14295025d91c0d60e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxSlots: 32
+  allowStacking: 1
+  InventoryCanvas: {fileID: 752620586}
+  inventory: {fileID: 1936183348}
+  hotbar: {fileID: 1165867955}
+  dragspeed: 20
+--- !u!114 &752620590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752620583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65afd2c02fa74cfeaf11baba3ea13b50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  testItem: {fileID: 11400000, guid: c1bc900b45237a2469164795b96ef6aa, type: 2}
+  inventory: {fileID: 1936183348}
+--- !u!114 &752620591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752620583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 916ce528f2db4a61a97463bc90e24f5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &752620592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752620583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09103e3c4797457eb82e1bb2010bb6f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &783374239
 PrefabInstance:
   m_ObjectHideFlags: 0

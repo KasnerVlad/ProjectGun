@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: TestFoodItem
+  m_EditorClassIdentifier: Assembly-CSharp::FoodItem
+  id: 2
+  name: Food
+  description: Just a test item
+  icon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  type: 2
+  maxStackSize: 5
+  prefab: {fileID: 0}
+  type: 2
+  healAmount: 2
+  addEnergyAmount: 2
+  addThirthyAmount: 2

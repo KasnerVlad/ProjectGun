@@ -158,8 +158,8 @@ namespace StarterAssets
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
-			InventorySystem.OnDragAndDrop.Invoke(dragSpeed);
-			InventorySystem.OnInventory.Invoke();
+			/*InventorySystem.OnDragAndDrop.Invoke(dragSpeed);
+			InventorySystem.OnInventory.Invoke();*/
 
 		}
 		
