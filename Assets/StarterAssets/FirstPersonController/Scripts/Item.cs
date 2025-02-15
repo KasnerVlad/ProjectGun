@@ -26,7 +26,7 @@ public class Item : ScriptableObject
 [CreateAssetMenu(fileName = "New FoodItem", menuName = "Inventory/FoodItem")]
 public class FoodItem : Item
 {
-    public ItemType type = ItemType.Consumable;
+
     public int healAmount;
     public int addEnergyAmount;
     public int addThirthyAmount;

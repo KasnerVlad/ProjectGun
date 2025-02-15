@@ -54,7 +54,7 @@ public class DragAndDrop : DragAndDropBase
     public override async Task EndDragging()
     {
         await Task.Yield();
-        if (!InventoryInput.EndDragging || !dragging || !inventory.activeSelf) return;
+        if (!InventoryInput.EndDragging && !dragging && !inventory.activeSelf) return;
         
         dragging = false;
         canvasGroup.alpha = 1f;
@@ -66,6 +66,7 @@ public class DragAndDrop : DragAndDropBase
 
         if (results.Count <= 1&& inventorySlots[originalParentIndex].Item.prefab!=null)
         {
+            Debug.Log("зараз в if для виброса");
             GameObject itemPrefab = Instantiate(inventorySlots[originalParentIndex].Item.prefab, Vector3.zero, Quaternion.identity);
             if (itemPrefab?.GetComponent<ObjectLicens>() != null)
             {
@@ -83,6 +84,7 @@ public class DragAndDrop : DragAndDropBase
         
         foreach (RaycastResult result in results)
         {
+            Debug.Log("зараз в foreach в объекте " + result.gameObject.name);
             List<GameObject> slotss = new List<GameObject>(GetInventorySlotsArray());
             foreach (GameObject g in slotss)
             {
@@ -92,13 +94,16 @@ public class DragAndDrop : DragAndDropBase
                     if (targetSlot == slotss[originalParentIndex])
                     {
                         ReturnToOriginalSlot();
+                        Debug.Log("зараз в foreach в if в с проверкой на одинаковость слотов");
                         return;
+                        
                             
                     }
                     if (inventorySlots[slotss.IndexOf(g)].Item == inventorySlots[originalParentIndex].Item)
                     {
                         if (inventorySlots[slotss.IndexOf(g)].Amount == inventorySlots[slotss.IndexOf(g)].Item.maxStackSize)
                         {
+                            Debug.Log("зараз в foreach в if в с проверкой на возможность свапа");
                             SwapItems( slotss.IndexOf(g));
                             Debug.Log("Swapped Item");
                             ReturnToOriginalSlot();
@@ -113,6 +118,7 @@ public class DragAndDrop : DragAndDropBase
                     }
                     else if (inventorySlots[slotss.IndexOf(g)].Item == null)
                     {
+                        Debug.Log("зараз в foreach в if в с проверкой на наявность Item");
                         MoveAllItems(slotss.IndexOf(g));
                         ReturnToOriginalSlot();
                         return;
@@ -120,6 +126,7 @@ public class DragAndDrop : DragAndDropBase
                     else if (inventorySlots[slotss.IndexOf(g)].Item!= null &&
                              inventorySlots[slotss.IndexOf(g)].Item != inventorySlots[originalParentIndex].Item)
                     {
+                        Debug.Log("зараз в foreach в if в с проверкой на ");
                         SwapItems(slotss.IndexOf(g));
                         ReturnToOriginalSlot();
                         return;

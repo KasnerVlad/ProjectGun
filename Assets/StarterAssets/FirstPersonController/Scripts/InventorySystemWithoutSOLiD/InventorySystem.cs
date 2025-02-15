@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using StarterAssets;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using Image = UnityEngine.UI.Image;
 using Cursor = UnityEngine.Cursor;
 
@@ -85,6 +86,8 @@ public class InventorySystem : MonoBehaviour
     }
     void Start()
     {
+        /*ExecuteEvents.Execute<IPointerClickHandler>(targetObject, eventData, (handler, data) => handler.OnPointerClick((PointerEventData)data));*/
+
         firstPersonController = player.GetComponent<FirstPersonController>();
         for (int i = 0; i < 32; i++) // Или inventorySlots.Capacity, если вы хотите использовать заданную вместимость
         {
@@ -154,9 +157,9 @@ public class InventorySystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             inventory.SetActive(!inventory.activeSelf);
-            firstPersonController._input.cursorLocked = !inventory.activeSelf;
+            /*firstPersonController._input.cursorLocked = !inventory.activeSelf;
             firstPersonController._input.cursorInputForLook = !inventory.activeSelf;
-            firstPersonController._input.look = Vector2.zero;
+            firstPersonController._input.look = Vector2.zero;*/
             Cursor.visible = inventory.activeSelf;
             Cursor.lockState = inventory.activeSelf? CursorLockMode.None : CursorLockMode.Locked;
         }

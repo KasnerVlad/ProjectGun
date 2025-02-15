@@ -4,6 +4,7 @@ using UnityEngine;
 public class ItemImpact : MonoBehaviour
 {
     [SerializeField] private Item testItem;
+    [SerializeField] private Item testItem2;
     [SerializeField] private GameObject inventory;
     private void Update()
     {
@@ -12,6 +13,10 @@ public class ItemImpact : MonoBehaviour
             InventoryEvents.InvokeItemAdded(testItem, 1);
         }
 
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            inventory.SetActive(!inventory.activeInHierarchy);
+        }
         if (InventoryInput.PressedR)
         {
             InventoryEvents.InvokeItemRemoved(1);

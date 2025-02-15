@@ -1371,6 +1371,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   testItem: {fileID: 11400000, guid: c1bc900b45237a2469164795b96ef6aa, type: 2}
+  testItem2: {fileID: 11400000, guid: 964b5a1c7b2e19549a9f5e05463f313c, type: 2}
   inventory: {fileID: 1936183348}
 --- !u!114 &752620591
 MonoBehaviour:
@@ -4717,8 +4718,16 @@ PrefabInstance:
       value: PlayerCapsule
       objectReference: {fileID: 0}
     - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
+      propertyPath: Gravity
+      value: -15
+      objectReference: {fileID: 0}
+    - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: GroundedRadius
       value: 0.24
+      objectReference: {fileID: 0}
+    - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
+      propertyPath: _terminalVelocity
+      value: 53
       objectReference: {fileID: 0}
     - target: {fileID: 8838500920725088298, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: m_RigLayers.Array.data[0].m_Rig
