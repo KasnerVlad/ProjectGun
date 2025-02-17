@@ -76,13 +76,45 @@ public class InventorySystem2 : InventoryBase
     public override async Task<bool> AddItem(Item item, int amount)
     {
         await Task.Yield();
+        int remainingAmount = amount;
+
+        // Сначала пытаемся добавить в существующие стеки
+        if (parameters.AllowStacking)
+        {
+            foreach (var slot in slots)
+            {
+                if (slot.Item == item && slot.Amount < item.maxStackSize)
+                {
+                    int availableSpace = item.maxStackSize - slot.Amount;
+                    int addAmount = Mathf.Min(availableSpace, remainingAmount);
+                
+                    slot.AddItem(item, addAmount);
+                    remainingAmount -= addAmount;
+                
+                    if (remainingAmount <= 0)
+                    {
+                        InventoryEvents.InvokeInventoryUpdated(slots);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Затем пытаемся добавить в пустые слоты
         foreach (var slot in slots)
         {
-            if (slot.IsEmpty()||(slot.Item == item && parameters.AllowStacking && slot.Amount + amount <= item.maxStackSize))
+            if (slot.IsEmpty())
             {
-                slot.AddItem(item, amount);
-                InventoryEvents.InvokeInventoryUpdated(slots);
-                return true;
+                int addAmount = Mathf.Min(item.maxStackSize, remainingAmount);
+            
+                slot.AddItem(item, addAmount);
+                remainingAmount -= addAmount;
+            
+                if (remainingAmount <= 0)
+                {
+                    InventoryEvents.InvokeInventoryUpdated(slots);
+                    return true;
+                }
             }
         }
 

@@ -1,4 +1,5 @@
 
+using StarterAssets;
 using UnityEngine;
 
 public class ItemImpact : MonoBehaviour
@@ -6,20 +7,25 @@ public class ItemImpact : MonoBehaviour
     [SerializeField] private Item testItem;
     [SerializeField] private Item testItem2;
     [SerializeField] private GameObject inventory;
+    [SerializeField] private FPSControllerBase fpsController;
+    [SerializeField] private int Amount;
     private void Update()
     {
         if (InventoryInput.PressedG)
         {
-            InventoryEvents.InvokeItemAdded(testItem, 1);
+            InventoryEvents.InvokeItemAdded(testItem, Amount);
         }
-
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            InventoryEvents.InvokeItemAdded(testItem2, Amount);
+        }
+        if (InventoryInput.PressedE)
         {
             inventory.SetActive(!inventory.activeInHierarchy);
         }
         if (InventoryInput.PressedR)
         {
-            InventoryEvents.InvokeItemRemoved(1);
+            InventoryEvents.InvokeItemRemoved(Amount);
         }
 
         if (InventoryInput.PressedC)
@@ -28,8 +34,8 @@ public class ItemImpact : MonoBehaviour
         }
         Cursor.visible = inventory.activeSelf;
         Cursor.lockState = !inventory.activeSelf ? CursorLockMode.Locked : CursorLockMode.None;
-        /*fpsController._input.cursorInputForLook = inventory.activeSelf;
-        fpsController._input.look = inventory.activeSelf?Vector2.zero:fpsController._input.look;*/
+        fpsController._input.cursorInputForLook = !inventory.activeSelf;
+        if (inventory.activeSelf) { fpsController._input.look = Vector2.zero; }
         
     }
 }

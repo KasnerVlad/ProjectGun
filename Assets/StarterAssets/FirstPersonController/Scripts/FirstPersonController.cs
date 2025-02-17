@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Random = UnityEngine.Random;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -17,90 +18,34 @@ namespace StarterAssets
 		[Tooltip("Move speed of the character in m/s")]
 		[SerializeField] private float moveSpeed;
 		private float? _moveSpeedCache = null;
-		public float MoveSpeed		
-		{
-			get
-			{
-				if (_moveSpeedCache == null)
-				{
-					_moveSpeedCache = moveSpeed;
-				}
-				return _moveSpeedCache.Value;
-			}
-			private set
-			{
-				if (_moveSpeedCache == null)
-				{
-					_moveSpeedCache = Mathf.Clamp(value, 0.5f, SprintSpeed/2);;
-				}
-			}
+		public float MoveSpeed {
+			get { if (_moveSpeedCache == null) { _moveSpeedCache = moveSpeed; } return _moveSpeedCache.Value; }
+			private set { if (_moveSpeedCache == null) { _moveSpeedCache = Mathf.Clamp(value, 0.5f, SprintSpeed/2);; } }
 		}
 		public float _animationBlend {private set; get;}
 		[Tooltip("Sprint speed of the character in m/s")]
 		[SerializeField] private float sprintSpeed;
 		private float? _sprintSpeedCache = null;
-		public float SprintSpeed
-		{
-			get
-			{
-				if (_sprintSpeedCache == null)
-				{
-					_sprintSpeedCache = sprintSpeed;
-				}
-				return _sprintSpeedCache.Value;
-			}
-			private set
-			{
-				if (_sprintSpeedCache == null)
-				{
-					_sprintSpeedCache = Mathf.Clamp(value, 2, 6);;
-				}
-			}
+		public float SprintSpeed {
+			get { if (_sprintSpeedCache == null) { _sprintSpeedCache = sprintSpeed; } return _sprintSpeedCache.Value; }
+			private set { if (_sprintSpeedCache == null) { _sprintSpeedCache = Mathf.Clamp(value, 2, 6);; } }
 		}
 		
 		[Tooltip("Rotation speed of the character")] 
 		[SerializeField] private float rotationSpeed;
 		private float? _rotationSpeedCache = null;
-		public float RotationSpeed
-		{
-			get
-			{
-				if (_rotationSpeedCache == null)
-				{
-					_rotationSpeedCache = rotationSpeed;
-				}
-				return _rotationSpeedCache.Value;
-			}
-			private set
-			{
-				if (_rotationSpeedCache == null)
-				{
-					_rotationSpeedCache = value;
-				}
-			}
+		public float RotationSpeed {
+			get { if (_rotationSpeedCache == null) { _rotationSpeedCache = rotationSpeed; } return _rotationSpeedCache.Value; }
+			private set { if (_rotationSpeedCache == null) { _rotationSpeedCache = value; } }
 		}
 
 		[Tooltip("Acceleration and deceleration")] 
 		[Range(1, 15)] 
 		[SerializeField] private float speedChangeRate;
 		private float? _speedChangeRateCache = null;
-		public float SpeedChangeRate
-		{
-			get
-			{
-				if (_speedChangeRateCache == null)
-				{
-					_speedChangeRateCache = speedChangeRate;
-				}
-				return _speedChangeRateCache.Value;
-			}
-			private set
-			{
-				if (_speedChangeRateCache == null)
-				{
-					_speedChangeRateCache = Mathf.Clamp(value, 1, 15);;
-				}
-			}
+		public float SpeedChangeRate {
+			get { if (_speedChangeRateCache == null) { _speedChangeRateCache = speedChangeRate; } return _speedChangeRateCache.Value; }
+			private set { if (_speedChangeRateCache == null) { _speedChangeRateCache = Mathf.Clamp(value, 1, 15);; } }
 		}
 
 		[Tooltip("Acceleration and deceleration")] 
@@ -121,45 +66,17 @@ namespace StarterAssets
 		[Tooltip("The height the player can jump")] 
 		[SerializeField] private float jumpHeight;
 		private float? _jumpHeightCache = null; 
-		public float JumpHeight
-		{
-			get
-			{
-				if (_jumpHeightCache == null)
-				{
-					_jumpHeightCache = jumpHeight;
-				}
-				return _jumpHeightCache.Value;
-			}
-			private set
-			{
-				if (_jumpHeightCache == null)
-				{
-					_jumpHeightCache = value;
-				}
-			}
+		public float JumpHeight { 
+			get { if (_jumpHeightCache == null) { _jumpHeightCache = jumpHeight; } return _jumpHeightCache.Value; }
+			private set { if (_jumpHeightCache == null) { _jumpHeightCache = value; } }
 		}
 		[Range(-1, -15)]
 		[Tooltip("The character uses its own gravity value. The engine default is -9.81f")] 
 		[SerializeField] private float gravity;
 		private float? _gravityCache = null; 
-		public float Gravity
-		{
-			get
-			{
-				if (_gravityCache == null)
-				{
-					_gravityCache = gravity;
-				}
-				return _gravityCache.Value;
-			}
-			private set
-			{
-				if (_gravityCache == null)
-				{
-					_gravityCache = Mathf.Clamp(value, -15, -1);;
-				}
-			}
+		public float Gravity {
+			get { if (_gravityCache == null) { _gravityCache = gravity; } return _gravityCache.Value; }
+			private set { if (_gravityCache == null) { _gravityCache = Mathf.Clamp(value, -15, -1);; } }
 		}
 		[Space(10)]
 		[Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
@@ -169,23 +86,9 @@ namespace StarterAssets
 		[SerializeField] private float fallTimeout = 0.5f;
 		private float? _fallTimeoutCache = null; // Хранит зафиксированное значение
 
-		public float FallTimeout
-		{
-			get
-			{
-				if (_fallTimeoutCache == null)
-				{
-					_fallTimeoutCache = fallTimeout;
-				}
-				return _fallTimeoutCache.Value;
-			}
-			private set
-			{
-				if (_fallTimeoutCache == null)
-				{
-					_fallTimeoutCache = value;
-				}
-			}
+		public float FallTimeout {
+			get { if (_fallTimeoutCache == null) { _fallTimeoutCache = fallTimeout; } return _fallTimeoutCache.Value; }
+			private set { if (_fallTimeoutCache == null) { _fallTimeoutCache = value; } }
 		}
 
 		/*[Header("Player Grounded")]*/
@@ -195,49 +98,26 @@ namespace StarterAssets
 		[Tooltip("Useful for rough ground")]
 		[SerializeField] private float groundedOffset;
 		private float? _groundedOffsetCache = null;
-		public float GroundedOffset
-		{
-			get
-			{
-				if (_groundedOffsetCache == null)
-				{
-					_groundedOffsetCache = groundedOffset;
-				}
-				return _groundedOffsetCache.Value;
-			}
-			private set
-			{
-				if (_groundedOffsetCache == null)
-				{
-					_groundedOffsetCache = value;
-				}
-			}
+		public float GroundedOffset {
+			get { if (_groundedOffsetCache == null) { _groundedOffsetCache = groundedOffset; } return _groundedOffsetCache.Value; }
+			private set { if (_groundedOffsetCache == null) { _groundedOffsetCache = value; } }
 		}
 		[Range(0, 1)]
 		[Tooltip("The radius of the grounded check. Should match the radius of the CharacterController")]
 		[SerializeField] private float groundRadius;
 		private float? _groundRadiusCache = null;
-		public float GroundedRadius
-		{
-			get
-			{
-				if (_groundRadiusCache == null)
-				{
-					_groundRadiusCache = groundRadius;
-				}
-				return _groundRadiusCache.Value;
-			}
-			private set
-			{
-				if (_groundRadiusCache == null)
-				{
-					_groundRadiusCache = value;
-				}
-			}
+		public float GroundedRadius {
+			get { if (_groundRadiusCache == null) { _groundRadiusCache = groundRadius; } return _groundRadiusCache.Value; }
+			private set { if (_groundRadiusCache == null) { _groundRadiusCache = value; } }
 		}
 
 		[Tooltip("What layers the character uses as ground")] 
-		[SerializeField] protected LayerMask GroundLayers;
+		[SerializeField] private LayerMask groundLayer;
+		private LayerMask? _groundPositionCache = null;
+		public LayerMask GroundLayers {
+			get{if (_groundPositionCache == null) { _groundPositionCache = groundLayer; } return _groundPositionCache.Value;}
+			private set { if (_groundPositionCache == null) { _groundPositionCache = value; } }
+		}
 
 		/*[Header("Cinemachine")]*/
 		[Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -247,43 +127,15 @@ namespace StarterAssets
 		[SerializeField] protected Vector2 cinemachineCameraAngleCalm;
 		private float? _topClampCache = null;
 		private float? _bottomClampCache = null;
-		public float TopClamp
-		{
-			get
-			{
-				if (_topClampCache == null)
-				{
-					_topClampCache = cinemachineCameraAngleCalm.x;
-				}
-				return _topClampCache.Value;
-			}
-			private set
-			{
-				if (_topClampCache == null)
-				{
-					_topClampCache = value;
-				}
-			}
+		public float TopClamp {
+			get { if (_topClampCache == null) { _topClampCache = cinemachineCameraAngleCalm.x; } return _topClampCache.Value; }
+			private set { if (_topClampCache == null) { _topClampCache = value; } }
 		}
 
 		[Tooltip("How far in degrees can you move the camera down")]
-		public float BottomClamp
-		{
-			get
-			{
-				if (_bottomClampCache == null)
-				{
-					_bottomClampCache = cinemachineCameraAngleCalm.y;
-				}
-				return _bottomClampCache.Value;
-			}
-			private set
-			{
-				if (_bottomClampCache == null)
-				{
-					_bottomClampCache = value;
-				}
-			}
+		public float BottomClamp {
+			get { if (_bottomClampCache == null) { _bottomClampCache = cinemachineCameraAngleCalm.y; } return _bottomClampCache.Value; }
+			private set { if (_bottomClampCache == null) { _bottomClampCache = value; } }
 		}
 
 		[SerializeField] protected GameObject headsImpact;
@@ -359,8 +211,6 @@ namespace StarterAssets
 		protected abstract void InitializeStart();
 		protected abstract void UpdateLogic();
 		protected abstract void LateUpdateLogic();
-		protected abstract void GroundedCheck();
-		
         public virtual void SetAnimationBlend(float animationBlend) => _animationBlend = animationBlend;
         public virtual void SetGrounded(bool grounded) => Grounded = grounded;
         public virtual void SetDefultHipsPosition(Vector3 defultHipsPosition) => this.defultHipsPosition = defultHipsPosition;
@@ -385,7 +235,7 @@ namespace StarterAssets
         public virtual void SetHeadDefultPosition(Vector3 headDefultPosition) => _headDefultPosition = headDefultPosition;
 		public virtual void SetController(CharacterController characterController) => _controller = characterController;
 
-		public virtual float ClampAngle(float lfAngle, float lfMin, float lfMax)
+		public static float ClampAngle(float lfAngle, float lfMin, float lfMax)
 		{
 			if (lfAngle < -360f) lfAngle += 360f;
 			if (lfAngle > 360f) lfAngle -= 360f;
@@ -412,6 +262,24 @@ namespace StarterAssets
 		void UpdateAnimations();
 	}
 
+	public interface ICheckGrounded
+	{
+		void GroundedCheck();
+	}
+
+	public class GroundCheck : ICheckGrounded
+	{
+		private FPSControllerBase _controller;
+		public GroundCheck(FPSControllerBase controller)
+		{
+			_controller = controller;
+		}
+		public void GroundedCheck()
+		{
+			Vector3 spherePosition = new Vector3(_controller.transform.position.x, _controller.transform.position.y - _controller.GroundedOffset, _controller.transform.position.z);
+			_controller.SetGrounded(Physics.CheckSphere(spherePosition, _controller.GroundedRadius, _controller.GroundLayers, QueryTriggerInteraction.Ignore));
+		}
+	}
 	public class CameraController : ICameraController
 	{
 		private FPSControllerBase _fpsController;
@@ -421,19 +289,15 @@ namespace StarterAssets
 		}
 		public void CameraRotation()
 		{
-			// if there is an input
 			if (_fpsController._input.look.sqrMagnitude >= _fpsController._threshold)
 			{
-				//Don't multiply mouse input by Time.deltaTime
 				float deltaTimeMultiplier = _fpsController.IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
 				_fpsController.SetCinemachineTargetPitch(_fpsController._cinemachineTargetPitch + _fpsController._input.look.y * _fpsController.RotationSpeed * deltaTimeMultiplier);
 				_fpsController.SetRotationVelocity(_fpsController._input.look.x * _fpsController.RotationSpeed * deltaTimeMultiplier);
 
-				// clamp our pitch rotation
-				_fpsController.SetCinemachineTargetPitch(_fpsController.ClampAngle(_fpsController._cinemachineTargetPitch, _fpsController.BottomClamp, _fpsController.TopClamp));
+				_fpsController.SetCinemachineTargetPitch(FPSControllerBase.ClampAngle(_fpsController._cinemachineTargetPitch, _fpsController.BottomClamp, _fpsController.TopClamp));
 
-				// rotate the player left and right
 				_fpsController.transform.Rotate(Vector3.up * _fpsController._rotationVelocity);
 			}
 		}
@@ -577,8 +441,8 @@ namespace StarterAssets
 						FPSController._animator.SetBool(FPSController._animIDFreeFall, true);					
 					}
 				}
-				
 			}
+			FPSController._animator.SetBool(FPSController._animIDGrounded, FPSController.Grounded);
 		}
 	}
 	public class FirstPersonController : FPSControllerBase
@@ -588,6 +452,7 @@ namespace StarterAssets
 		private MoveController _moveController;
 		private IJumpAndGravity _JumpAndGravityController;
 		private ICameraController _CameraController;
+		private ICheckGrounded _CheckGroundedController;
         protected override void InitializeCamera()
         {
             if (_mainCamera == null)
@@ -604,6 +469,7 @@ namespace StarterAssets
 	        _moveController = _MoveController as MoveController;
 	        _AnimationControllerController = new AnimationController(fpsC, _moveController);
 	        _CameraController = new CameraController(fpsC);
+	        _CheckGroundedController = new GroundCheck(fpsC);
             SetController(GetComponent<CharacterController>());
             SetInput(GetComponent<StarterAssetsInputs>());
             SetDefultHipsPosition(headsImpact.transform.localPosition);
@@ -624,8 +490,7 @@ namespace StarterAssets
         protected override void UpdateLogic()
         {
             SetHasAnimator(TryGetComponent(out _animator));
-			
-            GroundedCheck();
+			_CheckGroundedController.GroundedCheck();
             _JumpAndGravityController.JumpAndGravity();
             _MoveController.Move();
             _AnimationControllerController.UpdateAnimations();
@@ -636,25 +501,6 @@ namespace StarterAssets
             _CameraController.ExtrudeHeadPointAndAiming();
             _CameraController.CameraRotation();
         }
-
-        protected override void GroundedCheck()
-        {
-            // set sphere position, with offset
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
-            SetGrounded(Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore));
-            if (_hasAnimator)
-            {
-                _animator.SetBool(_animIDGrounded, Grounded);
-            }
-        }
-
-        private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
-        {
-            if (lfAngle < -360f) lfAngle += 360f;
-            if (lfAngle > 360f) lfAngle -= 360f;
-            return Mathf.Clamp(lfAngle, lfMin, lfMax);
-        }
-
         private void OnDrawGizmosSelected()
         {
             Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
