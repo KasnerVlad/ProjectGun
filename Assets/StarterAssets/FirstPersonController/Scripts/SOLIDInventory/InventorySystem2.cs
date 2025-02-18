@@ -88,7 +88,7 @@ public class InventorySystem2 : InventoryBase
                     int availableSpace = item.maxStackSize - slot.Amount;
                     int addAmount = Mathf.Min(availableSpace, remainingAmount);
                 
-                    slot.AddItem(item, addAmount);
+                    await slot.AddItem(item, addAmount);
                     remainingAmount -= addAmount;
                 
                     if (remainingAmount <= 0)
@@ -107,7 +107,7 @@ public class InventorySystem2 : InventoryBase
             {
                 int addAmount = Mathf.Min(item.maxStackSize, remainingAmount);
             
-                slot.AddItem(item, addAmount);
+                await slot.AddItem(item, addAmount);
                 remainingAmount -= addAmount;
             
                 if (remainingAmount <= 0)
@@ -130,7 +130,7 @@ public class InventorySystem2 : InventoryBase
             if (slot.Amount>=1)
             {
                 int removableAmount = Mathf.Min(slot.Amount, amount);
-                slot.RemoveItem(removableAmount);
+                await slot.RemoveItem(removableAmount);
                 InventoryEvents.InvokeInventoryUpdated(slots);
                 amount -= removableAmount;
 
@@ -147,7 +147,7 @@ public class InventorySystem2 : InventoryBase
         await Task.Yield();
         foreach (var slot in slots)
         {
-            slot.ClearSlot();
+            await slot.ClearSlot();
         }
         InventoryEvents.InvokeInventoryUpdated(slots);
     }

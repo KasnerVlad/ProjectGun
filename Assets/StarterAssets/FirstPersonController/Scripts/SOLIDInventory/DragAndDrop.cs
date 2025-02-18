@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -41,11 +42,17 @@ public class DragAndDrop : DragAndDropBase
         {
             int targetIndex = inventorySlots.FindIndex(s => s.Slot == targetObject);
             InventorySlots targetSlot = inventorySlots[targetIndex];
-            await SwapItems(sourceSlot, targetSlot);
-
+            if (targetSlot.Item != sourceSlot.Item || (targetSlot.Amount == targetSlot.Item.maxStackSize))
+            {
+                await SwapItems(sourceSlot, targetSlot);
+            }
+            else if (targetSlot.Amount < targetSlot.Item.maxStackSize&&targetSlot.Item==sourceSlot.Item)
+            {
+                await MoveItems(sourceSlot, targetSlot);
+            }
             InventoryEvents.InvokeInventoryUpdated(inventorySlots);
         }
-        draggedImage.rectTransform.position = originalPosition;
+        draggedImage.rectTransform.localPosition = Vector3.zero;
         isDragging = false;
         await Task.Yield();
     }
@@ -56,16 +63,31 @@ public class DragAndDrop : DragAndDropBase
 
         Item tempItem = from.Item;
         int tempAmount = from.Amount;
-
+        
+        Item newItem = to.Item;
+        int newAmount = to.Amount;
+        
         await from.ClearSlot();
-        if (!to.IsEmpty())
-        {
-            await from.AddItem(to.Item, to.Amount);
-            await to.ClearSlot();
-        }
+        await to.ClearSlot();
+        
         await to.AddItem(tempItem, tempAmount);
+        await from.AddItem(newItem, newAmount);
     }
 
+    private async Task MoveItems(InventorySlots from, InventorySlots to)
+    {
+        if (from == to) return;
+        int remainingSpace = to.Item.maxStackSize - to.Amount;
+        int amountToMove = Math.Min(remainingSpace, from.Amount);
+        int sourceNewAmount = from.Amount-amountToMove;
+        Item originalItem = from.Item;
+        Item targetItem = to.Item;
+        int originalAmount = from.Amount;
+
+        await from.RemoveItem(originalAmount);
+        await to.AddItem(targetItem, amountToMove);
+        await from.AddItem(originalItem, sourceNewAmount);
+    }
     private GameObject GetClickedSlot()
     {
         if (InventoryInput.StartDragging)
