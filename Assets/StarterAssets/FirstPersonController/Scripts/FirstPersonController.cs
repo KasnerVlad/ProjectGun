@@ -13,7 +13,8 @@ namespace StarterAssets
 	{
 		private IAnimationController _AnimationControllerController;
 		private IMove _MoveController;
-		private MoveController _moveController;
+        private MoveController _moveController;
+        private JumpAndGravityController jumpAndGravityController;
 		private IJumpAndGravity _JumpAndGravityController;
 		private ICameraController _CameraController;
 		private ICheckGrounded _CheckGroundedController;
@@ -28,14 +29,17 @@ namespace StarterAssets
         protected override void InitializeStart()
         {
 	        FPSControllerBase fpsC = GetComponent<FirstPersonController>();
+            
 	        _JumpAndGravityController = new JumpAndGravityController(fpsC);
-	        _MoveController = new MoveController(fpsC);
-	        _moveController = _MoveController as MoveController;
-	        _AnimationControllerController = new AnimationController(fpsC, _moveController);
+            jumpAndGravityController= _JumpAndGravityController as JumpAndGravityController;
+            
+	        _MoveController = new MoveController(fpsC, jumpAndGravityController);
+            _moveController = _MoveController as MoveController;
+            
+	        _AnimationControllerController = new AnimationController(fpsC, _moveController, jumpAndGravityController);
 	        _CameraController = new CameraController(fpsC);
 	        _CheckGroundedController = new GroundCheck(fpsC);
             
-            SetController(GetComponent<CharacterController>());
             SetInput(GetComponent<StarterAssetsInputs>());
             SetDefultHipsPosition(headsImpact.transform.localPosition);
             Debug.Log(defultHipsPosition);
@@ -45,15 +49,11 @@ namespace StarterAssets
 #else
             Debug.LogError("Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
-            // reset our timeouts on start
-            SetJumpTimeoutDelta(JumpTimeout);
-            SetFallTimeoutDelta(FallTimeout);
             SetHeadDefultPosition(headsImpact.transform.localPosition);
         }
 
         protected override void UpdateLogic()
         {
-            SetHasAnimator(TryGetComponent(out _animator));
 			_CheckGroundedController.GroundedCheck();
             _JumpAndGravityController.JumpAndGravity();
             _MoveController.Move();
@@ -84,7 +84,7 @@ namespace StarterAssets
                 if (FootstepAudioClips.Length > 0)
                 {
                     var index = Random.Range(0, FootstepAudioClips.Length);
-                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_controller.center), FootstepAudioVolume);
+                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_moveController.controllerCenter), FootstepAudioVolume);
                 }
             }
         }
@@ -92,7 +92,7 @@ namespace StarterAssets
         {
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
-                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_moveController.controllerCenter), FootstepAudioVolume);
             }
         }
     }

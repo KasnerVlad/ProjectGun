@@ -3,11 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-#region Item
-
 public enum ItemType { Weapon, Armor, Consumable, Resource }
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
-
 public class Item : ScriptableObject
 {
     public int id;
@@ -20,9 +17,6 @@ public class Item : ScriptableObject
 }
 
 
-#endregion
-
-#region Resources
 [CreateAssetMenu(fileName = "New FoodItem", menuName = "Inventory/FoodItem")]
 public class FoodItem : Item
 {
@@ -30,5 +24,3 @@ public class FoodItem : Item
     public int addEnergyAmount;
     public int addThirthyAmount;
 }
-
-#endregion

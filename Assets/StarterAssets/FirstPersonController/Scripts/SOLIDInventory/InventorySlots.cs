@@ -10,7 +10,7 @@ public class InventorySlots
     {
         await Task.Yield();
         Item = item;
-        Amount += amount;
+        if(Amount+amount<=Item.maxStackSize) Amount += amount;
     }
 
     public async Task RemoveItem(int amount)

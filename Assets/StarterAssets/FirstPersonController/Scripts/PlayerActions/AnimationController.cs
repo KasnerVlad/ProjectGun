@@ -7,52 +7,68 @@ namespace StarterAssets
     {
         private FPSControllerBase FPSController;
         private MoveController _moveController;
-        public AnimationController(FPSControllerBase FPSController, MoveController moveController)
+        private JumpAndGravityController _jumpAndGravityController;
+        private int _animIDSpeed;
+        private int _animIDGrounded;
+        private int _animIDJump;
+        private int _animIDFreeFall;
+        private int _animIDMotionSpeed;
+        private int _dirX;
+        private int _dirZ;
+        private float _animationBlend;
+        private Vector2 lerpSpeed;
+        private bool _hasAnimator;
+        private Animator _animator;
+        
+        public AnimationController(FPSControllerBase FPSController, MoveController moveController, JumpAndGravityController jumpAndGravityController)
         {
             this.FPSController = FPSController;
             this._moveController = moveController;
+            this._jumpAndGravityController = jumpAndGravityController;
         }
         public void AssignAnimationIDs()
         {
-            FPSController.SetAnimIDSpeed(Animator.StringToHash("Speed"));
-            FPSController.SetAnimIDGrounded(Animator.StringToHash("Grounded"));
-            FPSController.SetAnimIDJump(Animator.StringToHash("Jump"));
-            FPSController.SetAnimIDFreeFall(Animator.StringToHash("FreeFall"));
-            FPSController.SetAnimIDMotionSpeed(Animator.StringToHash("MotionSpeed"));
-            FPSController.SetDirX(Animator.StringToHash("X"));
-            FPSController.SetDirZ(Animator.StringToHash("Z"));
+            _animIDSpeed = Animator.StringToHash("Speed");
+            _animIDGrounded = Animator.StringToHash("Grounded");
+            _animIDJump = Animator.StringToHash("Jump");
+            _animIDFreeFall = Animator.StringToHash("FreeFall");
+            _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+            _dirX = Animator.StringToHash("X");
+            _dirZ = Animator.StringToHash("Z");
         }
         public void UpdateAnimations()
         {
-            if(!FPSController._hasAnimator)return;
-            FPSController.SetAnimationBlend(Mathf.Lerp(FPSController._animationBlend, _moveController.targetSpeed, Time.deltaTime * FPSController.SpeedChangeRate));
-            if (FPSController._animationBlend < 0.01f) FPSController.SetAnimationBlend(0f);
+            
+            _hasAnimator = FPSController.TryGetComponent(out _animator);
+            if(!_hasAnimator)return;
+            _animationBlend = Mathf.Lerp(_animationBlend, _moveController.targetSpeed, Time.deltaTime * FPSController.SpeedChangeRate);
+            if (_animationBlend < 0.01f)_animationBlend = 0;
 
-            FPSController.SetLerpSpeed(new Vector2(Mathf.Lerp(FPSController.lerpSpeed.x, 
+            lerpSpeed = new Vector2(Mathf.Lerp(lerpSpeed.x, 
                     _moveController.targetSpeed * FPSController._input.move.x, Time.deltaTime * FPSController.SpeedChangeRate), 
-                Mathf.Lerp(FPSController.lerpSpeed.y, _moveController.targetSpeed * FPSController._input.move.y, Time.deltaTime * FPSController.SpeedChangeRate)));
+                Mathf.Lerp(lerpSpeed.y, _moveController.targetSpeed * FPSController._input.move.y, Time.deltaTime * FPSController.SpeedChangeRate));
 
-            FPSController._animator.SetFloat(FPSController._dirX, FPSController.lerpSpeed.x);
-            FPSController._animator.SetFloat(FPSController._dirZ, FPSController.lerpSpeed.y);
-            FPSController._animator.SetFloat(FPSController._animIDSpeed, FPSController._animationBlend);
-            FPSController._animator.SetFloat(FPSController._animIDMotionSpeed, _moveController.inputMagnitude);
+            _animator.SetFloat(_dirX, lerpSpeed.x);
+            _animator.SetFloat(_dirZ, lerpSpeed.y);
+            _animator.SetFloat(_animIDSpeed, _animationBlend);
+            _animator.SetFloat(_animIDMotionSpeed, _moveController.inputMagnitude);
             if (FPSController.Grounded)
             {
-                FPSController._animator.SetBool(FPSController._animIDJump, false);
-                FPSController._animator.SetBool(FPSController._animIDFreeFall, false);
-                if (FPSController._input.jump && FPSController._jumpTimeoutDelta <= 0.0f)
+                _animator.SetBool(_animIDJump, false);
+                _animator.SetBool(_animIDFreeFall, false);
+                if (FPSController._input.jump && _jumpAndGravityController._jumpTimeoutDelta <= 0.0f)
                 {
-                    FPSController._animator.SetBool(FPSController._animIDJump, true);
+                    _animator.SetBool(_animIDJump, true);
                 }
                 else
                 {
-                    if (FPSController._fallTimeoutDelta < 0.0f)
+                    if (_jumpAndGravityController._fallTimeoutDelta < 0.0f)
                     {
-                        FPSController._animator.SetBool(FPSController._animIDFreeFall, true);					
+                        _animator.SetBool(_animIDFreeFall, true);					
                     }
                 }
             }
-            FPSController._animator.SetBool(FPSController._animIDGrounded, FPSController.Grounded);
+            _animator.SetBool(_animIDGrounded, FPSController.Grounded);
         }
     }
 }

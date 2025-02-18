@@ -73,7 +73,7 @@ public class InventorySystem2 : InventoryBase
     }
     
 
-    public override async Task<bool> AddItem(Item item, int amount)
+    public override async Task<int> AddItem(Item item, int amount)
     {
         await Task.Yield();
         int remainingAmount = amount;
@@ -94,7 +94,7 @@ public class InventorySystem2 : InventoryBase
                     if (remainingAmount <= 0)
                     {
                         InventoryEvents.InvokeInventoryUpdated(slots);
-                        return true;
+                        return 0;
                     }
                 }
             }
@@ -113,13 +113,13 @@ public class InventorySystem2 : InventoryBase
                 if (remainingAmount <= 0)
                 {
                     InventoryEvents.InvokeInventoryUpdated(slots);
-                    return true;
+                    return 0;
                 }
             }
         }
-
+        InventoryEvents.InvokeInventoryUpdated(slots);
         Debug.Log("No space to add item");
-        return false;
+        return remainingAmount;
     }
 
     public override async Task<bool> RemoveItem(int amount)
