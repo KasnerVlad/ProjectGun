@@ -76,13 +76,45 @@ public class InventorySystem2 : InventoryBase
     public override async Task<bool> AddItem(Item item, int amount)
     {
         await Task.Yield();
+        int remainingAmount = amount;
+
+        // Сначала пытаемся добавить в существующие стеки
+        if (parameters.AllowStacking)
+        {
+            foreach (var slot in slots)
+            {
+                if (slot.Item == item && slot.Amount < item.maxStackSize)
+                {
+                    int availableSpace = item.maxStackSize - slot.Amount;
+                    int addAmount = Mathf.Min(availableSpace, remainingAmount);
+                
+                    await slot.AddItem(item, addAmount);
+                    remainingAmount -= addAmount;
+                
+                    if (remainingAmount <= 0)
+                    {
+                        InventoryEvents.InvokeInventoryUpdated(slots);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Затем пытаемся добавить в пустые слоты
         foreach (var slot in slots)
         {
-            if (slot.IsEmpty()||(slot.Item == item && parameters.AllowStacking && slot.Amount + amount <= item.maxStackSize))
+            if (slot.IsEmpty())
             {
-                slot.AddItem(item, amount);
-                InventoryEvents.InvokeInventoryUpdated(slots);
-                return true;
+                int addAmount = Mathf.Min(item.maxStackSize, remainingAmount);
+            
+                await slot.AddItem(item, addAmount);
+                remainingAmount -= addAmount;
+            
+                if (remainingAmount <= 0)
+                {
+                    InventoryEvents.InvokeInventoryUpdated(slots);
+                    return true;
+                }
             }
         }
 
@@ -98,7 +130,7 @@ public class InventorySystem2 : InventoryBase
             if (slot.Amount>=1)
             {
                 int removableAmount = Mathf.Min(slot.Amount, amount);
-                slot.RemoveItem(removableAmount);
+                await slot.RemoveItem(removableAmount);
                 InventoryEvents.InvokeInventoryUpdated(slots);
                 amount -= removableAmount;
 
@@ -115,7 +147,7 @@ public class InventorySystem2 : InventoryBase
         await Task.Yield();
         foreach (var slot in slots)
         {
-            slot.ClearSlot();
+            await slot.ClearSlot();
         }
         InventoryEvents.InvokeInventoryUpdated(slots);
     }

@@ -26,7 +26,6 @@ public class Item : ScriptableObject
 [CreateAssetMenu(fileName = "New FoodItem", menuName = "Inventory/FoodItem")]
 public class FoodItem : Item
 {
-
     public int healAmount;
     public int addEnergyAmount;
     public int addThirthyAmount;
