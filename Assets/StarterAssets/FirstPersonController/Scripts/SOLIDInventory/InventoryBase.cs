@@ -35,7 +35,7 @@ public abstract class InventoryBase : MonoBehaviour
     public abstract void InitializeInventory();
     public abstract void SingOnEvents();
     public abstract void SingOffEvents();
-    public abstract Task<bool> AddItem(Item item, int amount);
+    public abstract Task<int> AddItem(Item item, int amount);
     public abstract Task<bool> RemoveItem(int amount);
     public abstract Task ClearInventory();
     

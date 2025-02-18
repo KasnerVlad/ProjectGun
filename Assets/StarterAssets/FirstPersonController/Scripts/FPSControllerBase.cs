@@ -17,7 +17,7 @@ namespace StarterAssets
             get { if (_moveSpeedCache == null) { _moveSpeedCache = moveSpeed; } return _moveSpeedCache.Value; }
             private set { if (_moveSpeedCache == null) { _moveSpeedCache = Mathf.Clamp(value, 0.5f, SprintSpeed/2);; } }
         }
-        public float _animationBlend {private set; get;}
+
         [Tooltip("Sprint speed of the character in m/s")]
         [SerializeField] private float sprintSpeed;
         private float? _sprintSpeedCache = null;
@@ -119,7 +119,7 @@ namespace StarterAssets
         public GameObject CinemachineCameraTarget;
 		
         [Tooltip("How far in degrees can you move the camera up")] 
-        [SerializeField] protected Vector2 cinemachineCameraAngleCalm;
+        [SerializeField] private Vector2 cinemachineCameraAngleCalm;
         private float? _topClampCache = null;
         private float? _bottomClampCache = null;
         public float TopClamp {
@@ -136,39 +136,12 @@ namespace StarterAssets
         [SerializeField] protected GameObject headsImpact;
         public Vector3 defultHipsPosition{private set; get;}
 
-        // cinemachine
-        public float _cinemachineTargetPitch{private set; get;}
-
-        // player
-        public float _speed{private set; get;}
-        public float _rotationVelocity{private set; get;}
-        public float _verticalVelocity{private set; get;}
-		
-        public readonly float _terminalVelocity = 53f;
-
-        // timeout deltatime
-        public float _jumpTimeoutDelta{private set; get;}
-        public float _fallTimeoutDelta{private set; get;}
-		
-        // animation IDs
-        public int _animIDSpeed{private set; get;}
-        public int _animIDGrounded{private set; get;}
-        public int _animIDJump{private set; get;}
-        public int _animIDFreeFall{private set; get;}
-        public int _animIDMotionSpeed{private set; get;}
-        public int _dirX{private set; get;}
-        public int _dirZ{private set; get;}
-	
 #if ENABLE_INPUT_SYSTEM
         public PlayerInput _playerInput{private set; get;}
 #endif
-        public CharacterController _controller{private set; get;}
         public StarterAssetsInputs _input{private set; get;}
         public GameObject _mainCamera{private set; get;}
         public readonly float _threshold = 0.01f;
-        public Vector2 lerpSpeed{private set; get;}
-        public bool _hasAnimator{private set; get;}
-        public Animator _animator;
         [SerializeField] public GameObject aimingPoint;
         [SerializeField] public GameObject head;
         public Vector3 _headDefultPosition{private set; get;}
@@ -206,29 +179,12 @@ namespace StarterAssets
         protected abstract void InitializeStart();
         protected abstract void UpdateLogic();
         protected abstract void LateUpdateLogic();
-        public virtual void SetAnimationBlend(float animationBlend) => _animationBlend = animationBlend;
         public virtual void SetGrounded(bool grounded) => Grounded = grounded;
-        public virtual void SetDefultHipsPosition(Vector3 defultHipsPosition) => this.defultHipsPosition = defultHipsPosition;
-        public virtual void SetCinemachineTargetPitch(float cinemachineTargetPitch) => _cinemachineTargetPitch = cinemachineTargetPitch;
-        public virtual void SetSpeed(float speed) => _speed = speed;
-        public virtual void SetRotationVelocity(float rotationVelocity) => _rotationVelocity = rotationVelocity;
-        public virtual void SetVerticalVelocity(float verticalVelocity) => _verticalVelocity = verticalVelocity;
-        public virtual void SetJumpTimeoutDelta(float jumpTimeoutDelta) => _jumpTimeoutDelta = jumpTimeoutDelta;
-        public virtual void SetFallTimeoutDelta(float fallTimeoutDelta) => _fallTimeoutDelta = fallTimeoutDelta;
-        public virtual void SetAnimIDSpeed(int animIDSpeed) => _animIDSpeed = animIDSpeed;
-        public virtual void SetAnimIDGrounded(int animIDGrounded) => _animIDGrounded = animIDGrounded;
-        public virtual void SetAnimIDJump(int animIDJump) => _animIDJump = animIDJump;
-        public virtual void SetAnimIDFreeFall(int animIDFreeFall) => _animIDFreeFall = animIDFreeFall;
-        public virtual void SetAnimIDMotionSpeed(int animIDMotionSpeed) => _animIDMotionSpeed = animIDMotionSpeed;
-        public virtual void SetDirX(int dirX) => _dirX = dirX;
-        public virtual void SetDirZ(int dirZ) => _dirZ = dirZ;
-        public virtual void SetPlayerInput(PlayerInput playerInput) => _playerInput = playerInput;
-        public virtual void SetInput(StarterAssetsInputs input) => _input = input;
-        public virtual void SetMainCamera(GameObject mainCamera) => _mainCamera = mainCamera;
-        public virtual void SetLerpSpeed(Vector2 lerpSpeed) => this.lerpSpeed = lerpSpeed;
-        public virtual void SetHasAnimator(bool hasAnimator) => _hasAnimator = hasAnimator;
-        public virtual void SetHeadDefultPosition(Vector3 headDefultPosition) => _headDefultPosition = headDefultPosition;
-        public virtual void SetController(CharacterController characterController) => _controller = characterController;
+        protected virtual void SetDefultHipsPosition(Vector3 defultHipsPosition) => this.defultHipsPosition = defultHipsPosition;
+        protected virtual void SetPlayerInput(PlayerInput playerInput) => _playerInput = playerInput;
+        protected virtual void SetInput(StarterAssetsInputs input) => _input = input;
+        protected virtual void SetMainCamera(GameObject mainCamera) => _mainCamera = mainCamera;
+        protected virtual void SetHeadDefultPosition(Vector3 headDefultPosition) => _headDefultPosition = headDefultPosition;
 
         public static float ClampAngle(float lfAngle, float lfMin, float lfMax)
         {
