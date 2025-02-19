@@ -132,7 +132,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -9130061642626182924, guid: f9223336b5fef5648823e54ffc799943, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -13.0716915
       objectReference: {fileID: 0}
     - target: {fileID: -9006549272062162013, guid: f9223336b5fef5648823e54ffc799943, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -195,6 +195,14 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8672181494688402661, guid: f9223336b5fef5648823e54ffc799943, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8672181494688402661, guid: f9223336b5fef5648823e54ffc799943, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8672181494688402661, guid: f9223336b5fef5648823e54ffc799943, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -179.99998
       objectReference: {fileID: 0}
@@ -218,6 +226,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Barret 9
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f9223336b5fef5648823e54ffc799943, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 2418137116623094498, guid: f9223336b5fef5648823e54ffc799943, type: 3}
@@ -226,6 +238,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f9223336b5fef5648823e54ffc799943, type: 3}
       insertIndex: -1
       addedObject: {fileID: 990222730}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f9223336b5fef5648823e54ffc799943, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 990222732}
   m_SourcePrefab: {fileID: 100100000, guid: f9223336b5fef5648823e54ffc799943, type: 3}
 --- !u!224 &63279651 stripped
 RectTransform:
@@ -2196,6 +2211,32 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!4 &990222731 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f9223336b5fef5648823e54ffc799943, type: 3}
+  m_PrefabInstance: {fileID: 38570458}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &990222732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990222729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f760e44da074f7cb2d9820fb8761d1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _damage: 100
+  _fireRate: 0.1661097
+  _range: 0
+  _muzzleFlash: {fileID: 0}
+  _firePoint: {fileID: 990222731}
+  _startBulletCount: 10000
+  _lastBulletsCount: 10
+  _reloadTime: 200
+  ammoText: {fileID: 0}
 --- !u!1001 &992561982
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2670,7 +2711,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -13, y: -352.07}
+  m_AnchoredPosition: {x: -13, y: -352.07004}
   m_SizeDelta: {x: -596.4, y: -963.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &1177989453 stripped

@@ -4,13 +4,13 @@ public class InventorySlots
 {
     public Item Item { get; private set; }
     public int Amount { get; private set; }
-    public GameObject Slot { get; set; }
+    public GameObject Slot { get; private set; }
 
     public async Task AddItem(Item item, int amount)
     {
         await Task.Yield();
         Item = item;
-        if(Amount+amount<=Item.maxStackSize) Amount += amount;
+        if(Item!=null&&Amount+amount<=Item.maxStackSize) Amount += amount;
     }
 
     public async Task RemoveItem(int amount)
@@ -27,5 +27,9 @@ public class InventorySlots
         Amount = 0;
     }
 
+    public void SetGSlot(GameObject slot)
+    {
+        Slot = slot;
+    }
     public bool IsEmpty() => Item == null;
 }
