@@ -12,36 +12,21 @@ namespace StarterAssets
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
         [SerializeField] private float moveSpeed;
-        private float? _moveSpeedCache = null;
-        public float MoveSpeed {
-            get { if (_moveSpeedCache == null) { _moveSpeedCache = moveSpeed; } return _moveSpeedCache.Value; }
-            private set { if (_moveSpeedCache == null) { _moveSpeedCache = Mathf.Clamp(value, 0.5f, SprintSpeed/2);; } }
-        }
+        public float MoveSpeed { get { return moveSpeed; }private set { moveSpeed = Mathf.Clamp(value, 1, SprintSpeed/2);  } }
 
         [Tooltip("Sprint speed of the character in m/s")]
         [SerializeField] private float sprintSpeed;
-        private float? _sprintSpeedCache = null;
-        public float SprintSpeed {
-            get { if (_sprintSpeedCache == null) { _sprintSpeedCache = sprintSpeed; } return _sprintSpeedCache.Value; }
-            private set { if (_sprintSpeedCache == null) { _sprintSpeedCache = Mathf.Clamp(value, 2, 6);; } }
-        }
+        public float SprintSpeed { get { return sprintSpeed; } private set { sprintSpeed = Mathf.Clamp(value, MoveSpeed, 6); } }
 		
         [Tooltip("Rotation speed of the character")] 
+        [Range(0, 1)]
         [SerializeField] private float rotationSpeed;
-        private float? _rotationSpeedCache = null;
-        public float RotationSpeed {
-            get { if (_rotationSpeedCache == null) { _rotationSpeedCache = rotationSpeed; } return _rotationSpeedCache.Value; }
-            private set { if (_rotationSpeedCache == null) { _rotationSpeedCache = value; } }
-        }
+        public float RotationSpeed{ get { return rotationSpeed; } private set { rotationSpeed = Mathf.Clamp(value, 0, 1); } }
 
         [Tooltip("Acceleration and deceleration")] 
         [Range(1, 15)] 
         [SerializeField] private float speedChangeRate;
-        private float? _speedChangeRateCache = null;
-        public float SpeedChangeRate {
-            get { if (_speedChangeRateCache == null) { _speedChangeRateCache = speedChangeRate; } return _speedChangeRateCache.Value; }
-            private set { if (_speedChangeRateCache == null) { _speedChangeRateCache = Mathf.Clamp(value, 1, 15);; } }
-        }
+        public float SpeedChangeRate{ get { return speedChangeRate; } private set { speedChangeRate = Mathf.Clamp(value, 1, 15); } }
 
         [Tooltip("Acceleration and deceleration")] 
         [SerializeField] private AudioClip landingAudioClip;
@@ -59,32 +44,20 @@ namespace StarterAssets
 
         [Space(10)]
         [Tooltip("The height the player can jump")] 
+        [Range(0.1f, 2)]
         [SerializeField] private float jumpHeight;
-        private float? _jumpHeightCache = null; 
-        public float JumpHeight { 
-            get { if (_jumpHeightCache == null) { _jumpHeightCache = jumpHeight; } return _jumpHeightCache.Value; }
-            private set { if (_jumpHeightCache == null) { _jumpHeightCache = value; } }
-        }
-        [Range(-1, -15)]
+        public float JumpHeight { get { return jumpHeight;} private set{jumpHeight = Mathf.Clamp(value, 0.1f, 2);} }
+        [Range(-9.8f, -15)]
         [Tooltip("The character uses its own gravity value. The engine default is -9.81f")] 
         [SerializeField] private float gravity;
-        private float? _gravityCache = null; 
-        public float Gravity {
-            get { if (_gravityCache == null) { _gravityCache = gravity; } return _gravityCache.Value; }
-            private set { if (_gravityCache == null) { _gravityCache = Mathf.Clamp(value, -15, -1);; } }
-        }
+        public float Gravity{ get { return gravity; } private set { gravity = Mathf.Clamp(value, -15,-9.8f); } }
         [Space(10)]
         [Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
         public readonly float JumpTimeout = 0.1f;
 
         [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
         [SerializeField] private float fallTimeout = 0.5f;
-        private float? _fallTimeoutCache = null; // Хранит зафиксированное значение
-
-        public float FallTimeout {
-            get { if (_fallTimeoutCache == null) { _fallTimeoutCache = fallTimeout; } return _fallTimeoutCache.Value; }
-            private set { if (_fallTimeoutCache == null) { _fallTimeoutCache = value; } }
-        }
+        public float FallTimeout => fallTimeout;
 
         /*[Header("Player Grounded")]*/
         [Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
@@ -92,27 +65,15 @@ namespace StarterAssets
         [Range(0, -1)]
         [Tooltip("Useful for rough ground")]
         [SerializeField] private float groundedOffset;
-        private float? _groundedOffsetCache = null;
-        public float GroundedOffset {
-            get { if (_groundedOffsetCache == null) { _groundedOffsetCache = groundedOffset; } return _groundedOffsetCache.Value; }
-            private set { if (_groundedOffsetCache == null) { _groundedOffsetCache = value; } }
-        }
+        public float GroundedOffset=>groundedOffset;
         [Range(0, 1)]
         [Tooltip("The radius of the grounded check. Should match the radius of the CharacterController")]
         [SerializeField] private float groundRadius;
-        private float? _groundRadiusCache = null;
-        public float GroundedRadius {
-            get { if (_groundRadiusCache == null) { _groundRadiusCache = groundRadius; } return _groundRadiusCache.Value; }
-            private set { if (_groundRadiusCache == null) { _groundRadiusCache = value; } }
-        }
+        public float GroundedRadius=>groundRadius;
 
         [Tooltip("What layers the character uses as ground")] 
         [SerializeField] private LayerMask groundLayer;
-        private LayerMask? _groundPositionCache = null;
-        public LayerMask GroundLayers {
-            get{if (_groundPositionCache == null) { _groundPositionCache = groundLayer; } return _groundPositionCache.Value;}
-            private set { if (_groundPositionCache == null) { _groundPositionCache = value; } }
-        }
+        public LayerMask GroundLayers => groundLayer;
 
         /*[Header("Cinemachine")]*/
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -120,18 +81,11 @@ namespace StarterAssets
 		
         [Tooltip("How far in degrees can you move the camera up")] 
         [SerializeField] private Vector2 cinemachineCameraAngleCalm;
-        private float? _topClampCache = null;
-        private float? _bottomClampCache = null;
-        public float TopClamp {
-            get { if (_topClampCache == null) { _topClampCache = cinemachineCameraAngleCalm.x; } return _topClampCache.Value; }
-            private set { if (_topClampCache == null) { _topClampCache = value; } }
-        }
+
+        public float TopClamp => cinemachineCameraAngleCalm.x;
 
         [Tooltip("How far in degrees can you move the camera down")]
-        public float BottomClamp {
-            get { if (_bottomClampCache == null) { _bottomClampCache = cinemachineCameraAngleCalm.y; } return _bottomClampCache.Value; }
-            private set { if (_bottomClampCache == null) { _bottomClampCache = value; } }
-        }
+        public float BottomClamp => cinemachineCameraAngleCalm.y;
 
         [SerializeField] protected GameObject headsImpact;
         public Vector3 defultHipsPosition{private set; get;}

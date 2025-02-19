@@ -18,7 +18,7 @@ public class InventorySystem2 : InventoryBase
         }
         for (int i = 0; i < maxSlots; i++)
         {
-            slots[i].Slot = i<hotbar.transform.childCount? hotbar.transform.GetChild(i).gameObject : inventory.transform.GetChild(i-hotbar.transform.childCount).gameObject;
+            slots[i].SetGSlot(i<hotbar.transform.childCount? hotbar.transform.GetChild(i).gameObject : inventory.transform.GetChild(i-hotbar.transform.childCount).gameObject);
         }
         imageArrayChecker = new HashSet<Image>(GetSlotsImage());
         slotsArrayChecker = new HashSet<GameObject>(GetSlotsGameObject());

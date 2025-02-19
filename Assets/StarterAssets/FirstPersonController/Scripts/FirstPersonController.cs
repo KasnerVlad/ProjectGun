@@ -28,17 +28,15 @@ namespace StarterAssets
 
         protected override void InitializeStart()
         {
-	        FPSControllerBase fpsC = GetComponent<FirstPersonController>();
-            
-	        _JumpAndGravityController = new JumpAndGravityController(fpsC);
+	        _JumpAndGravityController = new JumpAndGravityController(this);
             jumpAndGravityController= _JumpAndGravityController as JumpAndGravityController;
             
-	        _MoveController = new MoveController(fpsC, jumpAndGravityController);
+	        _MoveController = new MoveController(this, jumpAndGravityController);
             _moveController = _MoveController as MoveController;
             
-	        _AnimationControllerController = new AnimationController(fpsC, _moveController, jumpAndGravityController);
-	        _CameraController = new CameraController(fpsC);
-	        _CheckGroundedController = new GroundCheck(fpsC);
+	        _AnimationControllerController = new AnimationController(this, _moveController, jumpAndGravityController);
+	        _CameraController = new CameraController(this);
+	        _CheckGroundedController = new GroundCheck(this);
             
             SetInput(GetComponent<StarterAssetsInputs>());
             SetDefultHipsPosition(headsImpact.transform.localPosition);
