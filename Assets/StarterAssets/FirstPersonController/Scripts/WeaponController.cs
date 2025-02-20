@@ -57,7 +57,7 @@ namespace StarterAssets.FirstPersonController.Scripts
         {
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
-                AudioSource.PlayClipAtPoint(FireSound, transform.TransformPoint(characterController.center+new Vector3(0,1.69f,0)), 1f);
+                AudioSource.PlayClipAtPoint(FireSound, transform.TransformPoint(Vector3.zero), 1f);
             }
         }
     }
