@@ -1,11 +1,10 @@
-using PlayerInterfases;
 using UnityEngine;
 
-namespace StarterAssets
+namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
 {
     public class GroundCheck : ICheckGrounded
     {
-        private FPSControllerBase _controller;
+        private readonly FPSControllerBase _controller;
         public GroundCheck(FPSControllerBase controller)
         {
             _controller = controller;

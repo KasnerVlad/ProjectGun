@@ -1,11 +1,14 @@
-public class InventoryParams
+namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
 {
-    public int MaxSlots { get; private set; }
-    public bool AllowStacking { get; private set; }
-
-    public InventoryParams(int maxSlots, bool allowStacking)
+    public class InventoryParams
     {
-        MaxSlots = maxSlots;
-        AllowStacking = allowStacking;
+        public int MaxSlots { get; private set; }
+        public bool AllowStacking { get; private set; }
+    
+        public InventoryParams(int maxSlots, bool allowStacking)
+        {
+            MaxSlots = maxSlots;
+            AllowStacking = allowStacking;
+        }
     }
 }

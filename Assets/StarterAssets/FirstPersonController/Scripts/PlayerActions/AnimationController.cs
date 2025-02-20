@@ -1,13 +1,12 @@
-using PlayerInterfases;
 using UnityEngine;
 
-namespace StarterAssets
+namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
 {
     public class AnimationController : IAnimationController
     {
-        private FPSControllerBase FPSController;
-        private MoveController _moveController;
-        private JumpAndGravityController _jumpAndGravityController;
+        private readonly FPSControllerBase _fpsController;
+        private readonly MoveController _moveController;
+        private readonly JumpAndGravityController _jumpAndGravityController;
         private int _animIDSpeed;
         private int _animIDGrounded;
         private int _animIDJump;
@@ -16,13 +15,13 @@ namespace StarterAssets
         private int _dirX;
         private int _dirZ;
         private float _animationBlend;
-        private Vector2 lerpSpeed;
+        private Vector2 _lerpSpeed;
         private bool _hasAnimator;
         private Animator _animator;
         
-        public AnimationController(FPSControllerBase FPSController, MoveController moveController, JumpAndGravityController jumpAndGravityController)
+        public AnimationController(FPSControllerBase fpsController, MoveController moveController, JumpAndGravityController jumpAndGravityController)
         {
-            this.FPSController = FPSController;
+            this._fpsController = fpsController;
             this._moveController = moveController;
             this._jumpAndGravityController = jumpAndGravityController;
         }
@@ -39,36 +38,36 @@ namespace StarterAssets
         public void UpdateAnimations()
         {
             
-            _hasAnimator = FPSController.TryGetComponent(out _animator);
+            _hasAnimator = _fpsController.TryGetComponent(out _animator);
             if(!_hasAnimator)return;
-            _animationBlend = Mathf.Lerp(_animationBlend, _moveController.targetSpeed, Time.deltaTime * FPSController.SpeedChangeRate);
+            _animationBlend = Mathf.Lerp(_animationBlend, _moveController.TargetSpeed, Time.deltaTime * _fpsController.SpeedChangeRate);
             if (_animationBlend < 0.01f)_animationBlend = 0;
 
-            lerpSpeed = new Vector2(Mathf.Lerp(lerpSpeed.x, 
-                    _moveController.targetSpeed * FPSController._input.move.x, Time.deltaTime * FPSController.SpeedChangeRate), 
-                Mathf.Lerp(lerpSpeed.y, _moveController.targetSpeed * FPSController._input.move.y, Time.deltaTime * FPSController.SpeedChangeRate));
+            _lerpSpeed = new Vector2(Mathf.Lerp(_lerpSpeed.x, 
+                    _moveController.TargetSpeed * _fpsController.Input.move.x, Time.deltaTime * _fpsController.SpeedChangeRate), 
+                Mathf.Lerp(_lerpSpeed.y, _moveController.TargetSpeed * _fpsController.Input.move.y, Time.deltaTime * _fpsController.SpeedChangeRate));
 
-            _animator.SetFloat(_dirX, lerpSpeed.x);
-            _animator.SetFloat(_dirZ, lerpSpeed.y);
+            _animator.SetFloat(_dirX, _lerpSpeed.x);
+            _animator.SetFloat(_dirZ, _lerpSpeed.y);
             _animator.SetFloat(_animIDSpeed, _animationBlend);
-            _animator.SetFloat(_animIDMotionSpeed, _moveController.inputMagnitude);
-            if (FPSController.Grounded)
+            _animator.SetFloat(_animIDMotionSpeed, _moveController.InputMagnitude);
+            if (_fpsController.Grounded)
             {
                 _animator.SetBool(_animIDJump, false);
                 _animator.SetBool(_animIDFreeFall, false);
-                if (FPSController._input.jump && _jumpAndGravityController._jumpTimeoutDelta <= 0.0f)
+                if (_fpsController.Input.jump && _jumpAndGravityController.JumpTimeoutDelta <= 0.0f)
                 {
                     _animator.SetBool(_animIDJump, true);
                 }
                 else
                 {
-                    if (_jumpAndGravityController._fallTimeoutDelta < 0.0f)
+                    if (_jumpAndGravityController.FallTimeoutDelta < 0.0f)
                     {
                         _animator.SetBool(_animIDFreeFall, true);					
                     }
                 }
             }
-            _animator.SetBool(_animIDGrounded, FPSController.Grounded);
+            _animator.SetBool(_animIDGrounded, _fpsController.Grounded);
         }
     }
 }

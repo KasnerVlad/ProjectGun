@@ -1,4 +1,4 @@
-namespace PlayerInterfases
+namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
 {
     public interface IMove
     {
@@ -12,6 +12,7 @@ namespace PlayerInterfases
     {
         void CameraRotation();
         void ExtrudeHeadPointAndAiming();
+        void LookAtTarget();
     }
     public interface IAnimationController
     {

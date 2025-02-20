@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
-
+using StarterAssets.FirstPersonController.Scripts.SOLIDInventory;
 public abstract class InventoryBase : MonoBehaviour
 {
     [Header("Inventory Settings")]

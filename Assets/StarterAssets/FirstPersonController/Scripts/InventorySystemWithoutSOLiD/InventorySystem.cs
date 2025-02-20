@@ -5,7 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Image = UnityEngine.UI.Image;
 using Cursor = UnityEngine.Cursor;
-
+using StarterAssets.FirstPersonController.Scripts;
+using StarterAssets.FirstPersonController.Scripts.SOLIDInventory;
 public class InventorySystem : MonoBehaviour
 {
     [Header("Inventory")]

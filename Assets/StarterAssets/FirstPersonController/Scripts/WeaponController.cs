@@ -1,56 +1,64 @@
-using System.Collections;
 using UnityEngine;
 using System.Threading.Tasks;
-public class WeaponController : WeaponControllerBase
-{
-    private WeaponView view;
-    private IWeaponAmimationsController animationsController;
-    private WeaponPlayerModel playerModel;
-    private Animator animator;
-    private float lastShotTime;
-    protected override void StartLogic()
-    {
-        view = new WeaponView(BulletCount,LastBulletsCount ,ammoText);
-        animationsController = new WeaponAmimationsController(this);
-        playerModel = new WeaponPlayerModel(this);
-        animator = GetComponent<Animator>();
-        animationsController.SetAnimationID();
-    }
-    protected override void UpdateLogic()
-    {
-        animationsController.UpdateAnimations();
-        lastShotTime -= Time.deltaTime;
-    }
-    protected override async Task FireManager()
-    {
 
-        if (BulletCount > 0 && WeaponInput.Fire && !isReloading &&lastShotTime <= 0)
-        {
-            lastShotTime = FireRate;
-            SetFireState(true);
-            Debug.Log("Fierd");
-            MinusBullet();
-            playerModel.Fire();
-            Debug.Log(BulletCount + "/" + LastBulletsCount);
-            Invoke(nameof(LateFire), FireRate);
-            /*view.UpdateText();*/
-        }
-        if (BulletCount < startBulletCount && WeaponInput.Reload&&LastBulletsCount > 0)
-        {
-            Debug.Log("Reload");
-            await playerModel.Reload();
-        }
-        if (WeaponInput.Take)
-        {
-            playerModel.Take();
-        }
-        if (WeaponInput.Hide)
-        {
-            playerModel.Hide();
-        }
-    }
-    private void LateFire()
+namespace StarterAssets.FirstPersonController.Scripts
+{
+    public class WeaponController : WeaponControllerBase
     {
-        SetFireState(false);
+        private WeaponView _weaponView;
+        private IWeaponAnimationsController _iAnimationsController;
+        private WeaponPlayerModel _weaponPlayerModel;
+        private Animator _animator;
+        private bool _isFired;
+        private bool _singleFireMode;
+        protected override void StartLogic()
+        {
+            _weaponView = new WeaponView(this,ammoText);
+            _iAnimationsController = new WeaponAnimationsController(this);
+            _weaponPlayerModel = new WeaponPlayerModel(this);
+            _animator = GetComponent<Animator>();
+            _iAnimationsController.SetAnimationID();
+            if(ammoText != null){ _weaponView.UpdateText();}
+        }
+        protected override void UpdateLogic()
+        {
+            _iAnimationsController.UpdateAnimations();
+        }
+        protected override async Task FireManager()
+        {
+            if (WeaponInput.ToggleFireMode)
+            {
+                _singleFireMode = !_singleFireMode;
+            }
+            if (BulletCount > 0 && (_singleFireMode? WeaponInput.SingleFire:WeaponInput.MultipleFire) && !IsReloading &&!_isFired&&!Hide)
+            {
+                _isFired = true;
+                SetFireState(true);
+                MinusBullet();
+                _weaponPlayerModel.Fire();
+                Invoke(nameof(DisableFireState), FireRate);
+                if(ammoText != null){ _weaponView.UpdateText();}
+            }
+            if (BulletCount < StartBulletCount && WeaponInput.Reload&&LastBulletsCount > 0)
+            {
+                await _weaponPlayerModel.Reload();
+                if(ammoText != null){ _weaponView.UpdateText();}
+            }
+            if (WeaponInput.Take) { await _weaponPlayerModel.Take(); }
+            if (WeaponInput.Hide) { _weaponPlayerModel.Hide(); }
+        }
+        private void DisableFireState()
+        {
+            SetFireState(false);
+            _isFired = false;
+        }
+
+        private void OnFire(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                AudioSource.PlayClipAtPoint(FireSound, transform.TransformPoint(characterController.center+new Vector3(0,1.69f,0)), 1f);
+            }
+        }
     }
 }

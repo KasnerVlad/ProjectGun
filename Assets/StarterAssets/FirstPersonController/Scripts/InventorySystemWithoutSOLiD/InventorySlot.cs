@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-
+using StarterAssets.FirstPersonController.Scripts.SOLIDInventory;
 public class InventorySlot
 {
     private GameObject slot;

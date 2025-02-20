@@ -1,54 +1,53 @@
-using PlayerInterfases;
 using UnityEngine;
 
-namespace StarterAssets
+namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
 {
     public class JumpAndGravityController : IJumpAndGravity
     {
-        private FPSControllerBase FPSController;
-        public float _jumpTimeoutDelta{private set; get;}
-        public float _fallTimeoutDelta{private set; get;}
+        private readonly FPSControllerBase _fpsController;
+        public float JumpTimeoutDelta{private set; get;}
+        public float FallTimeoutDelta{private set; get;}
         private readonly float _terminalVelocity = 53f;
-        public float _verticalVelocity{private set; get;}
-        public JumpAndGravityController(FPSControllerBase FPSController)
+        public float VerticalVelocity{private set; get;}
+        public JumpAndGravityController(FPSControllerBase fpsController)
         {
-            this.FPSController = FPSController;
+            this._fpsController = fpsController;
             
-            _jumpTimeoutDelta = this.FPSController.JumpTimeout;
-            _fallTimeoutDelta = this.FPSController.FallTimeout;
+            JumpTimeoutDelta = this._fpsController.JumpTimeout;
+            FallTimeoutDelta = this._fpsController.FallTimeout;
         }
 
         public void JumpAndGravity()
         {
-            if (FPSController.Grounded)
+            if (_fpsController.Grounded)
             {
-                _fallTimeoutDelta = FPSController.FallTimeout;
-                if (_verticalVelocity < 0.0f)
+                FallTimeoutDelta = _fpsController.FallTimeout;
+                if (VerticalVelocity < 0.0f)
                 {
-                    _verticalVelocity = -2f;
+                    VerticalVelocity = -2f;
                 }
-                if (FPSController._input.jump && _jumpTimeoutDelta <= 0.0f)
+                if (_fpsController.Input.jump && JumpTimeoutDelta <= 0.0f)
                 {
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
-                    _verticalVelocity = Mathf.Sqrt(FPSController.JumpHeight * -2f * FPSController.Gravity);
+                    VerticalVelocity = Mathf.Sqrt(_fpsController.JumpHeight * -2f * _fpsController.Gravity);
                 }
-                if (_jumpTimeoutDelta >= 0.0f)
+                if (JumpTimeoutDelta >= 0.0f)
                 {
-                    _jumpTimeoutDelta -= Time.deltaTime;
+                    JumpTimeoutDelta -= Time.deltaTime;
                 }
             }
             else
             {
-                _jumpTimeoutDelta = FPSController.JumpTimeout;
-                if (_fallTimeoutDelta >= 0.0f)
+                JumpTimeoutDelta = _fpsController.JumpTimeout;
+                if (FallTimeoutDelta >= 0.0f)
                 {
-                    _fallTimeoutDelta -= Time.deltaTime;
+                    FallTimeoutDelta -= Time.deltaTime;
                 }
-                FPSController._input.jump = false;
+                _fpsController.Input.jump = false;
             }
-            if (_verticalVelocity < _terminalVelocity)
+            if (VerticalVelocity < _terminalVelocity)
             {
-                _verticalVelocity += FPSController.Gravity * Time.deltaTime;
+                VerticalVelocity += _fpsController.Gravity * Time.deltaTime;
             }
         }
     }
