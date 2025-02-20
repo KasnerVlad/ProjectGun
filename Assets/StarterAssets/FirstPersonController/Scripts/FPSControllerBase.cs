@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
-namespace StarterAssets
+namespace StarterAssets.FirstPersonController.Scripts
 {
     [RequireComponent(typeof(CharacterController))]
 #if ENABLE_INPUT_SYSTEM
@@ -76,9 +77,12 @@ namespace StarterAssets
         public LayerMask GroundLayers => groundLayer;
 
         /*[Header("Cinemachine")]*/
-        [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
-        public GameObject CinemachineCameraTarget;
-		
+        [FormerlySerializedAs("CinemachineCameraTarget")] [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
+        public GameObject cinemachineCameraTarget;
+
+        public GameObject minHitDistance;
+
+        public GameObject cameraPoint;
         [Tooltip("How far in degrees can you move the camera up")] 
         [SerializeField] private Vector2 cinemachineCameraAngleCalm;
 
@@ -88,23 +92,23 @@ namespace StarterAssets
         public float BottomClamp => cinemachineCameraAngleCalm.y;
 
         [SerializeField] protected GameObject headsImpact;
-        public Vector3 defultHipsPosition{private set; get;}
+        public Vector3 DefultHipsPosition{private set; get;}
 
 #if ENABLE_INPUT_SYSTEM
-        public PlayerInput _playerInput{private set; get;}
+        public PlayerInput PlayerInput{private set; get;}
 #endif
-        public StarterAssetsInputs _input{private set; get;}
-        public GameObject _mainCamera{private set; get;}
-        public readonly float _threshold = 0.01f;
+        public StarterAssetsInputs Input{private set; get;}
+        public GameObject MainCamera{private set; get;}
+        public readonly float Threshold = 0.01f;
         [SerializeField] public GameObject aimingPoint;
         [SerializeField] public GameObject head;
-        public Vector3 _headDefultPosition{private set; get;}
+        public Vector3 HeadDefultPosition{private set; get;}
         public bool IsCurrentDeviceMouse
         {
             get
             {
 #if ENABLE_INPUT_SYSTEM
-                return _playerInput.currentControlScheme == "KeyboardMouse";
+                return PlayerInput.currentControlScheme == "KeyboardMouse";
 #else
 				return false;
 #endif
@@ -134,11 +138,11 @@ namespace StarterAssets
         protected abstract void UpdateLogic();
         protected abstract void LateUpdateLogic();
         public virtual void SetGrounded(bool grounded) => Grounded = grounded;
-        protected virtual void SetDefultHipsPosition(Vector3 defultHipsPosition) => this.defultHipsPosition = defultHipsPosition;
-        protected virtual void SetPlayerInput(PlayerInput playerInput) => _playerInput = playerInput;
-        protected virtual void SetInput(StarterAssetsInputs input) => _input = input;
-        protected virtual void SetMainCamera(GameObject mainCamera) => _mainCamera = mainCamera;
-        protected virtual void SetHeadDefultPosition(Vector3 headDefultPosition) => _headDefultPosition = headDefultPosition;
+        protected virtual void SetDefultHipsPosition(Vector3 defultHipsPosition) => this.DefultHipsPosition = defultHipsPosition;
+        protected virtual void SetPlayerInput(PlayerInput playerInput) => PlayerInput = playerInput;
+        protected virtual void SetInput(StarterAssetsInputs input) => Input = input;
+        protected virtual void SetMainCamera(GameObject mainCamera) => MainCamera = mainCamera;
+        protected virtual void SetHeadDefultPosition(Vector3 headDefultPosition) => HeadDefultPosition = headDefultPosition;
 
         public static float ClampAngle(float lfAngle, float lfMin, float lfMax)
         {

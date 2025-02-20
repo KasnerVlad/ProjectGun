@@ -1,13 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using StarterAssets.FirstPersonController.Scripts.SOLIDInventory;
 
-public class ObjectLicens : MonoBehaviour
+namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
 {
-    [SerializeField]private Item item;
-    [SerializeField]private int amount;
-    
-    public void SetAmount(int amount){this.amount = amount;}
-    public Item GetItem(){return this.item;}
-    public int GetAmount(){return this.amount;}
+    public class ObjectLicens : MonoBehaviour
+    {
+        [SerializeField]private Item item;
+        [SerializeField]private int amount;
+        
+        public void SetAmount(int itemAmount){this.amount = itemAmount;}
+        public Item GetItem(){return this.item;}
+        public int GetAmount(){return this.amount;}
+    }
 }

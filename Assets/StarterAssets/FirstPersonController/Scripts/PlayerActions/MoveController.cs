@@ -1,55 +1,53 @@
-using PlayerInterfases;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-namespace StarterAssets
+namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
 {
     public class MoveController : IMove
     {
-        private FPSControllerBase FPSController;
-        private JumpAndGravityController JumpAndGravityController;
-        public float targetSpeed{get; private set;} 
-        public float inputMagnitude{get; private set;}
+        private readonly FPSControllerBase _fpsController;
+        private readonly JumpAndGravityController _jumpAndGravityController;
+        public float TargetSpeed{get; private set;} 
+        public float InputMagnitude{get; private set;}
 
         private float _speed;
 
-        private CharacterController _controller;
-        public Vector3 controllerCenter =>_controller.center;
-        public MoveController(FPSControllerBase FPSController, JumpAndGravityController jumpAndGravityController)
+        private readonly CharacterController _controller;
+        public Vector3 ControllerCenter =>_controller.center;
+        public MoveController(FPSControllerBase fpsController, JumpAndGravityController jumpAndGravityController)
         {
-            this.FPSController = FPSController;
-            this.JumpAndGravityController = jumpAndGravityController;
-            _controller = FPSController.GetComponent<CharacterController>();
+            this._fpsController = fpsController;
+            this._jumpAndGravityController = jumpAndGravityController;
+            _controller = fpsController.GetComponent<CharacterController>();
         }
         public void Move()
         {
 
-            targetSpeed = FPSController._input.sprint ? FPSController.SprintSpeed : FPSController.MoveSpeed;
-            if (FPSController._input.move == Vector2.zero) targetSpeed = 0.0f;
+            TargetSpeed = _fpsController.Input.sprint ? _fpsController.SprintSpeed : _fpsController.MoveSpeed;
+            if (_fpsController.Input.move == Vector2.zero) TargetSpeed = 0.0f;
             float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
 
             float speedOffset = 0.1f;
-            inputMagnitude = FPSController._input.analogMovement ? FPSController._input.move.magnitude : 1f;
+            InputMagnitude = _fpsController.Input.analogMovement ? _fpsController.Input.move.magnitude : 1f;
 
-            if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
+            if (currentHorizontalSpeed < TargetSpeed - speedOffset || currentHorizontalSpeed > TargetSpeed + speedOffset)
             {
-                _speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * FPSController.SpeedChangeRate);
+                _speed = Mathf.Lerp(currentHorizontalSpeed, TargetSpeed * InputMagnitude, Time.deltaTime * _fpsController.SpeedChangeRate);
 
                 _speed = Mathf.Round(_speed * 1000f) / 1000f;
             }
             else
             { 
-                _speed = targetSpeed;
+                _speed = TargetSpeed;
             }
-            Vector3 inputDirection = new Vector3(FPSController._input.move.x, 0.0f, FPSController._input.move.y).normalized;
+            Vector3 inputDirection = new Vector3(_fpsController.Input.move.x, 0.0f, _fpsController.Input.move.y).normalized;
 
-            if (FPSController._input.move != Vector2.zero)
+            if (_fpsController.Input.move != Vector2.zero)
             {
 
-                inputDirection = FPSController.transform.right * FPSController._input.move.x + FPSController.transform.forward * FPSController._input.move.y;
+                inputDirection = _fpsController.transform.right * _fpsController.Input.move.x + _fpsController.transform.forward * _fpsController.Input.move.y;
             }
 
-            _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, JumpAndGravityController._verticalVelocity, 0.0f) * Time.deltaTime);
+            _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _jumpAndGravityController.VerticalVelocity, 0.0f) * Time.deltaTime);
         }
     }
 }
