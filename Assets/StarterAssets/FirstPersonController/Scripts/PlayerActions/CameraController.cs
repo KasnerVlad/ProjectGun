@@ -7,11 +7,11 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
         private readonly FPSControllerBase _fpsController;
         private float _cinemaMachineTargetPitch;
         private float _rotationVelocity=0.01f;
-        private float _minCameraMinPointDictance;
-        private readonly float minDistance = 3.0f;
+        private readonly float _minDistance;
         public CameraController(FPSControllerBase fpsController)
         {
             _fpsController = fpsController;
+            _minDistance= Vector3.Distance(_fpsController.cinemachineCameraTarget.transform.position,_fpsController.minHitDistance.transform.position);
         }
         public void CameraRotation()
         {
@@ -50,18 +50,18 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
             if (Physics.Raycast(ray, out hit))
             {
                 float distance = hit.distance;
-                if (distance < minDistance)
+                if (distance < _minDistance&&!hit.collider.gameObject.CompareTag("Player"))
                 {
                     _fpsController.cameraPoint.transform.position = _fpsController.minHitDistance.transform.position;
                 }
-                else
+                else if(!hit.collider.gameObject.CompareTag("Player"))
                 {
                     _fpsController.cameraPoint.transform.position = hit.point;
                 }
             }
             else
             {
-                _fpsController.cameraPoint.transform.position = _fpsController.minHitDistance.transform.position;
+                _fpsController.cameraPoint.transform.position = _fpsController.maxHitDistance.transform.position;
             }
         }
     }

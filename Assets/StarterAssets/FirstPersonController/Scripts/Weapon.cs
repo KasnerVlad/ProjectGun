@@ -10,7 +10,6 @@ namespace StarterAssets.FirstPersonController.Scripts
         [SerializeField] private int damage;
         [SerializeField] protected AudioClip FireSound;
         public int Damage => damage;
-        [SerializeField] protected CharacterController characterController;
         [Tooltip("Time in seconds (Write here your fire animation lenght)")]
         [SerializeField] private float fireRate;
         protected float FireRate => fireRate;

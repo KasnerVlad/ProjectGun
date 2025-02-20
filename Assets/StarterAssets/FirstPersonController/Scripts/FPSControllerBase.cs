@@ -81,6 +81,7 @@ namespace StarterAssets.FirstPersonController.Scripts
         public GameObject cinemachineCameraTarget;
 
         public GameObject minHitDistance;
+        public GameObject maxHitDistance;
 
         public GameObject cameraPoint;
         [Tooltip("How far in degrees can you move the camera up")] 
