@@ -82,7 +82,8 @@ namespace StarterAssets.FirstPersonController.Scripts
 
         public GameObject minHitDistance;
         public GameObject maxHitDistance;
-
+        [SerializeField] private GameObject mainCamera;
+        public GameObject MainCamera => mainCamera;
         public GameObject cameraPoint;
         [Tooltip("How far in degrees can you move the camera up")] 
         [SerializeField] private Vector2 cinemachineCameraAngleCalm;
@@ -93,58 +94,33 @@ namespace StarterAssets.FirstPersonController.Scripts
         public float BottomClamp => cinemachineCameraAngleCalm.y;
 
         [SerializeField] protected GameObject headsImpact;
-        public Vector3 DefultHipsPosition{private set; get;}
-
 #if ENABLE_INPUT_SYSTEM
-        public PlayerInput PlayerInput{private set; get;}
+        private PlayerInput _playerInput;
 #endif
         public StarterAssetsInputs Input{private set; get;}
-        public GameObject MainCamera{private set; get;}
         public readonly float Threshold = 0.01f;
         [SerializeField] public GameObject aimingPoint;
         [SerializeField] public GameObject head;
-        public Vector3 HeadDefultPosition{private set; get;}
         public bool IsCurrentDeviceMouse
         {
             get
             {
 #if ENABLE_INPUT_SYSTEM
-                return PlayerInput.currentControlScheme == "KeyboardMouse";
+                return _playerInput.currentControlScheme == "KeyboardMouse";
 #else
 				return false;
 #endif
             }
         }
-
-        protected virtual void Awake()
-        {
-            InitializeCamera();
-        }
-        protected virtual void Start()
-        {
-            InitializeStart();
-        }
-
-        protected virtual void Update()
-        {
-            UpdateLogic();
-        }
-
-        protected virtual void LateUpdate()
-        {
-            LateUpdateLogic();
-        }
-        protected abstract void InitializeCamera();
+        protected virtual void Start() { InitializeStart(); }
+        protected virtual void Update() { UpdateLogic(); }
+        protected virtual void LateUpdate() { LateUpdateLogic(); }
         protected abstract void InitializeStart();
         protected abstract void UpdateLogic();
         protected abstract void LateUpdateLogic();
-        public virtual void SetGrounded(bool grounded) => Grounded = grounded;
-        protected virtual void SetDefultHipsPosition(Vector3 defultHipsPosition) => this.DefultHipsPosition = defultHipsPosition;
-        protected virtual void SetPlayerInput(PlayerInput playerInput) => PlayerInput = playerInput;
-        protected virtual void SetInput(StarterAssetsInputs input) => Input = input;
-        protected virtual void SetMainCamera(GameObject mainCamera) => MainCamera = mainCamera;
-        protected virtual void SetHeadDefultPosition(Vector3 headDefultPosition) => HeadDefultPosition = headDefultPosition;
-
+        public void SetGrounded(bool grounded) => Grounded = grounded;
+        protected void SetPlayerInput(PlayerInput playerInput) => _playerInput = playerInput;
+        protected void SetInput(StarterAssetsInputs input) => Input = input;
         public static float ClampAngle(float lfAngle, float lfMin, float lfMax)
         {
             if (lfAngle < -360f) lfAngle += 360f;

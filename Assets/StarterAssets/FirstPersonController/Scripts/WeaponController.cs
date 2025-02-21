@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Threading.Tasks;
+using UnityEngine.Animations.Rigging;
 
 namespace StarterAssets.FirstPersonController.Scripts
 {
@@ -8,17 +9,19 @@ namespace StarterAssets.FirstPersonController.Scripts
         private WeaponView _weaponView;
         private IWeaponAnimationsController _iAnimationsController;
         private WeaponPlayerModel _weaponPlayerModel;
-        private Animator _animator;
         private bool _isFired;
         private bool _singleFireMode;
+        private MultiParentConstraint _defaultPosConstraints;
+        private MultiParentConstraint _aimPosConstraints;
         protected override void StartLogic()
         {
             _weaponView = new WeaponView(this,ammoText);
             _iAnimationsController = new WeaponAnimationsController(this);
             _weaponPlayerModel = new WeaponPlayerModel(this);
-            _animator = GetComponent<Animator>();
             _iAnimationsController.SetAnimationID();
             if(ammoText != null){ _weaponView.UpdateText();}
+            _aimPosConstraints = AimPosRig.GetComponent<MultiParentConstraint>();
+            _defaultPosConstraints = DefultPosRig.GetComponent<MultiParentConstraint>();
         }
         protected override void UpdateLogic()
         {
@@ -46,6 +49,17 @@ namespace StarterAssets.FirstPersonController.Scripts
             }
             if (WeaponInput.Take) { await _weaponPlayerModel.Take(); }
             if (WeaponInput.Hide) { _weaponPlayerModel.Hide(); }
+
+            if (WeaponInput.Aiming&&(_aimPosConstraints.weight <1||_defaultPosConstraints.weight >0)) {
+                _aimPosConstraints.weight = Mathf.MoveTowards(_aimPosConstraints.weight, 1, Time.deltaTime*changeStateSpeed);
+                _defaultPosConstraints.weight = Mathf.MoveTowards(_defaultPosConstraints.weight, 0, Time.deltaTime*changeStateSpeed);
+                Debug.Log("Aiming");
+            }
+            else if(!WeaponInput.Aiming&&(_aimPosConstraints.weight >0||_defaultPosConstraints.weight <1)){
+                _aimPosConstraints.weight = Mathf.MoveTowards(_aimPosConstraints.weight, 0, Time.deltaTime*changeStateSpeed);
+                _defaultPosConstraints.weight = Mathf.MoveTowards(_defaultPosConstraints.weight, 1, Time.deltaTime*changeStateSpeed);
+                Debug.Log("NotAiming");
+            }
         }
         private void DisableFireState()
         {
@@ -57,8 +71,22 @@ namespace StarterAssets.FirstPersonController.Scripts
         {
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
-                AudioSource.PlayClipAtPoint(FireSound, transform.TransformPoint(Vector3.zero), 1f);
+                GameObject g = PlayAudioAtPointWithReturn(FireSound, transform.TransformPoint(Vector3.zero), 1f);
+                g.transform.SetParent(transform);
             }
+        }
+
+        private static GameObject PlayAudioAtPointWithReturn(AudioClip clip, Vector3 position, [UnityEngine.Internal.DefaultValue("1.0F")] float volume)
+        {
+            GameObject gameObject = new GameObject("One shot audio");
+            gameObject.transform.position = position;
+            AudioSource audioSource = (AudioSource) gameObject.AddComponent(typeof (AudioSource));
+            audioSource.clip = clip;
+            audioSource.spatialBlend = 1f;
+            audioSource.volume = volume;
+            audioSource.Play();
+            Object.Destroy((Object) gameObject, clip.length * ((double) Time.timeScale < 0.009999999776482582 ? 0.01f : Time.timeScale));
+            return gameObject;
         }
     }
 }

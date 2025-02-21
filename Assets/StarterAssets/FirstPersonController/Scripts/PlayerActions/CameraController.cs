@@ -8,6 +8,7 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
         private float _cinemaMachineTargetPitch;
         private float _rotationVelocity=0.01f;
         private readonly float _minDistance;
+        private readonly int layerMask = ~LayerMask.GetMask("Player"); 
         public CameraController(FPSControllerBase fpsController)
         {
             _fpsController = fpsController;
@@ -42,27 +43,15 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
 
         public void LookAtTarget()
         {
-            Ray ray = new Ray(_fpsController.cinemachineCameraTarget.transform.position, 
-                _fpsController.cinemachineCameraTarget.transform.forward);
-            RaycastHit hit;
-
-
-            if (Physics.Raycast(ray, out hit))
+            Ray ray = new Ray(_fpsController.MainCamera.transform.position, 
+                _fpsController.MainCamera.transform.forward);
+            if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 1000, layerMask))
             {
                 float distance = hit.distance;
-                if (distance < _minDistance&&!hit.collider.gameObject.CompareTag("Player"))
-                {
-                    _fpsController.cameraPoint.transform.position = _fpsController.minHitDistance.transform.position;
-                }
-                else if(!hit.collider.gameObject.CompareTag("Player"))
-                {
-                    _fpsController.cameraPoint.transform.position = hit.point;
-                }
+                if (distance < _minDistance) { _fpsController.cameraPoint.transform.position = _fpsController.minHitDistance.transform.position; }
+                else { _fpsController.cameraPoint.transform.position = hit.point; }
             }
-            else
-            {
-                _fpsController.cameraPoint.transform.position = _fpsController.maxHitDistance.transform.position;
-            }
+            else { _fpsController.cameraPoint.transform.position = _fpsController.maxHitDistance.transform.position; }
         }
     }
 }

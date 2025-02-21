@@ -15,15 +15,17 @@ namespace StarterAssets.FirstPersonController.Scripts
         protected float FireRate => fireRate;
         [SerializeField] private float range;
         public float Range => range;
-        [SerializeField] private GameObject muzzleFlash;
-        public GameObject MuzzleFlash => muzzleFlash;
         [SerializeField] private Transform firePoint;
         public Transform FirePoint => firePoint;
         [SerializeField] private int startBulletCount;
+        [SerializeField] protected float changeStateSpeed;
         public int StartBulletCount => startBulletCount;
         [SerializeField] private int lastBulletsCount;
         [Tooltip("Time in milliseconds (Write here your reload animation lenght)")]
-        [SerializeField]private int reloadTime;
+        [SerializeField]private int reloadTime;        
+        [SerializeField] protected GameObject AimPosRig;
+        [SerializeField] protected GameObject DefultPosRig;
+        
         public int ReloadTime => reloadTime;
         public bool IsFire { get; private set; }
         public bool IsReloading { get; private set; }
@@ -31,6 +33,7 @@ namespace StarterAssets.FirstPersonController.Scripts
         public int LastBulletsCount { get; private set; }
         public bool Hide { get; private set; }
         public bool Take { get; private set; }
+
         [SerializeField] protected Text ammoText;
         protected virtual void Start()
         {
@@ -138,6 +141,7 @@ namespace StarterAssets.FirstPersonController.Scripts
     }
     public static class WeaponInput
     {
+        public static bool Aiming => Input.GetMouseButton(1);
         public static bool ToggleFireMode => Input.GetKeyDown(KeyCode.B);
         public static bool SingleFire => Input.GetMouseButtonDown(0);
         public static bool MultipleFire => Input.GetMouseButton(0);

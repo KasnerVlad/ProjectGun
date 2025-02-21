@@ -16,13 +16,6 @@ namespace StarterAssets.FirstPersonController.Scripts
 		private IJumpAndGravity _iJumpAndGravityController;
 		private ICameraController _iCameraController;
 		private ICheckGrounded _iCheckGroundedController;
-        protected override void InitializeCamera()
-        {
-            if (MainCamera == null)
-            {
-                SetMainCamera(GameObject.FindGameObjectWithTag("MainCamera"));
-            }
-        }
 
         protected override void InitializeStart()
         {
@@ -37,15 +30,12 @@ namespace StarterAssets.FirstPersonController.Scripts
 	        _iCheckGroundedController = new GroundCheck(this);
             
             SetInput(GetComponent<StarterAssetsInputs>());
-            SetDefultHipsPosition(headsImpact.transform.localPosition);
-            Debug.Log(DefultHipsPosition);
             _iAnimationControllerController.AssignAnimationIDs();
 #if ENABLE_INPUT_SYSTEM
             SetPlayerInput(GetComponent<PlayerInput>());
 #else
             Debug.LogError("Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
-            SetHeadDefultPosition(headsImpact.transform.localPosition);
         }
 
         protected override void UpdateLogic()
