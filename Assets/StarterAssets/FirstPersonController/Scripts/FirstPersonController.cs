@@ -4,31 +4,29 @@ using Random = UnityEngine.Random;
 using UnityEngine.InputSystem;
 #endif
 using StarterAssets.FirstPersonController.Scripts.PlayerActions;
-
+using StarterAssets.FirstPersonController.Scripts.PlayerHpSystem;
 namespace StarterAssets.FirstPersonController.Scripts
 {
 	public class FirstPersonController : FPSControllerBase
 	{
 		private IAnimationController _iAnimationControllerController;
 		private IMove _iMoveController;
-        private MoveController _moveController;
-        private JumpAndGravityController _jumpAndGravityController;
 		private IJumpAndGravity _iJumpAndGravityController;
 		private ICameraController _iCameraController;
 		private ICheckGrounded _iCheckGroundedController;
-
+        private PlayerHpModel _playerHpModel;
+        private PlayerHpView _playerHpView;
         protected override void InitializeStart()
         {
 	        _iJumpAndGravityController = new JumpAndGravityController(this);
-            _jumpAndGravityController= _iJumpAndGravityController as JumpAndGravityController;
-            
-	        _iMoveController = new MoveController(this, _jumpAndGravityController);
-            _moveController = _iMoveController as MoveController;
-            
-	        _iAnimationControllerController = new AnimationController(this, _moveController, _jumpAndGravityController);
+	        _iMoveController = new MoveController(this, _iJumpAndGravityController as JumpAndGravityController);
+	        _iAnimationControllerController = new AnimationController(this, _iMoveController as MoveController, _iJumpAndGravityController as JumpAndGravityController);
 	        _iCameraController = new CameraController(this);
 	        _iCheckGroundedController = new GroundCheck(this);
-            
+
+            _playerHpModel = new PlayerHpModel();
+            _playerHpView = new PlayerHpView(hpScrollbar);
+            _playerHpView.UpdateHp(_playerHpModel.CurrentHealth, _playerHpModel.maxHp);
             SetInput(GetComponent<StarterAssetsInputs>());
             _iAnimationControllerController.AssignAnimationIDs();
 #if ENABLE_INPUT_SYSTEM
@@ -37,16 +35,14 @@ namespace StarterAssets.FirstPersonController.Scripts
             Debug.LogError("Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
         }
-
+        public void TakeDamage(int damage){_playerHpModel.TakeDamage(damage); _playerHpView.UpdateHp(_playerHpModel.CurrentHealth, _playerHpModel.maxHp);}
         protected override void UpdateLogic()
         {
 			_iCheckGroundedController.GroundedCheck();
             _iJumpAndGravityController.JumpAndGravity();
             _iMoveController.Move();
             _iAnimationControllerController.UpdateAnimations();
-            
         }
-
         protected override void LateUpdateLogic()
         {
             _iCameraController.ExtrudeHeadPointAndAiming();
@@ -63,7 +59,6 @@ namespace StarterAssets.FirstPersonController.Scripts
             // when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
             Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
         }
-
         private void OnFootstep(AnimationEvent animationEvent)
         {
             if (animationEvent.animatorClipInfo.weight > 0.5f)
@@ -71,7 +66,7 @@ namespace StarterAssets.FirstPersonController.Scripts
                 if (FootstepAudioClips.Length > 0)
                 {
                     var index = Random.Range(0, FootstepAudioClips.Length);
-                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_moveController.ControllerCenter), FootstepAudioVolume);
+                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint((_iMoveController as MoveController).ControllerCenter), FootstepAudioVolume);
                 }
             }
         }
@@ -79,7 +74,7 @@ namespace StarterAssets.FirstPersonController.Scripts
         {
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
-                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_moveController.ControllerCenter), FootstepAudioVolume);
+                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint((_iMoveController as MoveController).ControllerCenter), FootstepAudioVolume);
             }
         }
     }

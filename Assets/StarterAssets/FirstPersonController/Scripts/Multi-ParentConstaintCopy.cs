@@ -10,16 +10,18 @@ public class MultiParentConstaintCopy : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.rotation = Quaternion.Slerp(
-            transform.rotation,
+        soursObject.transform.position = target.transform.position;
+        soursObject.transform.rotation = target.transform.rotation;
+        /*soursObject.transform.rotation = Quaternion.Slerp(
+            soursObject.transform.rotation,
             Quaternion.LookRotation(target.transform.position - soursObject.transform.position),
             smoothSpeed * Time.deltaTime
         );
         // Плавное перемещение (если нужно)
-        transform.position = Vector3.Lerp(
+        soursObject.transform.position = Vector3.Lerp(
             soursObject.transform.position,
             target.transform.position,
             smoothSpeed * Time.deltaTime
-        );
+        );*/
     }
 }
