@@ -12,7 +12,7 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
         public CameraController(FPSControllerBase fpsController)
         {
             _fpsController = fpsController;
-            _minDistance= Vector3.Distance(_fpsController.cinemachineCameraTarget.transform.position,_fpsController.minHitDistance.transform.position);
+            _minDistance = _fpsController.minHitDistance.transform.localPosition.z;
         }
         public void CameraRotation()
         {

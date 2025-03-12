@@ -117,12 +117,10 @@ namespace StarterAssets.FirstPersonController.Scripts
             if (WeaponInput.Aiming&&(_aimPosConstraints.weight <1||_defaultPosConstraints.weight >0)&&!inventoryPanel.activeSelf) {
                 _aimPosConstraints.weight = Mathf.MoveTowards(_aimPosConstraints.weight, 1, Time.deltaTime*changeStateSpeed);
                 _defaultPosConstraints.weight = Mathf.MoveTowards(_defaultPosConstraints.weight, 0, Time.deltaTime*changeStateSpeed);
-                Debug.Log("Aiming");
             }
             else if(!WeaponInput.Aiming&&(_aimPosConstraints.weight >0||_defaultPosConstraints.weight <1)||inventoryPanel.activeSelf){
                 _aimPosConstraints.weight = Mathf.MoveTowards(_aimPosConstraints.weight, 0, Time.deltaTime*changeStateSpeed);
                 _defaultPosConstraints.weight = Mathf.MoveTowards(_defaultPosConstraints.weight, 1, Time.deltaTime*changeStateSpeed);
-                Debug.Log("NotAiming");
             } 
         }
     }

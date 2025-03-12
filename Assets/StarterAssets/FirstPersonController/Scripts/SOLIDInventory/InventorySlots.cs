@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Threading.Tasks;
 
@@ -21,9 +22,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             Amount -= amount;
             if (Amount <= 0) await ClearSlot();
             await Task.Yield();
-
         }
-    
         public async Task ClearSlot()
         {
             Item = null;

@@ -11,13 +11,11 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         private readonly List<Text> _slotTexts = new List<Text>();
         private readonly List<Image> _slotImages = new List<Image>();
         
-        private void Start()
+        private void Awake()
         {
             InitializeSlots();
             InventoryEvents.OnInventoryUpdated += UpdateUI;
-    
         }
-    
         private void InitializeSlots()
         {
             DragAndDrop dragAndDrop = GetComponent<DragAndDrop>();
@@ -28,11 +26,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 _slotImages.Add(_slots[i].Slot.transform.GetChild(0).GetComponent<Image>());
             }
         }
-        private void OnDestroy()
-        {
-            InventoryEvents.OnInventoryUpdated -= UpdateUI;
-        }
-        
+        private void OnDestroy() { InventoryEvents.OnInventoryUpdated -= UpdateUI; }
         private async Task UpdateUI(List<InventorySlots> slots)
         {
             for (int i = 0; i < slots.Count; i++)
@@ -41,7 +35,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 _slotImages[i].sprite =slots[i].Amount<=0? null : slots[i].Item.icon;
                 _slotImages[i].enabled = !(slots[i].Amount<=0);
             }
-            
+            Debug.Log("Inventory Updated");
             await Task.Yield();
         }
     }
