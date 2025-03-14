@@ -1568,7 +1568,7 @@ MonoBehaviour:
   currentHotBarSlot: 0
   rateBeforeScroll: 0.1
   speedScrolling: 0.25
-  hotBarsHider: {fileID: 0}
+  hotBarsHider: {fileID: 1084329027}
 --- !u!1 &777040700
 GameObject:
   m_ObjectHideFlags: 0
@@ -5077,6 +5077,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 887562721241687101, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
+      propertyPath: m_Weight
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1222854248962628373, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: m_Weight
       value: 0
@@ -5175,11 +5179,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5568492283706689057, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: m_Weight
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6517441392415632230, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863693035701904845, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: HpBar
