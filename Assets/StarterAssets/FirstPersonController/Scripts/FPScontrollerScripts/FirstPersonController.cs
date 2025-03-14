@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using Random = UnityEngine.Random;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -36,6 +37,7 @@ namespace StarterAssets.FirstPersonController.Scripts
 #endif
         }
         public void TakeDamage(int damage){_playerHpModel.TakeDamage(damage); _playerHpView.UpdateHp(_playerHpModel.CurrentHealth, _playerHpModel.maxHp);}
+        private void OnDisable() => SaveManager._GameSaveManager.OnSave();
         protected override void UpdateLogic()
         {
 			_iCheckGroundedController.GroundedCheck();

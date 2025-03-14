@@ -50,7 +50,6 @@ namespace StarterAssets.FirstPersonController.Scripts
             newAimPosition.z = newAimZ;
             defultPos.localPosition = newDefPosition;
             aimPos.localPosition = newAimPosition;
-            Debug.Log(defultPos.localPosition);
         }
     }
 }

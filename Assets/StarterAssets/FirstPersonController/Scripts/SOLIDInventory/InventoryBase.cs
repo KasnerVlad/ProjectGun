@@ -10,28 +10,16 @@ public abstract class InventoryBase : MonoBehaviour
     [SerializeField] protected bool allowStacking = true; 
     protected DragAndDrop dragAndDrop;
     [SerializeField] protected Canvas InventoryCanvas;
-    protected List<InventorySlots> slots;
+    public List<InventorySlots> slots;
     protected InventoryParams parameters;
     protected HashSet<Image> imageArrayChecker;
     protected HashSet<GameObject> slotsArrayChecker;
     [SerializeField]protected GameObject inventory;
     [SerializeField]protected GameObject hotbar;
     [SerializeField]protected float dragspeed;
-    protected virtual void Awake()
-    {
-        InitializeInventory();
-    }
-
-    protected virtual void Start()
-    {
-        SingOnEvents();
-        
-    }
-    
-    protected virtual void OnDestroy()
-    {
-        SingOffEvents();
-    }
+    protected virtual void Awake()=> InitializeInventory();
+    protected virtual void Start()=>SingOnEvents();
+    protected virtual void OnDestroy()=> SingOffEvents();
     public abstract void InitializeInventory();
     public abstract void SingOnEvents();
     public abstract void SingOffEvents();
