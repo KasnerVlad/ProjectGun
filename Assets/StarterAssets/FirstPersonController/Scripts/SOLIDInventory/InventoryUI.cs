@@ -20,7 +20,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         {
             DragAndDrop dragAndDrop = GetComponent<DragAndDrop>();
             _slots = new List<InventorySlots>(dragAndDrop.InventorySlots);
-            for (int i = 0; i < 32; i++)
+            for (int i = 0; i < 28; i++)
             {
                 _slotTexts.Add(_slots[i].Slot.transform.GetChild(0).GetChild(0).GetComponent<Text>());
                 _slotImages.Add(_slots[i].Slot.transform.GetChild(0).GetComponent<Image>());

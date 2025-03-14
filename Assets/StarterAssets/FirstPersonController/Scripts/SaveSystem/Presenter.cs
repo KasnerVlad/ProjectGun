@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using StarterAssets.FirstPersonController.Scripts.SOLIDInventory;
@@ -33,11 +34,11 @@ public class Presenter
     {
         foreach (var slot in _slots)
         {
-            int currentSlotItem = _slots.IndexOf(slot);
+            int index = _slots.IndexOf(slot);
             slot.ClearSlot();
-            slot.AddItem(_gameData.items[currentSlotItem], _gameData.itemsAmount[currentSlotItem]);
+            if (_gameData.items.Count >= index && _gameData.itemsAmount.Count >= index) slot.AddItem(_gameData.items[index], _gameData.itemsAmount[index]);
+            else { throw new Exception($"Failed to update slot items. index: {index}, _gameData.items.Count {_gameData.items.Count}"); }
         }
     }
-
     public void OnSave() => _saveSystem.Save(_gameData); 
 }

@@ -5,13 +5,13 @@ using UnityEngine;
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager _GameSaveManager;
+    [SerializeField] private bool _createNullData;
     public Transform playerPosition;
     private View _view;
     private Presenter _presenter;
     private ISaveSystem _saveSystem;
     private GameData _gameData;
     private InventorySystem2 _inventorySystem2;
-    private void OnEnable() { _GameSaveManager = this; }
     public void OnSave()
     {
         _presenter.UpdateName((int.Parse(_gameData.SaveName) + 1).ToString());
@@ -23,6 +23,10 @@ public class SaveManager : MonoBehaviour
     }
     private void Start()
     {
+        if (_GameSaveManager == null) { _GameSaveManager = this; } 
+        else { Destroy(gameObject); } 
+        DontDestroyOnLoad(gameObject);
+        
         _inventorySystem2 = GetComponent<InventorySystem2>();
         _view = GetComponent<View>();
         _saveSystem = new JsonSaveSystem();
@@ -35,7 +39,7 @@ public class SaveManager : MonoBehaviour
     private void StartGameData()
     {
         _gameData = _saveSystem.Load<GameData>();
-        if (_gameData==null) {           
+        if (_gameData==null||_gameData.SaveName==""||_createNullData) {           
             _gameData = new GameData()
             {
                 SaveName = "0",

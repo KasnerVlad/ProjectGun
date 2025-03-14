@@ -10,7 +10,6 @@ public class JsonSaveSystem : ISaveSystem
         _filePath = Application.persistentDataPath + "/save.json";
         Debug.Log(_filePath);
     }
-
     public void Save<T>(T saveData)
     {
         var json = JsonUtility.ToJson(saveData);

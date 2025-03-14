@@ -1,9 +1,7 @@
-
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
-using System.IO;
 namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
 {
     public class InventorySystem2 : InventoryBase
@@ -31,32 +29,26 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             dragAndDrop.SetImageSet(imageArrayChecker);
             dragAndDrop.SetSlotSet(slotsArrayChecker);
         }
-
         public List<Item> GetSlotsItems()
         {
             List<Item> items = new List<Item>(maxSlots);
             for (int i = 0; i < maxSlots; i++)
             {
                 items.Add(slots[i].Item);
-                Debug.Log(slots[i].Item);
             }
             return items;
         }
-
+        public HashSet<GameObject> GetSlotSet() { return slotsArrayChecker; }
         public List<int> GetSlotsItemAmount()
         {
             List<int> itemAmount = new List<int>(maxSlots);
             for (int i = 0; i < maxSlots; i++)
             {
                 itemAmount.Add(slots[i].Amount);
-                Debug.Log(slots[i].Amount);
             }
             return itemAmount;
         }
-        private void Update()
-        {
-            dragAndDrop.DragAndDropManager(dragspeed);
-        }
+        private void Update()=>dragAndDrop.DragAndDropManager(dragspeed);
         private GameObject[] GetSlotsGameObject()
         {
             GameObject[] slotsArray = new GameObject[maxSlots];
@@ -64,7 +56,6 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             {
                 slotsArray[i] = slots[i].Slot;
             }
-                
             return slotsArray;
         }
         private Image[] GetSlotsImage()
@@ -164,10 +155,8 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             return false;
 
         }
-    
         public override async Task ClearInventory()
         {
-
             foreach (var slot in slots)
             {
                 await slot.ClearSlot();
