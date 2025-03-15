@@ -22,7 +22,14 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         [SerializeField] private float rateBeforeScroll = 0.1f;
         [SerializeField] private float speedScrolling = 1f;
         private Dictionary<GameObject, CancellationTokenSource> cancellationTokens = new Dictionary<GameObject, CancellationTokenSource>();
+        private Dictionary<GameObject, CancellationTokenSource> hotbarCancellations = new Dictionary<GameObject, CancellationTokenSource>();
         [SerializeField] private GameObject hotBarsHider;
+        [SerializeField] private Vector3 _hotBarLockedPos;
+        [SerializeField] private Vector3 _hotBarOpenPos;
+        [SerializeField] private Quaternion hiderLockedRot;
+        [SerializeField] private Quaternion hiderOpenRot;
+        [SerializeField] private float speedHiderPosChanging;
+        private Action changePos;
         private void Start()
         {
             for (int i = 0; i < HotBarsSlotsCount; i++)
@@ -44,7 +51,10 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                     }
                 }
             }
+            _hotBarOpenPos = hotBar.transform.localPosition;
+            hiderLockedRot = hotBar.transform.localRotation;
             hotBarsHider.transform.SetAsLastSibling();
+            changePos = ChangePosFor;
         }
         private void Update()
         {
@@ -76,7 +86,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         private void SwapPositionsLogic(int num)
         {
             currentHotBarSlot = (currentHotBarSlot - num + HotBarsSlotsCount) % HotBarsSlotsCount;
-            CancelAllAnimations();
+            CancelAllAnimations(cancellationTokens);
             UpdateSlotsPositions();
         }
     
@@ -85,26 +95,43 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             for (int i = 0; i < hotBarsChilds.Count; i++)
             {
                 int newI = (i + currentHotBarSlot) % HotBarsSlotsCount;
-                StartSmoothPositionChange(hotBarsChildsPositions[newI], hotBarsChilds[i]);
+                StartSmoothPositionChange(hotBarsChildsPositions[newI], hotBarsChilds[i], cancellationTokens);
             }
         }
-    
-        private void ChangePosFor(Vector3 pos, bool open)
+        private void ChangePosFor()
         {
-            CancelAllAnimations();
+            CancelAllAnimations(cancellationTokens);
             if (open) 
             {
                 UpdateSlotsPositions();
+                StartSmoothPositionChange(_hotBarOpenPos, hotBar, hotbarCancellations);
+                StartSmoothRotationChange(hiderOpenRot, hotBarsHider, hotbarCancellations);
             }
             else
             {
                 foreach(var child in hotBarsChilds)
                 {
-                    StartSmoothPositionChange(pos, child);
+                    StartSmoothPositionChange(Vector3.zero, child, cancellationTokens);
                 }
+                StartSmoothPositionChange(_hotBarLockedPos, hotBar, hotbarCancellations);
+                StartSmoothRotationChange(hiderLockedRot, hotBarsHider, hotbarCancellations);
             }
         }
-    
+        private async Task SmoothRotChanging(Quaternion pos, GameObject target, CancellationToken cancellationToken)
+        {
+            while (target.transform.localRotation != pos && 
+                   !cancellationToken.IsCancellationRequested && 
+                   Application.isPlaying)
+            {
+                target.transform.localRotation = Quaternion.Lerp(
+                    target.transform.localRotation, 
+                    pos, 
+                    speedHiderPosChanging
+                );
+                await Task.Yield();
+            }
+        }
+
         private async Task SmoothPosChanging(Vector3 pos, GameObject target, CancellationToken cancellationToken)
         {
             while (target.transform.localPosition != pos && 
@@ -119,35 +146,40 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 await Task.Yield();
             }
         }
-    
-        private void StartSmoothPositionChange(Vector3 pos, GameObject target)
+        private void StartSmoothPositionChange(Vector3 pos, GameObject target, Dictionary<GameObject, CancellationTokenSource> cancellationTokens)
+        {
+            _ = SmoothPosChanging(pos, target, GetCancellationToken(target, cancellationTokens).Token);
+        }
+        private void StartSmoothRotationChange(Quaternion pos, GameObject target, Dictionary<GameObject, CancellationTokenSource> cancellationTokens)
+        {
+            _ = SmoothRotChanging(pos, target, GetCancellationToken(target, cancellationTokens).Token);
+        }
+        private CancellationTokenSource GetCancellationToken(GameObject target, Dictionary<GameObject, CancellationTokenSource> cancellationTokens)
         {
             if (cancellationTokens.TryGetValue(target, out var cts))
             {
                 cts.Cancel();
                 cancellationTokens.Remove(target);
             }
-    
             var newCts = new CancellationTokenSource();
             cancellationTokens[target] = newCts;
-            
-            _ = SmoothPosChanging(pos, target, newCts.Token);
+            return newCts;
         }
-    
-        private void CancelAllAnimations()
+        private void CancelAllAnimations(Dictionary<GameObject, CancellationTokenSource> cancellationTokens)
         {
             foreach (var cts in cancellationTokens.Values)
             {
                 cts.Cancel();
             }
             cancellationTokens.Clear();
+
         }
     
         private void ToggleOpenHotBar()
         {
             open = !open;
-            CancelAllAnimations();
-            ChangePosFor(Vector3.zero, open);
+            CancelAllAnimations(hotbarCancellations);
+            ChangePosFor();
             Debug.Log($"open : {open}");
         }
 

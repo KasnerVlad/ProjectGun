@@ -1545,7 +1545,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ac7229a9eca4280b1f9bbf3734d0593, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _createNullData: 1
+  _createNullData: 0
   playerPosition: {fileID: 4416926083347132250}
 --- !u!114 &752620595
 MonoBehaviour:
@@ -1569,6 +1569,11 @@ MonoBehaviour:
   rateBeforeScroll: 0.1
   speedScrolling: 0.25
   hotBarsHider: {fileID: 1084329027}
+  _hotBarLockedPos: {x: 841, y: -8, z: 1}
+  _hotBarOpenPos: {x: 0, y: 0, z: 0}
+  hiderLockedRot: {x: 0, y: 0, z: 0, w: 0}
+  hiderOpenRot: {x: 0, y: 0, z: 0.38268346, w: 0.9238795}
+  speedHiderPosChanging: 0.04
 --- !u!1 &777040700
 GameObject:
   m_ObjectHideFlags: 0
@@ -2397,6 +2402,7 @@ GameObject:
   m_Component:
   - component: {fileID: 940271055}
   - component: {fileID: 940271056}
+  - component: {fileID: 940271057}
   m_Layer: 5
   m_Name: Pointer
   m_TagString: Untagged
@@ -2475,6 +2481,22 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &940271057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 940271054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2da8e073ab715f41b7d5e3a84a483e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targer: {fileID: 1084329027}
+  _ofsset: {x: 0, y: 150, z: 0}
+  _locked: 1
+  _localPos: 1
 --- !u!1 &988132489
 GameObject:
   m_ObjectHideFlags: 0
@@ -2831,6 +2853,7 @@ GameObject:
   - component: {fileID: 1084329031}
   - component: {fileID: 1084329030}
   - component: {fileID: 1084329029}
+  - component: {fileID: 1084329032}
   m_Layer: 5
   m_Name: HotBarHider
   m_TagString: Untagged
@@ -2907,6 +2930,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48948dfe9d76b07488dacd46a7955fa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1084329032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1084329027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2da8e073ab715f41b7d5e3a84a483e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targer: {fileID: 1165867955}
+  _ofsset: {x: 0, y: 0, z: 0}
+  _locked: 1
+  _localPos: 0
 --- !u!1 &1107020331 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1880333298383578044, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
