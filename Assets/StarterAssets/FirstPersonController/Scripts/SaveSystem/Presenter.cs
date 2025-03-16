@@ -13,7 +13,6 @@ public class Presenter
         _view = view;
         _saveSystem = saveSystem;
         _gameData = gameData;
-        view.Initialize(this);
         _slots = slots;
     }
 
