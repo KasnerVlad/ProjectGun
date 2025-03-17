@@ -1546,7 +1546,6 @@ MonoBehaviour:
   scrollSensitivity: 1
   minScrollStep: 0.01
   HotBarsSlotsCount: 4
-  inventorySystem2Contains: {fileID: 752620589}
   hotBarsChildsPositions: []
   currentHotBarSlot: 0
   rateBeforeScroll: 0.1
@@ -1557,6 +1556,7 @@ MonoBehaviour:
   hiderLockedRot: {x: 0, y: 0, z: 0, w: 0}
   hiderOpenRot: {x: 0, y: 0, z: 0.38268346, w: 0.9238795}
   speedHiderPosChanging: 0.5
+  inventory: {fileID: 1936183348}
 --- !u!1 &777040700
 GameObject:
   m_ObjectHideFlags: 0

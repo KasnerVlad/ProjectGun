@@ -10,7 +10,7 @@ public abstract class InventoryBase : MonoBehaviour
     [SerializeField] protected bool allowStacking = true; 
     protected DragAndDrop dragAndDrop;
     [SerializeField] protected Canvas InventoryCanvas;
-    public List<InventorySlots> slots;
+    protected List<InventorySlots> slots {get; private set; } = new List<InventorySlots>();
     protected InventoryParams parameters;
     protected HashSet<Image> imageArrayChecker;
     protected HashSet<GameObject> slotsArrayChecker;

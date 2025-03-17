@@ -13,8 +13,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         [SerializeField] private float scrollSensitivity = 1.0f;
         [SerializeField] private float minScrollStep = 0.1f;
         [SerializeField] private int HotBarsSlotsCount = 4;
-        [SerializeField] private InventorySystem2 inventorySystem2Contains;
-        
+        private List<InventorySlots> slots;
         private List<GameObject> hotBarsChilds = new List<GameObject>();
         [SerializeField] private List<Vector3> hotBarsChildsPositions = new List<Vector3>();
         [SerializeField] private List<InventorySlots> hotBarSlots = new List<InventorySlots>();
@@ -31,28 +30,23 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         [SerializeField] private Quaternion hiderOpenRot;
         [SerializeField] private float speedHiderPosChanging;
         private readonly int _dictinaryAmount = 2;
-        private bool _justOpened;
+        private bool _justHotBarOpened;
         private bool _wasMomentBeforeOpenValueTrue;
         private CancellationTokenSource _cts;
-        
+        [SerializeField] private GameObject inventory;
+        private bool _justInventoryOpened;
+        public void Initialize(List<InventorySlots> _slots)=>slots = _slots;
         private void Start()
         {
+            for (int i = 0; i < HotBarsSlotsCount; i++) { hotBarsChilds.Add(hotBar.transform.GetChild(i).gameObject); }
+            for (int i = 0; i < HotBarsSlotsCount; i++) { hotBarsChildsPositions.Add(hotBarsChilds[i].transform.localPosition); }
             for (int i = 0; i < HotBarsSlotsCount; i++)
             {
-                hotBarsChilds.Add(hotBar.transform.GetChild(i).gameObject);
-            }
-            for (int i = 0; i < HotBarsSlotsCount; i++)
-            {
-                Vector3 position = hotBarsChilds[i].transform.localPosition;
-                hotBarsChildsPositions.Add(new Vector3(position.x, position.y, position.z));
-            }
-            for (int i = 0; i < HotBarsSlotsCount; i++)
-            {
-                for (int j = 0; j < inventorySystem2Contains.slots.Count; j++)
+                for (int j = 0; j < slots.Count; j++)
                 {
-                    if (inventorySystem2Contains.slots[j].Slot==hotBarsChilds[i])
+                    if (slots[j].Slot==hotBarsChilds[i])
                     {
-                        hotBarSlots.Add(inventorySystem2Contains.slots[i]);
+                        hotBarSlots.Add(slots[i]);
                     }
                 }
             }
@@ -60,10 +54,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             hiderLockedRot = hotBar.transform.localRotation;
             hotBarsHider.transform.SetAsLastSibling();
             hotBarsHider.transform.localRotation = hiderOpenRot;
-            for (int i = 0; i < _dictinaryAmount; i++)
-            {
-                CancellationTokensSourseDictionary.Add(new Dictionary<GameObject, CancellationTokenSource>());
-            }
+            for (int i = 0; i < _dictinaryAmount; i++) { CancellationTokensSourseDictionary.Add(new Dictionary<GameObject, CancellationTokenSource>()); }
             _cts = new CancellationTokenSource();
             ToggleOpenHotBar();
         }
@@ -72,7 +63,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         {
             if (InventoryInput.Scroll * scrollSensitivity > minScrollStep && canScroll) { ScrollMethodInUpdate(1); _wasMomentBeforeOpenValueTrue = true; }
             else if (InventoryInput.Scroll * scrollSensitivity < minScrollStep * -1 && canScroll) { ScrollMethodInUpdate(-1); _wasMomentBeforeOpenValueTrue = true; }
-            else if(open && _wasMomentBeforeOpenValueTrue) {
+            else if(open && _wasMomentBeforeOpenValueTrue&&!inventory.activeSelf) {
                 _ = CastomInvoke.Invoke(()=>
                 {
                     ToggleOpenHotBar();
@@ -80,7 +71,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 }, 2000, _cts);
                 _wasMomentBeforeOpenValueTrue = false;
             }
-            if(Input.GetMouseButtonDown(2)&&!open) {
+            if(Input.GetMouseButtonDown(2)&&!open&&!inventory.activeSelf) {
                 _cts = new CancellationTokenSource();
                 ToggleOpenHotBar(); 
                 _= CastomInvoke.Invoke(()=>
@@ -90,7 +81,9 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                     
                 }, 4000, _cts);
             }
-            else if(Input.GetMouseButtonDown(2)&&open) { if (!_cts.IsCancellationRequested) { _cts.Cancel(); } _=CastomInvoke.Invoke(ToggleOpenHotBar, 100); }
+            else if(Input.GetMouseButtonDown(2)&&open&&!inventory.activeSelf) { if (!_cts.IsCancellationRequested) { _cts.Cancel(); } _=CastomInvoke.Invoke(ToggleOpenHotBar, 100); }
+            if(inventory.activeSelf&&!open) { ToggleOpenHotBar(); _justInventoryOpened = true; }
+            if(!inventory.activeSelf&&open&&_justInventoryOpened){ToggleOpenHotBar();_justInventoryOpened = false;}
         }
         private void ScrollMethodInUpdate(int num)
         {
@@ -100,12 +93,12 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             if (!open) 
             {             
                 ToggleOpenHotBar();
-                _justOpened = false; 
+                _justHotBarOpened = false; 
             }
-            _=CastomInvoke.Invoke<int>(UpdateArmItem,duration: (int)(!_justOpened? rateBeforeScroll*1000 : 0),param: num);
-            _=CastomInvoke.Invoke<int>(SwapPositionsLogic,duration: (int)(!_justOpened? rateBeforeScroll*1000*2:0),param: num) ;
+            _=CastomInvoke.Invoke<int>(UpdateArmItem,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000 : 0),param: num);
+            _=CastomInvoke.Invoke<int>(SwapPositionsLogic,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000*2:0),param: num) ;
             _=CastomInvoke.Invoke(ScrollTrue, (int)(rateBeforeScroll*1000));
-            if(!_justOpened) _justOpened = true;
+            if(!_justHotBarOpened) _justHotBarOpened = true;
         }
         private void ScrollTrue()=>canScroll = true;
         private void SwapPositionsLogic(int num)

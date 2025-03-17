@@ -9,7 +9,6 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         public override void InitializeInventory()
         {
             parameters = new InventoryParams(maxSlots, allowStacking);
-            slots = new List<InventorySlots>(maxSlots);
             dragAndDrop = GetComponent<DragAndDrop>();
             for (int i = 0; i < maxSlots; i++)
             {
@@ -28,6 +27,12 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             dragAndDrop.SetInventory(inventory);
             dragAndDrop.SetImageSet(imageArrayChecker);
             dragAndDrop.SetSlotSet(slotsArrayChecker);
+            
+            SaveManager saveManager = GetComponent<SaveManager>();
+            HotBarManager hbManager = GetComponent<HotBarManager>();
+
+            saveManager.Initialize(slots);
+            hbManager.Initialize(slots);
         }
         public List<Item> GetSlotsItems()
         {
@@ -96,12 +101,12 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                         int availableSpace = item.maxStackSize - slot.Amount;
                         int addAmount = Mathf.Min(availableSpace, remainingAmount);
                     
-                        await slot.AddItem(item, addAmount);
+                        slot.AddItem(item, addAmount);
                         remainingAmount -= addAmount;
                     
                         if (remainingAmount <= 0)
                         {
-                            InventoryEvents.InvokeInventoryUpdated(slots);
+                            InventoryEvents.InvokeInventoryUpdated();
                             return 0;
                         }
                     }
@@ -115,17 +120,17 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 {
                     int addAmount = Mathf.Min(item.maxStackSize, remainingAmount);
                 
-                    await slot.AddItem(item, addAmount);
+                    slot.AddItem(item, addAmount);
                     remainingAmount -= addAmount;
                 
                     if (remainingAmount <= 0)
                     {
-                        InventoryEvents.InvokeInventoryUpdated(slots);
+                        InventoryEvents.InvokeInventoryUpdated();
                         return 0;
                     }
                 }
             }
-            InventoryEvents.InvokeInventoryUpdated(slots);
+            InventoryEvents.InvokeInventoryUpdated();
             Debug.Log("No space to add item");
             return remainingAmount;
         }
@@ -138,7 +143,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 if (slot.Amount >= 1)
                 {
                     int removable = Mathf.Min(slot.Amount, remaining);
-                    await slot.RemoveItem(removable);
+                    slot.RemoveItem(removable);
                     remaining -= removable;
                     if (remaining <= 0)
                         break;
@@ -146,11 +151,11 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             }
             if (remaining <= 0)
             {
-                InventoryEvents.InvokeInventoryUpdated(slots);
+                InventoryEvents.InvokeInventoryUpdated();
                 await Task.Yield();
                 return true;
             }
-            InventoryEvents.InvokeInventoryUpdated(slots);
+            InventoryEvents.InvokeInventoryUpdated();
             await Task.Yield();
             return false;
 
@@ -159,9 +164,9 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         {
             foreach (var slot in slots)
             {
-                await slot.ClearSlot();
+                slot.ClearSlot();
             }
-            InventoryEvents.InvokeInventoryUpdated(slots);
+            InventoryEvents.InvokeInventoryUpdated();
             await Task.Yield();
         }
     }

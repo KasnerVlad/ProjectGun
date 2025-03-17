@@ -47,20 +47,21 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 InventorySlots targetSlot = InventorySlots[targetIndex];
                 if (targetSlot.Item != SourceSlot.Item || (targetSlot.Amount == targetSlot.Item.maxStackSize))
                 {
-                    await SwapItems(SourceSlot, targetSlot);
+                    SwapItems(SourceSlot, targetSlot);
                 }
                 else if (targetSlot.Amount < targetSlot.Item.maxStackSize&&targetSlot.Item==SourceSlot.Item)
                 {
-                    await MoveItems(SourceSlot, targetSlot);
+                    MoveItems(SourceSlot, targetSlot);
                 }
-                InventoryEvents.InvokeInventoryUpdated(InventorySlots);
+
             }
             DraggedImage.rectTransform.localPosition = Vector3.zero;
             IsDragging = false;
+            InventoryEvents.InvokeInventoryUpdated();
             await Task.Yield();
         }
         
-        private async Task SwapItems(InventorySlots from, InventorySlots to)
+        private void SwapItems(InventorySlots from, InventorySlots to)
         {
             if (from == to) return;
     
@@ -70,14 +71,14 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             Item newItem = to.Item;
             int newAmount = to.Amount;
             
-            await from.ClearSlot();
-            await to.ClearSlot();
-            
-            await to.AddItem(tempItem, tempAmount);
-            await from.AddItem(newItem, newAmount);
+            from.ClearSlot();
+            to.ClearSlot();
+
+            to.AddItem(tempItem, tempAmount);
+            from.AddItem(newItem, newAmount);
         }
     
-        private async Task MoveItems(InventorySlots from, InventorySlots to)
+        private void MoveItems(InventorySlots from, InventorySlots to)
         {
             if (from == to) return;
             int remainingSpace = to.Item.maxStackSize - to.Amount;
@@ -87,9 +88,9 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             Item targetItem = to.Item;
             int originalAmount = from.Amount;
     
-            await from.RemoveItem(originalAmount);
-            await to.AddItem(targetItem, amountToMove);
-            await from.AddItem(originalItem, sourceNewAmount);
+            from.RemoveItem(originalAmount);
+            to.AddItem(targetItem, amountToMove);
+            from.AddItem(originalItem, sourceNewAmount);
         }
         private GameObject GetClickedSlot()
         {

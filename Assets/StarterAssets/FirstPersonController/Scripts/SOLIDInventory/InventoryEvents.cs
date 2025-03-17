@@ -5,7 +5,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
 {
     public static class InventoryEvents
     {
-        public delegate Task InventoryUpdatedHandler(List<InventorySlots> slots);
+        public delegate Task InventoryUpdatedHandler();
         public static event InventoryUpdatedHandler OnInventoryUpdated;
     
         public delegate Task<int> ItemAddedHandler(Item item, int amount);
@@ -16,7 +16,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         
         public delegate Task ClearInventory();
         public static event ClearInventory OnClearInventory;
-        public static void InvokeInventoryUpdated(List<InventorySlots> inventorySlotsList) => OnInventoryUpdated?.Invoke(inventorySlotsList);
+        public static void InvokeInventoryUpdated() => OnInventoryUpdated?.Invoke();
     
         public static async Task<int> InvokeItemAdded(Item item, int amount) { return await OnItemAdded?.Invoke(item, amount); }
         public static void InvokeItemRemoved(int amount) => OnItemRemoved?.Invoke(amount);

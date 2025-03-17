@@ -9,7 +9,6 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         public static bool PressedC => Input.GetKeyDown(KeyCode.C);
         public static bool PressedE => Input.GetKeyDown(KeyCode.E);
         public static bool StartDragging => Input.GetMouseButtonDown(0);
-        public static bool Dragging => Input.GetMouseButton(0);
         public static bool EndDragging => Input.GetMouseButtonUp(0);
         public static float  Scroll => Input.GetAxis("Mouse ScrollWheel");
     }

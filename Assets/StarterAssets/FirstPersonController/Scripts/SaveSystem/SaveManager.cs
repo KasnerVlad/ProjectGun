@@ -1,7 +1,7 @@
 using System;
 using StarterAssets.FirstPersonController.Scripts.SOLIDInventory;
 using UnityEngine;
-
+using System.Collections.Generic;
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager _GameSaveManager;
@@ -12,6 +12,8 @@ public class SaveManager : MonoBehaviour
     private ISaveSystem _saveSystem;
     private GameData _gameData;
     private InventorySystem2 _inventorySystem2;
+    private List<InventorySlots> slots;
+    public void Initialize(List<InventorySlots> _slots)=>slots = _slots;
     public void OnSave()
     {
         _presenter.UpdateName((int.Parse(_gameData.SaveName) + 1).ToString());
@@ -31,9 +33,9 @@ public class SaveManager : MonoBehaviour
         _view = GetComponent<View>();
         _saveSystem = new JsonSaveSystem();
         StartGameData();
-        _presenter = new Presenter(_view, _saveSystem, _gameData, _inventorySystem2.slots);
+        _presenter = new Presenter(_view, _saveSystem, _gameData, slots);
         _presenter.OnLoad();
-        InventoryEvents.InvokeInventoryUpdated(_inventorySystem2.slots);
+        InventoryEvents.InvokeInventoryUpdated();
     }
 
     private void StartGameData()
