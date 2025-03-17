@@ -1,8 +1,8 @@
-using System;
+using UnityEngine.UI;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Threading;
-using CustomInvoke;
+using CInvoke;
 using SmoothAnimationLogic;
 using CTSCancelLogic;
 namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
@@ -35,11 +35,15 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         private CancellationTokenSource _cts;
         [SerializeField] private GameObject inventory;
         private bool _justInventoryOpened;
+        [Tooltip("Add 2 sprite, in first slot drag non Selected Slot Sprites in second drag Selected Slot Sprites")]
+        [SerializeField] private List<Sprite> slotSprites= new List<Sprite>();
+        private List<Image> slotsImages = new List<Image>();
         public void Initialize(List<InventorySlots> _slots)=>slots = _slots;
         private void Start()
         {
             for (int i = 0; i < HotBarsSlotsCount; i++) { hotBarsChilds.Add(hotBar.transform.GetChild(i).gameObject); }
             for (int i = 0; i < HotBarsSlotsCount; i++) { hotBarsChildsPositions.Add(hotBarsChilds[i].transform.localPosition); }
+            for(int i = 0; i < HotBarsSlotsCount; i++) {slotsImages.Add(hotBarsChilds[i].transform.gameObject.GetComponent<Image>());}
             for (int i = 0; i < HotBarsSlotsCount; i++)
             {
                 for (int j = 0; j < slots.Count; j++)
@@ -57,6 +61,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             for (int i = 0; i < _dictinaryAmount; i++) { CancellationTokensSourseDictionary.Add(new Dictionary<GameObject, CancellationTokenSource>()); }
             _cts = new CancellationTokenSource();
             ToggleOpenHotBar();
+            UpdateSlotsSprites();
         }
         private void Update() => UpdateLogic();
         private void UpdateLogic()
@@ -64,7 +69,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             if (InventoryInput.Scroll * scrollSensitivity > minScrollStep && canScroll) { ScrollMethodInUpdate(1); _wasMomentBeforeOpenValueTrue = true; }
             else if (InventoryInput.Scroll * scrollSensitivity < minScrollStep * -1 && canScroll) { ScrollMethodInUpdate(-1); _wasMomentBeforeOpenValueTrue = true; }
             else if(open && _wasMomentBeforeOpenValueTrue&&!inventory.activeSelf) {
-                _ = CastomInvoke.Invoke(()=>
+                _ = CustomInvoke.Invoke(()=>
                 {
                     ToggleOpenHotBar();
                     if (!_cts.IsCancellationRequested) { _cts.Cancel(); }
@@ -74,17 +79,24 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             if(Input.GetMouseButtonDown(2)&&!open&&!inventory.activeSelf) {
                 _cts = new CancellationTokenSource();
                 ToggleOpenHotBar(); 
-                _= CastomInvoke.Invoke(()=>
+                _= CustomInvoke.Invoke(()=>
                 {
                     ToggleOpenHotBar();
                     if (!_cts.IsCancellationRequested) { _cts.Cancel(); }
                     
                 }, 4000, _cts);
             }
-            else if(Input.GetMouseButtonDown(2)&&open&&!inventory.activeSelf) { if (!_cts.IsCancellationRequested) { _cts.Cancel(); } _=CastomInvoke.Invoke(ToggleOpenHotBar, 100); }
+            else if(Input.GetMouseButtonDown(2)&&open&&!inventory.activeSelf) { if (!_cts.IsCancellationRequested) { _cts.Cancel(); } _=CInvoke.CustomInvoke.Invoke(ToggleOpenHotBar, 100); }
             if(inventory.activeSelf&&!open) { ToggleOpenHotBar(); _justInventoryOpened = true; }
             if(!inventory.activeSelf&&open&&_justInventoryOpened){ToggleOpenHotBar();_justInventoryOpened = false;}
         }
+        private void UpdateSlotsSprites(){
+            for (int i = 0; i < HotBarsSlotsCount; i++)
+            {
+                ChangeSlotSprite(i==currentHotBarSlot ? slotSprites[1] : slotSprites[0] , slotsImages[i]);
+            }
+        }
+        private void ChangeSlotSprite(Sprite sprite, Image slot){slot.sprite = sprite; }
         private void ScrollMethodInUpdate(int num)
         {
             if(!_cts.IsCancellationRequested){_cts.Cancel();}
@@ -95,15 +107,16 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 ToggleOpenHotBar();
                 _justHotBarOpened = false; 
             }
-            _=CastomInvoke.Invoke<int>(UpdateArmItem,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000 : 0),param: num);
-            _=CastomInvoke.Invoke<int>(SwapPositionsLogic,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000*2:0),param: num) ;
-            _=CastomInvoke.Invoke(ScrollTrue, (int)(rateBeforeScroll*1000));
+            _=CustomInvoke.Invoke(UpdateArmItem,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000 : 0),param: num);
+            _=CustomInvoke.Invoke(SwapPositionsLogic,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000*2:0),param: num) ;
+            _=CustomInvoke.Invoke(UpdateSlotsSprites, (int)(!_justHotBarOpened?rateBeforeScroll*1000*3:rateBeforeScroll*1000));
+            _=CustomInvoke.Invoke(ScrollTrue, (int)(rateBeforeScroll*1000));
             if(!_justHotBarOpened) _justHotBarOpened = true;
         }
         private void ScrollTrue()=>canScroll = true;
         private void SwapPositionsLogic(int num)
         {
-            currentHotBarSlot = (currentHotBarSlot - num + HotBarsSlotsCount) % HotBarsSlotsCount;
+            currentHotBarSlot = (currentHotBarSlot + num + HotBarsSlotsCount) % HotBarsSlotsCount;
             CancelAndRestartTokens.CancelAllAnimations(CancellationTokensSourseDictionary[0]);
             UpdateSlotsPositions();
         }
@@ -112,10 +125,11 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         {
             for (int i = 0; i < hotBarsChilds.Count; i++)
             {
-                int newI = (i + currentHotBarSlot) % HotBarsSlotsCount;
+                int newI = (i - currentHotBarSlot + HotBarsSlotsCount) % HotBarsSlotsCount;
                 ChangeTransformsValueLogic.StartSmoothPositionChange(hotBarsChildsPositions[newI], hotBarsChilds[i], CancellationTokensSourseDictionary[0], rateBeforeScroll, speedScrolling);
             }
-        }
+
+        }   
         private void UpdateHotBarState()
         {
             CancelAndRestartTokens.CancelAllAnimations(CancellationTokensSourseDictionary[0]);
