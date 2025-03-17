@@ -2,102 +2,9 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using CustomInvoke;
 using SmoothAnimationLogic;
-namespace SmoothAnimationLogic
-{
-    public static class ChangeTransformsValueLogic
-    {
-        private static async Task SmoothRotChanging(Quaternion pos, GameObject target, CancellationToken cancellationToken, float duration)
-        {
-            while (target.transform.localRotation != pos && 
-                   !cancellationToken.IsCancellationRequested && 
-                   Application.isPlaying)
-            {
-                target.transform.localRotation = Quaternion.RotateTowards(
-                    target.transform.localRotation, 
-                    pos, 
-                    duration
-                );
-                await Task.Yield();
-            }
-        }
-        private static async Task SmoothPosChanging(Vector3 pos, GameObject target, CancellationToken cancellationToken, float duration, float rateBeforeScroll)
-        {
-            while (target.transform.localPosition != pos && 
-                  !cancellationToken.IsCancellationRequested && 
-                  Application.isPlaying)
-            {
-                target.transform.localPosition = Vector3.MoveTowards(
-                    target.transform.localPosition, 
-                    pos, 
-                    rateBeforeScroll * duration * 60
-                );
-                await Task.Yield();
-            }
-        }
-        public static void StartSmoothPositionChange(Vector3 pos, GameObject target, Dictionary<GameObject, CancellationTokenSource> cancellationTokens, float duration, float rateBeforeScroll)
-        {
-            _ = SmoothPosChanging(pos, target, CancelAndRestartTokens.GetCancellationToken(target, cancellationTokens).Token, duration, rateBeforeScroll);
-        }
-        public static void StartSmoothRotationChange(Quaternion pos, GameObject target, Dictionary<GameObject, CancellationTokenSource> cancellationTokens, float duration)
-        {
-            _ = SmoothRotChanging(pos, target, CancelAndRestartTokens.GetCancellationToken(target, cancellationTokens).Token, duration);
-        }
-    }
-    public static class CancelAndRestartTokens
-    {
-        public static CancellationTokenSource GetCancellationToken(GameObject target, Dictionary<GameObject, CancellationTokenSource> cancellationTokens)
-        {
-            if (cancellationTokens.TryGetValue(target, out var cts))
-            {
-                cts.Cancel();
-                cancellationTokens.Remove(target);
-            }
-            var newCts = new CancellationTokenSource();
-            cancellationTokens[target] = newCts;
-            return newCts;
-        }
-        public static void CancelAllAnimations(Dictionary<GameObject, CancellationTokenSource> cancellationTokens)
-        {
-            foreach (var cts in cancellationTokens.Values)
-            {
-                cts.Cancel();
-            }
-            cancellationTokens.Clear();
-        }
-    }
-}
-
-namespace CustomInvoke
-{
-    public static class CastomInvoke
-    {
-        public static async Task Invoke(Action t, int duration)
-        {
-            await Task.Delay(duration);
-            t.Invoke(); 
-        }
-
-        public static async Task Invoke<T>(Action<T> t, int duration, T param)
-        {
-            await Task.Delay(duration);
-            t.Invoke(param);
-        }        
-        public static async Task Invoke(Action t, int duration,CancellationTokenSource ct)
-        {
-            await Task.Delay(duration);
-            if (!ct.IsCancellationRequested) { t.Invoke(); }
-        }
-        public static async Task Invoke<T>(Action<T> t, int duration, T param, CancellationTokenSource ct)
-        {
-            await Task.Delay(duration);
-            if(!ct.IsCancellationRequested){ t.Invoke(param);}
-        }
-        
-    }
-}
+using CTSCancelLogic;
 namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
 {
     public class HotBarManager : MonoBehaviour
@@ -160,35 +67,20 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             _cts = new CancellationTokenSource();
             ToggleOpenHotBar();
         }
-        private void Update()
-        {
-            UpdateLogic();
-        }
+        private void Update() => UpdateLogic();
         private void UpdateLogic()
         {
-            if (InventoryInput.Scroll * scrollSensitivity > minScrollStep && canScroll)
-            {
-                ScrollMethodInUpdate(1); 
-                _wasMomentBeforeOpenValueTrue = true;
-            }
-            else if (InventoryInput.Scroll * scrollSensitivity < minScrollStep * -1 && canScroll) 
-            {
-                ScrollMethodInUpdate(-1);
-                _wasMomentBeforeOpenValueTrue = true;
-            }
-            else if(open && _wasMomentBeforeOpenValueTrue)
-            {
+            if (InventoryInput.Scroll * scrollSensitivity > minScrollStep && canScroll) { ScrollMethodInUpdate(1); _wasMomentBeforeOpenValueTrue = true; }
+            else if (InventoryInput.Scroll * scrollSensitivity < minScrollStep * -1 && canScroll) { ScrollMethodInUpdate(-1); _wasMomentBeforeOpenValueTrue = true; }
+            else if(open && _wasMomentBeforeOpenValueTrue) {
                 _ = CastomInvoke.Invoke(()=>
                 {
                     ToggleOpenHotBar();
                     if (!_cts.IsCancellationRequested) { _cts.Cancel(); }
                 }, 2000, _cts);
-
                 _wasMomentBeforeOpenValueTrue = false;
             }
-            
-            if(Input.GetMouseButtonDown(2)&&!open)
-            {
+            if(Input.GetMouseButtonDown(2)&&!open) {
                 _cts = new CancellationTokenSource();
                 ToggleOpenHotBar(); 
                 _= CastomInvoke.Invoke(()=>
@@ -198,11 +90,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                     
                 }, 4000, _cts);
             }
-            else if(Input.GetMouseButtonDown(2)&&open)
-            {
-                if (!_cts.IsCancellationRequested) { _cts.Cancel(); }
-                _=CastomInvoke.Invoke(ToggleOpenHotBar, 100);
-            }
+            else if(Input.GetMouseButtonDown(2)&&open) { if (!_cts.IsCancellationRequested) { _cts.Cancel(); } _=CastomInvoke.Invoke(ToggleOpenHotBar, 100); }
         }
         private void ScrollMethodInUpdate(int num)
         {
@@ -214,8 +102,8 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 ToggleOpenHotBar();
                 _justOpened = false; 
             }
-            _=CastomInvoke.Invoke<int>(UpdateArmItem, (int)(!_justOpened? rateBeforeScroll*1000 : 0), num);
-            _=CastomInvoke.Invoke<int>(SwapPositionsLogic, (int)(!_justOpened? rateBeforeScroll*1000*2:0), num) ;
+            _=CastomInvoke.Invoke<int>(UpdateArmItem,duration: (int)(!_justOpened? rateBeforeScroll*1000 : 0),param: num);
+            _=CastomInvoke.Invoke<int>(SwapPositionsLogic,duration: (int)(!_justOpened? rateBeforeScroll*1000*2:0),param: num) ;
             _=CastomInvoke.Invoke(ScrollTrue, (int)(rateBeforeScroll*1000));
             if(!_justOpened) _justOpened = true;
         }
