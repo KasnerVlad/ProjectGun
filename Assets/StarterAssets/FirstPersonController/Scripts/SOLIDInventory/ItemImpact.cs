@@ -14,11 +14,11 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         {
             if (InventoryInput.PressedG)
             {
-                InventoryEvents.InvokeItemAdded(testItem, Amount);
+                _=InventoryEvents.InvokeItemAdded(testItem, Amount);
             }
             if (Input.GetKeyDown(KeyCode.T))
             {
-                InventoryEvents.InvokeItemAdded(testItem2, Amount);
+                _=InventoryEvents.InvokeItemAdded(testItem2, Amount);
             }
             if (InventoryInput.PressedE)
             {

@@ -28,7 +28,7 @@ namespace StarterAssets.FirstPersonController.Scripts
             _playerHpModel = new PlayerHpModel();
             _playerHpView = new PlayerHpView(hpScrollbar);
             _playerHpView.UpdateHp(_playerHpModel.CurrentHealth, _playerHpModel.maxHp);
-            SetInput(GetComponent<StarterAssetsInputs>());
+            SetInput(GetComponent<MoveInputs>());
             _iAnimationControllerController.AssignAnimationIDs();
 #if ENABLE_INPUT_SYSTEM
             SetPlayerInput(GetComponent<PlayerInput>());
@@ -60,6 +60,7 @@ namespace StarterAssets.FirstPersonController.Scripts
 
             // when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
             Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
+            Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - SecondGroundOffset, transform.position.z), GroundedRadius);
         }
         private void OnFootstep(AnimationEvent animationEvent)
         {

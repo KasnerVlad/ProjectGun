@@ -67,6 +67,10 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
                     }
                 }
             }
+            else if (!_animator.GetBool(_animIDFreeFall))
+            {
+                _animator.SetBool(_animIDFreeFall, true);
+            }
             _animator.SetBool(_animIDGrounded, _fpsController.Grounded);
         }
     }

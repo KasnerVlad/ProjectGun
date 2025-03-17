@@ -11,10 +11,10 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
         public float VerticalVelocity{private set; get;}
         public JumpAndGravityController(FPSControllerBase fpsController)
         {
-            this._fpsController = fpsController;
+            _fpsController = fpsController;
             
-            JumpTimeoutDelta = this._fpsController.JumpTimeout;
-            FallTimeoutDelta = this._fpsController.FallTimeout;
+            JumpTimeoutDelta = _fpsController.JumpTimeout;
+            FallTimeoutDelta = _fpsController.FallTimeout;
         }
 
         public void JumpAndGravity()
@@ -43,7 +43,6 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
                 {
                     FallTimeoutDelta -= Time.deltaTime;
                 }
-                _fpsController.Input.jump = false;
             }
             if (VerticalVelocity < _terminalVelocity)
             {

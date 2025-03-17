@@ -1,3 +1,4 @@
+using System;
 using StarterAssets.FirstPersonController.Scripts.PlayerHpSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -56,7 +57,7 @@ namespace StarterAssets.FirstPersonController.Scripts
         public float Gravity{ get { return gravity; } private set { gravity = Mathf.Clamp(value, -15,-9.8f); } }
         [Space(10)]
         [Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
-        public readonly float JumpTimeout = 0.1f;
+        public readonly float JumpTimeout = 0.2f;
 
         [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
         [SerializeField] private float fallTimeout = 0.5f;
@@ -69,6 +70,8 @@ namespace StarterAssets.FirstPersonController.Scripts
         [Tooltip("Useful for rough ground")]
         [SerializeField] private float groundedOffset;
         public float GroundedOffset=>groundedOffset;
+        [SerializeField]private float secondGroundOffset;
+        public float SecondGroundOffset => secondGroundOffset;
         [Range(0, 1)]
         [Tooltip("The radius of the grounded check. Should match the radius of the CharacterController")]
         [SerializeField] private float groundRadius;
@@ -99,7 +102,7 @@ namespace StarterAssets.FirstPersonController.Scripts
 #if ENABLE_INPUT_SYSTEM
         private PlayerInput _playerInput;
 #endif
-        public StarterAssetsInputs Input{private set; get;}
+        public MoveInputs Input{private set; get;}
         public readonly float Threshold = 0.01f;
         [SerializeField] public GameObject aimingPoint;
         [SerializeField] public GameObject head;
@@ -122,7 +125,7 @@ namespace StarterAssets.FirstPersonController.Scripts
         protected abstract void LateUpdateLogic();
         public void SetGrounded(bool grounded) => Grounded = grounded;
         protected void SetPlayerInput(PlayerInput playerInput) => _playerInput = playerInput;
-        protected void SetInput(StarterAssetsInputs input) => Input = input;
+        protected void SetInput(MoveInputs input) => Input = input;
         public static float ClampAngle(float lfAngle, float lfMin, float lfMax)
         {
             if (lfAngle < -360f) lfAngle += 360f;
