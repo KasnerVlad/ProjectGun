@@ -22,12 +22,12 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
         public void Move()
         {
 
-            TargetSpeed = _fpsController.Input.sprint ? _fpsController.SprintSpeed : _fpsController.MoveSpeed;
-            if (_fpsController.Input.move == Vector2.zero) TargetSpeed = 0.0f;
+            TargetSpeed = Input.inistate.sprint ? _fpsController.SprintSpeed : _fpsController.MoveSpeed;
+            if (Input.inistate.move == Vector2.zero) TargetSpeed = 0.0f;
             float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
 
             float speedOffset = 0.1f;
-            InputMagnitude = _fpsController.Input.analogMovement ? _fpsController.Input.move.magnitude : 1f;
+            InputMagnitude = Input.inistate.analogMovement ? Input.inistate.move.magnitude : 1f;
 
             if (currentHorizontalSpeed < TargetSpeed - speedOffset || currentHorizontalSpeed > TargetSpeed + speedOffset)
             {
@@ -39,12 +39,12 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
             { 
                 _speed = TargetSpeed;
             }
-            Vector3 inputDirection = new Vector3(_fpsController.Input.move.x, 0.0f, _fpsController.Input.move.y).normalized;
+            Vector3 inputDirection = new Vector3(Input.inistate.move.x, 0.0f, Input.inistate.move.y).normalized;
 
-            if (_fpsController.Input.move != Vector2.zero)
+            if (Input.inistate.move != Vector2.zero)
             {
 
-                inputDirection = _fpsController.transform.right * _fpsController.Input.move.x + _fpsController.transform.forward * _fpsController.Input.move.y;
+                inputDirection = _fpsController.transform.right * Input.inistate.move.x + _fpsController.transform.forward * Input.inistate.move.y;
             }
 
             _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _jumpAndGravityController.VerticalVelocity, 0.0f) * Time.deltaTime);

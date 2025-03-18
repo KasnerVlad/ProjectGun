@@ -8,9 +8,6 @@ using UnityEngine.UI;
 namespace StarterAssets.FirstPersonController.Scripts
 {
     [RequireComponent(typeof(CharacterController))]
-#if ENABLE_INPUT_SYSTEM
-    [RequireComponent(typeof(PlayerInput))]
-#endif
     public abstract class FPSControllerBase : MonoBehaviour
     {
         [Header("Player")]
@@ -102,7 +99,6 @@ namespace StarterAssets.FirstPersonController.Scripts
 #if ENABLE_INPUT_SYSTEM
         private PlayerInput _playerInput;
 #endif
-        public MoveInputs Input{private set; get;}
         public readonly float Threshold = 0.01f;
         [SerializeField] public GameObject aimingPoint;
         [SerializeField] public GameObject head;
@@ -123,9 +119,8 @@ namespace StarterAssets.FirstPersonController.Scripts
         protected abstract void InitializeStart();
         protected abstract void UpdateLogic();
         protected abstract void LateUpdateLogic();
-        public void SetGrounded(bool grounded) => Grounded = grounded;
+        protected void SetGrounded(bool grounded) => Grounded = grounded;
         protected void SetPlayerInput(PlayerInput playerInput) => _playerInput = playerInput;
-        protected void SetInput(MoveInputs input) => Input = input;
         public static float ClampAngle(float lfAngle, float lfMin, float lfMax)
         {
             if (lfAngle < -360f) lfAngle += 360f;

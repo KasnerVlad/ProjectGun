@@ -23,18 +23,13 @@ namespace StarterAssets.FirstPersonController.Scripts
 	        _iMoveController = new MoveController(this, _iJumpAndGravityController as JumpAndGravityController);
 	        _iAnimationControllerController = new AnimationController(this, _iMoveController as MoveController, _iJumpAndGravityController as JumpAndGravityController);
 	        _iCameraController = new CameraController(this);
-	        _iCheckGroundedController = new GroundCheck(this);
+	        _iCheckGroundedController = new GroundCheck(this, setGrounded:SetGrounded);
 
             _playerHpModel = new PlayerHpModel();
             _playerHpView = new PlayerHpView(hpScrollbar);
             _playerHpView.UpdateHp(_playerHpModel.CurrentHealth, _playerHpModel.maxHp);
-            SetInput(GetComponent<MoveInputs>());
             _iAnimationControllerController.AssignAnimationIDs();
-#if ENABLE_INPUT_SYSTEM
-            SetPlayerInput(GetComponent<PlayerInput>());
-#else
-            Debug.LogError("Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
-#endif
+            SetPlayerInput(Input.inistate.gameObject.GetComponent<PlayerInput>());
         }
         public void TakeDamage(int damage){_playerHpModel.TakeDamage(damage); _playerHpView.UpdateHp(_playerHpModel.CurrentHealth, _playerHpModel.maxHp);}
         private void OnDisable() => SaveManager._GameSaveManager.OnSave();

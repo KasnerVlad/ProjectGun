@@ -76,7 +76,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 }, 2000, _cts);
                 _wasMomentBeforeOpenValueTrue = false;
             }
-            if(Input.GetMouseButtonDown(2)&&!open&&!inventory.activeSelf) {
+            if(UnityEngine.Input.GetMouseButtonDown(2)&&!open&&!inventory.activeSelf) {
                 _cts = new CancellationTokenSource();
                 ToggleOpenHotBar(); 
                 _= CustomInvoke.Invoke(()=>
@@ -86,7 +86,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                     
                 }, 4000, _cts);
             }
-            else if(Input.GetMouseButtonDown(2)&&open&&!inventory.activeSelf) { if (!_cts.IsCancellationRequested) { _cts.Cancel(); } _=CInvoke.CustomInvoke.Invoke(ToggleOpenHotBar, 100); }
+            else if(UnityEngine.Input.GetMouseButtonDown(2)&&open&&!inventory.activeSelf) { if (!_cts.IsCancellationRequested) { _cts.Cancel(); } _=CInvoke.CustomInvoke.Invoke(ToggleOpenHotBar, 100); }
             if(inventory.activeSelf&&!open) { ToggleOpenHotBar(); _justInventoryOpened = true; }
             if(!inventory.activeSelf&&open&&_justInventoryOpened){ToggleOpenHotBar();_justInventoryOpened = false;}
         }

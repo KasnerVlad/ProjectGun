@@ -16,7 +16,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             {
                 _=InventoryEvents.InvokeItemAdded(testItem, Amount);
             }
-            if (Input.GetKeyDown(KeyCode.T))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.T))
             {
                 _=InventoryEvents.InvokeItemAdded(testItem2, Amount);
             }
@@ -35,9 +35,8 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             }
             Cursor.visible = inventory.activeSelf;
             Cursor.lockState = !inventory.activeSelf ? CursorLockMode.Locked : CursorLockMode.None;
-            fpsController.Input.cursorInputForLook = !inventory.activeSelf;
-            if (inventory.activeSelf) { fpsController.Input.look = Vector2.zero; }
-            
+            if(Input.inistate.cursorInputForLook!=!inventory.activeSelf){ Input.inistate.SetCursorStateLocked(!inventory.activeSelf);}
+            if (Input.inistate.look!=Vector2.zero&&inventory.activeSelf) { Input.inistate.ZeroVector(); }
         }
     }
 }

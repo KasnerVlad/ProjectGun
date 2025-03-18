@@ -31,8 +31,8 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             if (DraggedImage != null && Inventory.activeSelf&&SourceSlot.Item != null)
             {
                 RectTransform rectTransform = DraggedImage.rectTransform;
-                float mouseX = Input.GetAxis("Mouse X") * speed * 10;
-                float mouseY = Input.GetAxis("Mouse Y") * speed * 10;
+                float mouseX = UnityEngine.Input.GetAxis("Mouse X") * speed * 10;
+                float mouseY = UnityEngine.Input.GetAxis("Mouse Y") * speed * 10;
                 rectTransform.anchoredPosition += new Vector2(mouseX, mouseY);
             }
             else { DraggedImage.rectTransform.localPosition = Vector3.zero; IsDragging = false; }
@@ -96,7 +96,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         {
             if (InventoryInput.StartDragging)
             {
-                Vector2 mousePos = Input.mousePosition;
+                Vector2 mousePos = UnityEngine.Input.mousePosition;
                 GraphicRaycaster raycaster = Canvas.GetComponent<GraphicRaycaster>();
                 
                 var pointerEventData = new UnityEngine.EventSystems.PointerEventData(
@@ -122,7 +122,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
     
         private GameObject GetHoveredSlot()
         {
-            Vector2 mousePos = Input.mousePosition;
+            Vector2 mousePos = UnityEngine.Input.mousePosition;
             GraphicRaycaster raycaster = Canvas.GetComponent<GraphicRaycaster>();
             
             var pointerEventData = new UnityEngine.EventSystems.PointerEventData(

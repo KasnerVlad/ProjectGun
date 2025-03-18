@@ -53,7 +53,7 @@ namespace StarterAssets.FirstPersonController.Scripts
         }
         protected virtual void Update()
         {
-            FireManager();
+            _=FireManager();
             UpdateLogic();
         }
         protected abstract void StartLogic();
@@ -203,12 +203,12 @@ namespace StarterAssets.FirstPersonController.Scripts
     }
     public static class WeaponInput
     {
-        public static bool Aiming => Input.GetMouseButton(1);
-        public static bool ToggleFireMode => Input.GetKeyDown(KeyCode.B);
-        public static bool SingleFire => Input.GetMouseButtonDown(0);
-        public static bool MultipleFire => Input.GetMouseButton(0);
-        public static bool Reload => Input.GetKeyDown(KeyCode.R);
-        public static bool Take => Input.GetKeyDown(KeyCode.T);
-        public static bool Hide => Input.GetKeyDown(KeyCode.H);
+        public static bool Aiming => UnityEngine.Input.GetMouseButton(1);
+        public static bool ToggleFireMode => UnityEngine.Input.GetKeyDown(KeyCode.B);
+        public static bool SingleFire => UnityEngine.Input.GetMouseButtonDown(0);
+        public static bool MultipleFire => UnityEngine.Input.GetMouseButton(0);
+        public static bool Reload => UnityEngine.Input.GetKeyDown(KeyCode.R);
+        public static bool Take => UnityEngine.Input.GetKeyDown(KeyCode.T);
+        public static bool Hide => UnityEngine.Input.GetKeyDown(KeyCode.H);
     }
 }

@@ -26,7 +26,7 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
                 {
                     VerticalVelocity = -2f;
                 }
-                if (_fpsController.Input.jump && JumpTimeoutDelta <= 0.0f)
+                if (Input.inistate.jump && JumpTimeoutDelta <= 0.0f)
                 {
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     VerticalVelocity = Mathf.Sqrt(_fpsController.JumpHeight * -2f * _fpsController.Gravity);
