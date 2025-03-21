@@ -5,9 +5,10 @@ using StarterAssets.FirstPersonController.Scripts.SOLIDInventory;
 [Serializable]
 public class GameData
 {
+    public string SaveName = "";
     public Vector3 PlayerPosition;
+    public Quaternion PlayerRotation;
     public List<Item> items;
     public List<int> itemsAmount;
-    public string SaveName = "";
-    public Quaternion PlayerRotation;
+    public int currentHotBarSlot = 0;
 }

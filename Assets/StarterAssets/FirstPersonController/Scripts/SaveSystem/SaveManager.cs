@@ -2,6 +2,8 @@ using System;
 using StarterAssets.FirstPersonController.Scripts.SOLIDInventory;
 using UnityEngine;
 using System.Collections.Generic;
+using CustomDelegats;
+using CInvoke;
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager _GameSaveManager;
@@ -13,7 +15,15 @@ public class SaveManager : MonoBehaviour
     private GameData _gameData;
     private InventorySystem2 _inventorySystem2;
     private List<InventorySlots> slots;
-    public void Initialize(List<InventorySlots> _slots)=>slots = _slots;
+    private HotBarManager _hotBarManager;
+    private Vm<int> _m;
+    public void InitializeSlots(List<InventorySlots> _slots)=>slots = _slots;
+    public void InitializeHotBarManager(HotBarManager _hotBarManager, Vm<int> m){this._hotBarManager = _hotBarManager; _m = m;}
+    private void Awake(){        
+        if (_GameSaveManager == null) { _GameSaveManager = this; } 
+        else { Destroy(gameObject); } 
+        DontDestroyOnLoad(gameObject);
+    }
     public void OnSave()
     {
         _presenter.UpdateName((int.Parse(_gameData.SaveName) + 1).ToString());
@@ -21,21 +31,22 @@ public class SaveManager : MonoBehaviour
         _presenter.UpdateRotation(playerPosition.rotation);
         _presenter.UpdateSlotsItems(_inventorySystem2.GetSlotsItems());
         _presenter.UpdateSlotItemsAmount(_inventorySystem2.GetSlotsItemAmount());
+        _presenter.UpdateCurrentHotBarSlot(_hotBarManager.currentHotBarSlot);
         _presenter.OnSave();
     }
     private void Start()
     {
-        if (_GameSaveManager == null) { _GameSaveManager = this; } 
-        else { Destroy(gameObject); } 
-        DontDestroyOnLoad(gameObject);
-        
         _inventorySystem2 = GetComponent<InventorySystem2>();
         _view = GetComponent<View>();
         _saveSystem = new JsonSaveSystem();
         StartGameData();
-        _presenter = new Presenter(_view, _saveSystem, _gameData, slots);
-        _presenter.OnLoad();
-        InventoryEvents.InvokeInventoryUpdated();
+        _presenter = new Presenter(_view, _saveSystem, _gameData, slots, _m);
+        _=CustomInvoke.Invoke(()=>
+        {
+            _presenter.OnLoad();
+            InventoryEvents.InvokeInventoryUpdated();
+        }, 100);
+        
     }
 
     private void StartGameData()

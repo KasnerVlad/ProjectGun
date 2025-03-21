@@ -3,8 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 using UnityEngine.Animations.Rigging;
-using UnityEngine.PlayerLoop;
-
+using CInvoke;
 namespace StarterAssets.FirstPersonController.Scripts
 {
     public abstract class WeaponControllerBase : MonoBehaviour
@@ -103,7 +102,7 @@ namespace StarterAssets.FirstPersonController.Scripts
                     IsFire = true;
                     MinusBullet();
                     _pistolPlayerModel.Fire();
-                    Invoke(nameof(DisableFireState), FireRate);
+                    _=CustomInvoke.Invoke(DisableFireState,(int)(FireRate*1000));
                     if(ammoText != null){ _weaponView.UpdateText();}
                 }
                 if (BulletCount < StartBulletCount && Input2.Reload&&LastBulletsCount > 0)
@@ -111,8 +110,8 @@ namespace StarterAssets.FirstPersonController.Scripts
                     await _pistolPlayerModel.Reload();
                     if(ammoText != null){ _weaponView.UpdateText();}
                 }
-                if (Input2.Take) { await _pistolPlayerModel.Take(); }
-                if (Input2.Hide) { _pistolPlayerModel.Hide(); }
+                if (Input2.Take) { TakeM(); }
+                if (Input2.Hide) { HideM(); }
             }
             if (Input2.Aiming&&(_aimPosConstraints.weight <1||_defaultPosConstraints.weight >0)&&!inventoryPanel.activeSelf) {
                 _aimPosConstraints.weight = Mathf.MoveTowards(_aimPosConstraints.weight, 1, Time.deltaTime*changeStateSpeed);
@@ -123,6 +122,8 @@ namespace StarterAssets.FirstPersonController.Scripts
                 _defaultPosConstraints.weight = Mathf.MoveTowards(_defaultPosConstraints.weight, 1, Time.deltaTime*changeStateSpeed);
             } 
         }
+        protected abstract void TakeM();
+        protected abstract void HideM();
     }
     
     public class WeaponView
@@ -200,15 +201,5 @@ namespace StarterAssets.FirstPersonController.Scripts
             if(_weapon.Take!=_animator.GetBool(_animationTakeID))_animator.SetBool(_animationTakeID, _weapon.Take);
             if(_weapon.Hide!=_animator.GetBool(_animationHideID))_animator.SetBool(_animationHideID, _weapon.Hide);
         }
-    }
-    public static class WeaponInput
-    {
-        public static bool Aiming => UnityEngine.Input.GetMouseButton(1);
-        public static bool ToggleFireMode => UnityEngine.Input.GetKeyDown(KeyCode.B);
-        public static bool SingleFire => UnityEngine.Input.GetMouseButtonDown(0);
-        public static bool MultipleFire => UnityEngine.Input.GetMouseButton(0);
-        public static bool Reload => UnityEngine.Input.GetKeyDown(KeyCode.R);
-        public static bool Take => UnityEngine.Input.GetKeyDown(KeyCode.T);
-        public static bool Hide => UnityEngine.Input.GetKeyDown(KeyCode.H);
     }
 }

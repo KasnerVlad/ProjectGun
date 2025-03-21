@@ -31,7 +31,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             SaveManager saveManager = GetComponent<SaveManager>();
             HotBarManager hbManager = GetComponent<HotBarManager>();
 
-            saveManager.Initialize(slots);
+            saveManager.InitializeSlots(slots);
             hbManager.Initialize(slots);
         }
         public List<Item> GetSlotsItems()
@@ -105,6 +105,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                         remainingAmount -= addAmount;
                         if (remainingAmount <= 0)
                         {
+                            InventoryEvents.InvokeSlotsItemChanged();
                             InventoryEvents.InvokeInventoryUpdated();
                             return 0;
                         }
@@ -121,9 +122,10 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 
                     slot.AddItem(item, addAmount);
                     remainingAmount -= addAmount;
-                    InventoryEvents.InvokeSlotsItemChanged();
                     if (remainingAmount <= 0)
                     {
+                        InventoryEvents.InvokeSlotsItemChanged();
+                        InventoryEvents.InvokeInventoryUpdated();
                         return 0;
                     }
                 }
@@ -144,17 +146,19 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                     int removable = Mathf.Min(slot.Amount, remaining);
                     slot.RemoveItem(removable);
                     remaining -= removable;
-                    InventoryEvents.InvokeSlotsItemChanged();
                     if (remaining <= 0)
                         break;
+                    
                 }
             }
             if (remaining <= 0)
             {
+                InventoryEvents.InvokeSlotsItemChanged();
                 InventoryEvents.InvokeInventoryUpdated();
                 await Task.Yield();
                 return true;
             }
+            InventoryEvents.InvokeSlotsItemChanged();
             InventoryEvents.InvokeInventoryUpdated();
             await Task.Yield();
             return false;

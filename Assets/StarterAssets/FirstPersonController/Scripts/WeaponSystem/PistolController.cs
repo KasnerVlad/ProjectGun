@@ -51,5 +51,8 @@ namespace StarterAssets.FirstPersonController.Scripts
             defultPos.localPosition = newDefPosition;
             aimPos.localPosition = newAimPosition;
         }
+
+        protected override void HideM() { _pistolPlayerModel.Hide(); }
+        protected override void TakeM(){_=_pistolPlayerModel.Take();}
     }
 }

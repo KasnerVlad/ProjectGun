@@ -16,7 +16,7 @@ namespace SmoothAnimationLogic
                 target.transform.localRotation = Quaternion.RotateTowards(
                     target.transform.localRotation, 
                     pos, 
-                    duration
+                    duration*Time.deltaTime
                 );
                 await Task.Yield();
             }
@@ -30,7 +30,7 @@ namespace SmoothAnimationLogic
                 target.transform.localPosition = Vector3.MoveTowards(
                     target.transform.localPosition, 
                     pos, 
-                    rateBeforeScroll * duration * 60
+                    rateBeforeScroll * duration * 60*Time.deltaTime
                 );
                 await Task.Yield();
             }

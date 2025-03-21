@@ -32,6 +32,8 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             {
                 RectTransform rectTransform = DraggedImage.rectTransform;
                 rectTransform.anchoredPosition += Input2.mousePos*speed * 10;;
+                Debug.LogWarning(rectTransform.anchoredPosition);
+                Debug.LogWarning(Input2.mousePos);
             }
             else { DraggedImage.rectTransform.localPosition = Vector3.zero; IsDragging = false; }
         }
@@ -43,15 +45,12 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             {
                 int targetIndex = InventorySlots.FindIndex(s => s.Slot == targetObject);
                 InventorySlots targetSlot = InventorySlots[targetIndex];
-                if (targetSlot.Item != SourceSlot.Item || (targetSlot.Amount == targetSlot.Item.maxStackSize))
-                {
+                if (targetSlot.Item != SourceSlot.Item || (targetSlot.Amount == targetSlot.Item.maxStackSize)) {
                     SwapItems(SourceSlot, targetSlot);
                 }
-                else if (targetSlot.Amount < targetSlot.Item.maxStackSize&&targetSlot.Item==SourceSlot.Item)
-                {
+                else if (targetSlot.Amount < targetSlot.Item.maxStackSize&&targetSlot.Item==SourceSlot.Item) {
                     MoveItems(SourceSlot, targetSlot);
                 }
-
             }
             InventoryEvents.InvokeSlotsItemChanged();
             DraggedImage.rectTransform.localPosition = Vector3.zero;
@@ -93,7 +92,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         }
         private GameObject GetClickedSlot()
         {
-            if (InventoryInput.StartDragging)
+            if (Input2.StartDragging)
             {
                 Vector2 mousePos = UnityEngine.Input.mousePosition;
                 GraphicRaycaster raycaster = Canvas.GetComponent<GraphicRaycaster>();

@@ -20,7 +20,7 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
             {
                 float deltaTimeMultiplier = 1.0f/*_fpsController.IsCurrentDeviceMouse ? 1.0f : Time.deltaTime*/;
 
-                _cinemaMachineTargetPitch = _cinemaMachineTargetPitch + Input2.Look.y * _fpsController.RotationSpeed * deltaTimeMultiplier;
+                _cinemaMachineTargetPitch +=Input2.Look.y * _fpsController.RotationSpeed * deltaTimeMultiplier;
                 _rotationVelocity = Input2.Look.x * _fpsController.RotationSpeed * deltaTimeMultiplier;
 
                 _cinemaMachineTargetPitch = FPSControllerBase.ClampAngle(_cinemaMachineTargetPitch, _fpsController.BottomClamp, _fpsController.TopClamp);
@@ -36,9 +36,7 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
             Vector3 rotation = new Vector3(_cinemaMachineTargetPitch, 0, 0);
 
             _fpsController.aimingPoint.transform.position = basePosition + (_fpsController.transform.rotation * Quaternion.Euler(rotation)) * offset;
-
             _fpsController.head.transform.LookAt(_fpsController.aimingPoint.transform.position);
-            _fpsController.cinemachineCameraTarget.transform.LookAt(_fpsController.aimingPoint.transform.position);
         }
 
         public void LookAtTarget()
