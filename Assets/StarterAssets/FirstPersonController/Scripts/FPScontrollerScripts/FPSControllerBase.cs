@@ -96,13 +96,10 @@ namespace StarterAssets.FirstPersonController.Scripts
         public float BottomClamp => cinemachineCameraAngleCalm.y;
 
         [SerializeField] protected GameObject headsImpact;
-#if ENABLE_INPUT_SYSTEM
-        private PlayerInput _playerInput;
-#endif
         public readonly float Threshold = 0.01f;
         [SerializeField] public GameObject aimingPoint;
         [SerializeField] public GameObject head;
-        public bool IsCurrentDeviceMouse
+        /*public bool IsCurrentDeviceMouse
         {
             get
             {
@@ -112,7 +109,7 @@ namespace StarterAssets.FirstPersonController.Scripts
 				return false;
 #endif
             }
-        }
+        }*/
         protected virtual void Start() { InitializeStart(); }
         protected virtual void Update() { UpdateLogic(); }
         protected virtual void LateUpdate() { LateUpdateLogic(); }
@@ -120,7 +117,6 @@ namespace StarterAssets.FirstPersonController.Scripts
         protected abstract void UpdateLogic();
         protected abstract void LateUpdateLogic();
         protected void SetGrounded(bool grounded) => Grounded = grounded;
-        protected void SetPlayerInput(PlayerInput playerInput) => _playerInput = playerInput;
         public static float ClampAngle(float lfAngle, float lfMin, float lfMax)
         {
             if (lfAngle < -360f) lfAngle += 360f;

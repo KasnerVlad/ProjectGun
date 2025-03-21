@@ -44,8 +44,8 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
             if (_animationBlend < 0.01f)_animationBlend = 0;
 
             _lerpSpeed = new Vector2(Mathf.Lerp(_lerpSpeed.x, 
-                    _moveController.TargetSpeed * Input.inistate.move.x, Time.deltaTime * _fpsController.SpeedChangeRate), 
-                Mathf.Lerp(_lerpSpeed.y, _moveController.TargetSpeed * Input.inistate.move.y, Time.deltaTime * _fpsController.SpeedChangeRate));
+                    _moveController.TargetSpeed * Input2.Move.x, Time.deltaTime * _fpsController.SpeedChangeRate), 
+                Mathf.Lerp(_lerpSpeed.y, _moveController.TargetSpeed * Input2.Move.y, Time.deltaTime * _fpsController.SpeedChangeRate));
 
             _animator.SetFloat(_dirX, _lerpSpeed.x);
             _animator.SetFloat(_dirZ, _lerpSpeed.y);
@@ -55,7 +55,7 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
             {
                 _animator.SetBool(_animIDJump, false);
                 _animator.SetBool(_animIDFreeFall, false);
-                if (Input.inistate.jump && _jumpAndGravityController.JumpTimeoutDelta <= 0.0f)
+                if (Input2.Jump && _jumpAndGravityController.JumpTimeoutDelta <= 0.0f)
                 {
                     _animator.SetBool(_animIDJump, true);
                 }

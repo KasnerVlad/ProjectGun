@@ -24,7 +24,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         public void SetSlotSet(HashSet<GameObject> slots) => SlotSet = slots;
         public virtual async Task DragAndDropManager(float dragSpeed)
         {
-            if (!IsDragging && InventoryInput.StartDragging)
+            if (!IsDragging && Input2.StartDragging)
             {
                 await StartDrag();
             }
@@ -33,7 +33,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             {
                 Dragging(dragSpeed);
                 
-                if (InventoryInput.EndDragging)
+                if (Input2.EndDragging)
                 {
                     await EndDrag();
                 }

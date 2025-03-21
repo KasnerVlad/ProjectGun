@@ -62,12 +62,13 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             _cts = new CancellationTokenSource();
             ToggleOpenHotBar();
             UpdateSlotsSprites();
+            UpdateArmItem(currentHotBarSlot);
         }
         private void Update() => UpdateLogic();
         private void UpdateLogic()
         {
-            if (InventoryInput.Scroll * scrollSensitivity > minScrollStep && canScroll) { ScrollMethodInUpdate(1); _wasMomentBeforeOpenValueTrue = true; }
-            else if (InventoryInput.Scroll * scrollSensitivity < minScrollStep * -1 && canScroll) { ScrollMethodInUpdate(-1); _wasMomentBeforeOpenValueTrue = true; }
+            if (Input2.Scroll * scrollSensitivity > minScrollStep && canScroll) { ScrollMethodInUpdate(1); _wasMomentBeforeOpenValueTrue = true; }
+            else if (Input2.Scroll * scrollSensitivity < minScrollStep * -1 && canScroll) { ScrollMethodInUpdate(-1); _wasMomentBeforeOpenValueTrue = true; }
             else if(open && _wasMomentBeforeOpenValueTrue&&!inventory.activeSelf) {
                 _ = CustomInvoke.Invoke(()=>
                 {
@@ -76,7 +77,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 }, 2000, _cts);
                 _wasMomentBeforeOpenValueTrue = false;
             }
-            if(UnityEngine.Input.GetMouseButtonDown(2)&&!open&&!inventory.activeSelf) {
+            if(Input2.MiddleClick&&!open&&!inventory.activeSelf) {
                 _cts = new CancellationTokenSource();
                 ToggleOpenHotBar(); 
                 _= CustomInvoke.Invoke(()=>
@@ -86,7 +87,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                     
                 }, 4000, _cts);
             }
-            else if(UnityEngine.Input.GetMouseButtonDown(2)&&open&&!inventory.activeSelf) { if (!_cts.IsCancellationRequested) { _cts.Cancel(); } _=CInvoke.CustomInvoke.Invoke(ToggleOpenHotBar, 100); }
+            else if(Input2.MiddleClick&&open&&!inventory.activeSelf) { if (!_cts.IsCancellationRequested) { _cts.Cancel(); } _=CustomInvoke.Invoke(ToggleOpenHotBar, 100); }
             if(inventory.activeSelf&&!open) { ToggleOpenHotBar(); _justInventoryOpened = true; }
             if(!inventory.activeSelf&&open&&_justInventoryOpened){ToggleOpenHotBar();_justInventoryOpened = false;}
         }
@@ -107,8 +108,9 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 ToggleOpenHotBar();
                 _justHotBarOpened = false; 
             }
-            _=CustomInvoke.Invoke(UpdateArmItem,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000 : 0),param: num);
+
             _=CustomInvoke.Invoke(SwapPositionsLogic,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000*2:0),param: num) ;
+            _=CustomInvoke.Invoke(UpdateArmItem,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000 : 0),param: currentHotBarSlot);
             _=CustomInvoke.Invoke(UpdateSlotsSprites, (int)(!_justHotBarOpened?rateBeforeScroll*1000*3:rateBeforeScroll*1000));
             _=CustomInvoke.Invoke(ScrollTrue, (int)(rateBeforeScroll*1000));
             if(!_justHotBarOpened) _justHotBarOpened = true;
@@ -158,11 +160,12 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
 
         private void UpdateArmItem(int num)
         {
-            foreach (var slot in hotBarsChilds)
+            foreach (var slot in hotBarSlots)
             {
-                if (slot.transform.position == hotBarsChildsPositions[0])
+                if (slot == hotBarSlots[num])
                 {
                     //There need to be a check of what item there are, and take item logic. But I'm not realized this function yet(I'm about take item logic).
+                    ItemChooseManager.instance.UpdateChosenItems(hotBarSlots.IndexOf(slot), hotBarSlots);
                 }
             }
         }

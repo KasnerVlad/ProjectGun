@@ -12,31 +12,17 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         [SerializeField] private int Amount;
         private void Update()
         {
-            if (InventoryInput.PressedG)
-            {
-                _=InventoryEvents.InvokeItemAdded(testItem, Amount);
-            }
-            if (UnityEngine.Input.GetKeyDown(KeyCode.T))
-            {
-                _=InventoryEvents.InvokeItemAdded(testItem2, Amount);
-            }
-            if (InventoryInput.PressedE)
-            {
-                inventory.SetActive(!inventory.activeInHierarchy);
-            }
-            if (InventoryInput.PressedR)
-            {
-                InventoryEvents.InvokeItemRemoved(Amount);
-            }
-    
-            if (InventoryInput.PressedC)
-            {
-                InventoryEvents.InvokeClearInventory();
-            }
+            if (Input2.PressedG) {_=InventoryEvents.InvokeItemAdded(testItem, Amount); }
+            if (Input.GetKeyDown(KeyCode.T)) { _=InventoryEvents.InvokeItemAdded(testItem2, Amount); }
+            if (Input2.PressedE) { inventory.SetActive(!inventory.activeSelf); }
+            if (Input2.PressedR) { InventoryEvents.InvokeItemRemoved(Amount); }
+            if (Input2.PressedC) { InventoryEvents.InvokeClearInventory(); }
             Cursor.visible = inventory.activeSelf;
             Cursor.lockState = !inventory.activeSelf ? CursorLockMode.Locked : CursorLockMode.None;
-            if(Input.inistate.cursorInputForLook!=!inventory.activeSelf){ Input.inistate.SetCursorStateLocked(!inventory.activeSelf);}
-            if (Input.inistate.look!=Vector2.zero&&inventory.activeSelf) { Input.inistate.ZeroVector(); }
+            /*if(InputSystem.inistate.cursorInputForLook!=!inventory.activeSelf){ InputSystem.inistate.SetCursorStateLocked(!inventory.activeSelf);}
+            if (InputSystem.inistate.look!=Vector2.zero&&inventory.activeSelf) { InputSystem.inistate.ZeroVector(); }*/
+            if(inventory.activeSelf&&Input2.canLook) {Input2.canLook = false;  }
+            else if(!inventory.activeSelf&&!Input2.canLook) {Input2.canLook = true;  }
         }
     }
 }

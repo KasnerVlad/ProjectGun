@@ -96,8 +96,8 @@ namespace StarterAssets.FirstPersonController.Scripts
         {
             if (!inventoryPanel.activeSelf)
             {
-                if (WeaponInput.ToggleFireMode) { _singleFireMode = !_singleFireMode; }
-                if (BulletCount > 0 && (_singleFireMode? WeaponInput.SingleFire:WeaponInput.MultipleFire) && !IsReloading &&!_isFired&&!Hide)
+                if (Input2.ToggleFireMode) { _singleFireMode = !_singleFireMode; }
+                if (BulletCount > 0 && (_singleFireMode? Input2.SingleFire:Input2.MultipleFire) && !IsReloading &&!_isFired&&!Hide)
                 {
                     _isFired = true;
                     IsFire = true;
@@ -106,19 +106,19 @@ namespace StarterAssets.FirstPersonController.Scripts
                     Invoke(nameof(DisableFireState), FireRate);
                     if(ammoText != null){ _weaponView.UpdateText();}
                 }
-                if (BulletCount < StartBulletCount && WeaponInput.Reload&&LastBulletsCount > 0)
+                if (BulletCount < StartBulletCount && Input2.Reload&&LastBulletsCount > 0)
                 {
                     await _pistolPlayerModel.Reload();
                     if(ammoText != null){ _weaponView.UpdateText();}
                 }
-                if (WeaponInput.Take) { await _pistolPlayerModel.Take(); }
-                if (WeaponInput.Hide) { _pistolPlayerModel.Hide(); }
+                if (Input2.Take) { await _pistolPlayerModel.Take(); }
+                if (Input2.Hide) { _pistolPlayerModel.Hide(); }
             }
-            if (WeaponInput.Aiming&&(_aimPosConstraints.weight <1||_defaultPosConstraints.weight >0)&&!inventoryPanel.activeSelf) {
+            if (Input2.Aiming&&(_aimPosConstraints.weight <1||_defaultPosConstraints.weight >0)&&!inventoryPanel.activeSelf) {
                 _aimPosConstraints.weight = Mathf.MoveTowards(_aimPosConstraints.weight, 1, Time.deltaTime*changeStateSpeed);
                 _defaultPosConstraints.weight = Mathf.MoveTowards(_defaultPosConstraints.weight, 0, Time.deltaTime*changeStateSpeed);
             }
-            else if(!WeaponInput.Aiming&&(_aimPosConstraints.weight >0||_defaultPosConstraints.weight <1)||inventoryPanel.activeSelf){
+            else if(!Input2.Aiming&&(_aimPosConstraints.weight >0||_defaultPosConstraints.weight <1)||inventoryPanel.activeSelf){
                 _aimPosConstraints.weight = Mathf.MoveTowards(_aimPosConstraints.weight, 0, Time.deltaTime*changeStateSpeed);
                 _defaultPosConstraints.weight = Mathf.MoveTowards(_defaultPosConstraints.weight, 1, Time.deltaTime*changeStateSpeed);
             } 

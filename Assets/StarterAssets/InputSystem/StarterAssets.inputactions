@@ -42,24 +42,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "StartDragging",
-                    "type": "PassThrough",
-                    "id": "ccff3f74-482e-45b8-b124-503a543ec963",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "EndDragging",
-                    "type": "PassThrough",
-                    "id": "c96e51ed-1936-4cfb-8da2-11447b9997a8",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Scroll",
                     "type": "Value",
                     "id": "18ac25a1-3f44-4e2d-8d85-d2d2134a110f",
@@ -261,28 +243,6 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Sprint",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d33c00bf-8778-42ad-98cb-2c43e5c98786",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "Press",
-                    "processors": "",
-                    "groups": "KeyboardMouse",
-                    "action": "StartDragging",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "4736975c-5873-4875-bab7-afb0d32cfb43",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "Press(behavior=1)",
-                    "processors": "",
-                    "groups": "KeyboardMouse",
-                    "action": "EndDragging",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

@@ -16,12 +16,12 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
         }
         public void CameraRotation()
         {
-            if (Input.inistate.look.sqrMagnitude >= _fpsController.Threshold)
+            if (Input2.Look.sqrMagnitude >= _fpsController.Threshold)
             {
-                float deltaTimeMultiplier = _fpsController.IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+                float deltaTimeMultiplier = 1.0f/*_fpsController.IsCurrentDeviceMouse ? 1.0f : Time.deltaTime*/;
 
-                _cinemaMachineTargetPitch = _cinemaMachineTargetPitch + Input.inistate.look.y * _fpsController.RotationSpeed * deltaTimeMultiplier;
-                _rotationVelocity = Input.inistate.look.x * _fpsController.RotationSpeed * deltaTimeMultiplier;
+                _cinemaMachineTargetPitch = _cinemaMachineTargetPitch + Input2.Look.y * _fpsController.RotationSpeed * deltaTimeMultiplier;
+                _rotationVelocity = Input2.Look.x * _fpsController.RotationSpeed * deltaTimeMultiplier;
 
                 _cinemaMachineTargetPitch = FPSControllerBase.ClampAngle(_cinemaMachineTargetPitch, _fpsController.BottomClamp, _fpsController.TopClamp);
 

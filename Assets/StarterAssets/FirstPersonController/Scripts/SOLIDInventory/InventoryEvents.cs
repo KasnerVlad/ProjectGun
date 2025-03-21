@@ -16,10 +16,12 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         
         public delegate Task ClearInventory();
         public static event ClearInventory OnClearInventory;
+        public delegate void slotsItemChanged();
+        public static event slotsItemChanged OnSlotsItemChanged;
         public static void InvokeInventoryUpdated() => _=OnInventoryUpdated?.Invoke();
-    
         public static async Task<int> InvokeItemAdded(Item item, int amount) { return await OnItemAdded?.Invoke(item, amount); }
         public static void InvokeItemRemoved(int amount) => _=OnItemRemoved?.Invoke(amount);
         public static void InvokeClearInventory() => _=OnClearInventory?.Invoke();
+        public static void InvokeSlotsItemChanged() => OnSlotsItemChanged?.Invoke();
     }
 }

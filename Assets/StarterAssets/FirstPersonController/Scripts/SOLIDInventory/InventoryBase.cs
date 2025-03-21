@@ -20,9 +20,9 @@ public abstract class InventoryBase : MonoBehaviour
     protected virtual void Awake()=> InitializeInventory();
     protected virtual void Start()=>SingOnEvents();
     protected virtual void OnDestroy()=> SingOffEvents();
-    public abstract void InitializeInventory();
-    public abstract void SingOnEvents();
-    public abstract void SingOffEvents();
+    protected abstract void InitializeInventory();
+    protected abstract void SingOnEvents();
+    protected abstract void SingOffEvents();
     public abstract Task<int> AddItem(Item item, int amount);
     public abstract Task<bool> RemoveItem(int amount);
     public abstract Task ClearInventory();

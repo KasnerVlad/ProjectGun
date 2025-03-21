@@ -31,9 +31,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             if (DraggedImage != null && Inventory.activeSelf&&SourceSlot.Item != null)
             {
                 RectTransform rectTransform = DraggedImage.rectTransform;
-                float mouseX = UnityEngine.Input.GetAxis("Mouse X") * speed * 10;
-                float mouseY = UnityEngine.Input.GetAxis("Mouse Y") * speed * 10;
-                rectTransform.anchoredPosition += new Vector2(mouseX, mouseY);
+                rectTransform.anchoredPosition += Input2.mousePos*speed * 10;;
             }
             else { DraggedImage.rectTransform.localPosition = Vector3.zero; IsDragging = false; }
         }
@@ -55,6 +53,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 }
 
             }
+            InventoryEvents.InvokeSlotsItemChanged();
             DraggedImage.rectTransform.localPosition = Vector3.zero;
             IsDragging = false;
             InventoryEvents.InvokeInventoryUpdated();

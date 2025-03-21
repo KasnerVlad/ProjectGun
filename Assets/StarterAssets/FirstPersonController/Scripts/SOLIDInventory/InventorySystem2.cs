@@ -6,7 +6,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
 {
     public class InventorySystem2 : InventoryBase
     {
-        public override void InitializeInventory()
+        protected override void InitializeInventory()
         {
             parameters = new InventoryParams(maxSlots, allowStacking);
             dragAndDrop = GetComponent<DragAndDrop>();
@@ -73,14 +73,14 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 
             return slotsArray;
         }
-        public override void SingOnEvents()
+        protected override void SingOnEvents()
         {
             InventoryEvents.OnItemAdded += AddItem;
             InventoryEvents.OnItemRemoved += RemoveItem;
             InventoryEvents.OnClearInventory += ClearInventory;
         }
     
-        public override void SingOffEvents()
+        protected override void SingOffEvents()
         {
             InventoryEvents.OnItemAdded -= AddItem;
             InventoryEvents.OnItemRemoved -= RemoveItem;
@@ -103,7 +103,6 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                     
                         slot.AddItem(item, addAmount);
                         remainingAmount -= addAmount;
-                    
                         if (remainingAmount <= 0)
                         {
                             InventoryEvents.InvokeInventoryUpdated();
@@ -122,14 +121,14 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 
                     slot.AddItem(item, addAmount);
                     remainingAmount -= addAmount;
-                
+                    InventoryEvents.InvokeSlotsItemChanged();
                     if (remainingAmount <= 0)
                     {
-                        InventoryEvents.InvokeInventoryUpdated();
                         return 0;
                     }
                 }
             }
+            InventoryEvents.InvokeSlotsItemChanged();
             InventoryEvents.InvokeInventoryUpdated();
             Debug.Log("No space to add item");
             return remainingAmount;
@@ -145,6 +144,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                     int removable = Mathf.Min(slot.Amount, remaining);
                     slot.RemoveItem(removable);
                     remaining -= removable;
+                    InventoryEvents.InvokeSlotsItemChanged();
                     if (remaining <= 0)
                         break;
                 }
@@ -166,6 +166,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             {
                 slot.ClearSlot();
             }
+            InventoryEvents.InvokeSlotsItemChanged();
             InventoryEvents.InvokeInventoryUpdated();
             await Task.Yield();
         }
