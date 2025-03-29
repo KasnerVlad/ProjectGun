@@ -7,7 +7,7 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
         private readonly FPSControllerBase _fpsController;
         private Vector3 _startPos;
         private Vector3 _endPos;
-        private Vm<bool> _setGrounded;
+        private readonly Vm<bool> _setGrounded;
         public GroundCheck(FPSControllerBase fpsController, Vm<bool> setGrounded)
         {
             _fpsController = fpsController;

@@ -28,17 +28,19 @@ namespace StarterAssets.FirstPersonController.Scripts
         [SerializeField]private int reloadTime;        
         [SerializeField] protected GameObject AimPosRig;
         [SerializeField] protected GameObject DefultPosRig;
+        [SerializeField] protected Rig armRig;
+        [SerializeField] protected Rig weaponRig;
         private bool _isFired;
         public int ReloadTime => reloadTime;
         public bool IsFire { get; private set; }
         public bool IsReloading { get; private set; }
         public int BulletCount { get; private set; }
         public int LastBulletsCount { get; private set; }
-        public bool Hide { get; private set; }
         public bool Take { get; private set; }
 
         [SerializeField] protected Text ammoText;
         private bool _singleFireMode;
+        private MeshRenderer _meshRenderer;
         protected MultiParentConstraint _defaultPosConstraints;
         protected MultiParentConstraint _aimPosConstraints;
         protected WeaponView _weaponView;
@@ -48,6 +50,7 @@ namespace StarterAssets.FirstPersonController.Scripts
         {
             BulletCount = StartBulletCount;
             LastBulletsCount = lastBulletsCount;
+            _meshRenderer = gameObject.GetComponent<MeshRenderer>();
             StartLogic();
         }
         protected virtual void Update()
@@ -90,13 +93,12 @@ namespace StarterAssets.FirstPersonController.Scripts
         }
         public void SetReloadingState(bool isOn) { IsReloading = isOn; }
         public void SetTake(bool isOn){Take=isOn;}
-        public void SetHide(bool isOn){Hide=isOn;}
         private async Task FireManager()
         {
             if (!inventoryPanel.activeSelf)
             {
                 if (Input2.ToggleFireMode) { _singleFireMode = !_singleFireMode; }
-                if (BulletCount > 0 && (_singleFireMode? Input2.SingleFire:Input2.MultipleFire) && !IsReloading &&!_isFired&&!Hide)
+                if (BulletCount > 0 && (_singleFireMode? Input2.SingleFire:Input2.MultipleFire) && !IsReloading &&!_isFired&&Take)
                 {
                     _isFired = true;
                     IsFire = true;
@@ -110,10 +112,18 @@ namespace StarterAssets.FirstPersonController.Scripts
                     await _pistolPlayerModel.Reload();
                     if(ammoText != null){ _weaponView.UpdateText();}
                 }
-                if (Input2.Take) { TakeM(); }
-                if (Input2.Hide) { HideM(); }
             }
-            if (Input2.Aiming&&(_aimPosConstraints.weight <1||_defaultPosConstraints.weight >0)&&!inventoryPanel.activeSelf) {
+            if (!Take&& (/*weaponRig.weight>0||*/armRig.weight>0))
+            {/*
+                weaponRig.weight = Mathf.MoveTowards(weaponRig.weight,0,Time.deltaTime*changeStateSpeed);*/
+                armRig.weight = Mathf.MoveTowards(armRig.weight,0,Time.deltaTime*changeStateSpeed);
+            }
+            else if(Take&& (/*weaponRig.weight<1||*/armRig.weight<1))
+            {/*
+                weaponRig.weight = Mathf.MoveTowards(weaponRig.weight,1,Time.deltaTime*changeStateSpeed);*/
+                armRig.weight = Mathf.MoveTowards(armRig.weight,1,Time.deltaTime*changeStateSpeed);
+            }
+            else if (Input2.Aiming&&(_aimPosConstraints.weight <1||_defaultPosConstraints.weight >0)&&!inventoryPanel.activeSelf) {
                 _aimPosConstraints.weight = Mathf.MoveTowards(_aimPosConstraints.weight, 1, Time.deltaTime*changeStateSpeed);
                 _defaultPosConstraints.weight = Mathf.MoveTowards(_defaultPosConstraints.weight, 0, Time.deltaTime*changeStateSpeed);
             }
@@ -122,8 +132,7 @@ namespace StarterAssets.FirstPersonController.Scripts
                 _defaultPosConstraints.weight = Mathf.MoveTowards(_defaultPosConstraints.weight, 1, Time.deltaTime*changeStateSpeed);
             } 
         }
-        protected abstract void TakeM();
-        protected abstract void HideM();
+        public abstract void UpdateTakeState();
     }
     
     public class WeaponView
@@ -146,7 +155,7 @@ namespace StarterAssets.FirstPersonController.Scripts
     {
         public abstract void Fire();
         public abstract Task Reload();
-        public abstract Task Take();
+        public abstract void Take();
         public abstract void Hide();
     }
 
@@ -160,8 +169,8 @@ namespace StarterAssets.FirstPersonController.Scripts
             RaycastHit hit;
             if (Physics.Raycast(ray.origin, ray.direction, out hit, _weapon.Range)) { }
         }
-        public override async Task Take(){if(!_weapon.Take){_weapon.SetTake(true); _weapon.SetHide(false);await Task.Delay(10); _weapon.SetTake(false);}}
-        public override void Hide(){if(!_weapon.Hide){_weapon.SetHide(true); _weapon.SetTake(false);}}
+        public override void Take(){if(!_weapon.Take){_weapon.SetTake(true);}}
+        public override void Hide(){if(_weapon.Take){_weapon.SetTake(false);}}
         public override async Task Reload()
         {
             if (!_weapon.IsFire&&!_weapon.IsReloading && _weapon.LastBulletsCount > 0 && _weapon.BulletCount < _weapon.StartBulletCount)
@@ -184,7 +193,6 @@ namespace StarterAssets.FirstPersonController.Scripts
         private int _animationFireID;
         private int _animationReloadID;
         private int _animationTakeID;
-        private int _animationHideID;
         private readonly WeaponControllerBase _weapon;
         public WeaponAnimationsController(WeaponControllerBase weapon) { _weapon = weapon; _animator = _weapon.GetComponent<Animator>(); }
         public void SetAnimationID()
@@ -192,14 +200,12 @@ namespace StarterAssets.FirstPersonController.Scripts
             _animationFireID = Animator.StringToHash("Fire");
             _animationReloadID = Animator.StringToHash("Reload");
             _animationTakeID = Animator.StringToHash("Take");
-            _animationHideID = Animator.StringToHash("Hide");
         }
         public void UpdateAnimations()
         {
             if(_weapon.IsFire!=_animator.GetBool(_animationFireID)) _animator.SetBool(_animationFireID, _weapon.IsFire);
             if(_weapon.IsReloading!=_animator.GetBool(_animationReloadID))_animator.SetBool(_animationReloadID, _weapon.IsReloading);
             if(_weapon.Take!=_animator.GetBool(_animationTakeID))_animator.SetBool(_animationTakeID, _weapon.Take);
-            if(_weapon.Hide!=_animator.GetBool(_animationHideID))_animator.SetBool(_animationHideID, _weapon.Hide);
         }
     }
 }

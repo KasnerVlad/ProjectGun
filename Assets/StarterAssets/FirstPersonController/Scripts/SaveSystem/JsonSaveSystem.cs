@@ -34,6 +34,7 @@ public class JsonSaveSystem : ISaveSystem
             return Activator.CreateInstance<T>();
         }
         Debug.Log(json);
+        /*BildDebug.inistate.Log(json);*/
         return JsonUtility.FromJson<T>(json);
     }
 }

@@ -24,5 +24,15 @@ namespace CTSCancelLogic
             }
             cancellationTokens.Clear();
         }
+
+        public static Dictionary<GameObject, CancellationTokenSource> GiveDictinary(GameObject[]g, CancellationTokenSource[]tokens)
+        {
+            Dictionary<GameObject, CancellationTokenSource> dictionary = new Dictionary<GameObject, CancellationTokenSource>();
+            for (int i = 0; i < g.Length; i++)
+            {
+                if(tokens.Length<=i){ dictionary.Add(g[i], tokens[i]);}
+            }
+            return dictionary;
+        }
     }
 }

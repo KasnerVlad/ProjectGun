@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using CustomDelegats;
 using StarterAssets.FirstPersonController.Scripts.SOLIDInventory;
+using CTSCancelLogic;
 public class Presenter
 {
     private readonly View _view;
@@ -35,6 +37,8 @@ public class Presenter
         UpdateSlotsItems();
         _view.Display(_gameData);
         InventoryEvents.InvokeSlotsItemChanged();
+        LoadingScreenLogic.inistate.cts.Cancel();
+        LoadingScreenLogic.endloadingM.Invoke(1f, LoadingScreenLogic.sliderReturen.Invoke().gameObject, CancelAndRestartTokens.GiveDictinary(new []{LoadingScreenLogic.sliderReturen.Invoke().gameObject}, new []{new CancellationTokenSource()}), LoadingScreenLogic.speedReturen.Invoke());
     }
     private void UpdateSlotsItems()
     {

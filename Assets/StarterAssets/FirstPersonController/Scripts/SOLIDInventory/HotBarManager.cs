@@ -143,7 +143,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             for (int i = 0; i < hotBarsChilds.Count; i++)
             {
                 int newI = (i - currentHotBarSlot + HotBarsSlotsCount) % HotBarsSlotsCount;
-                ChangeTransformsValueLogic.StartSmoothPositionChange(hotBarsChildsPositions[newI], hotBarsChilds[i], CancellationTokensSourseDictionary[0], rateBeforeScroll2, speedScrolling);
+                SmoothChangeValueLogic.StartSmoothPositionChange(hotBarsChildsPositions[newI], hotBarsChilds[i], CancellationTokensSourseDictionary[0], rateBeforeScroll2, speedScrolling);
             }
 
         }   
@@ -153,17 +153,17 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             if (open) 
             {
                 UpdateSlotsPositions();
-                ChangeTransformsValueLogic.StartSmoothPositionChange(_hotBarOpenPos, hotBar, CancellationTokensSourseDictionary[1], rateBeforeScroll2, speedScrolling);
-                ChangeTransformsValueLogic.StartSmoothRotationChange(hiderOpenRot, hotBarsHider, CancellationTokensSourseDictionary[1],speedHiderPosChanging);
+                SmoothChangeValueLogic.StartSmoothPositionChange(_hotBarOpenPos, hotBar, CancellationTokensSourseDictionary[1], rateBeforeScroll2, speedScrolling);
+                SmoothChangeValueLogic.StartSmoothRotationChange(hiderOpenRot, hotBarsHider, CancellationTokensSourseDictionary[1],speedHiderPosChanging);
             }
             else
             {
                 foreach(var child in hotBarsChilds)
                 {
-                    ChangeTransformsValueLogic.StartSmoothPositionChange(Vector3.zero, child, CancellationTokensSourseDictionary[0], rateBeforeScroll2, speedScrolling);
+                    SmoothChangeValueLogic.StartSmoothPositionChange(Vector3.zero, child, CancellationTokensSourseDictionary[0], rateBeforeScroll2, speedScrolling);
                 }
-                ChangeTransformsValueLogic.StartSmoothPositionChange(_hotBarLockedPos, hotBar, CancellationTokensSourseDictionary[1], rateBeforeScroll2, speedScrolling);
-                ChangeTransformsValueLogic.StartSmoothRotationChange(hiderLockedRot, hotBarsHider, CancellationTokensSourseDictionary[1], speedHiderPosChanging);
+                SmoothChangeValueLogic.StartSmoothPositionChange(_hotBarLockedPos, hotBar, CancellationTokensSourseDictionary[1], rateBeforeScroll2, speedScrolling);
+                SmoothChangeValueLogic.StartSmoothRotationChange(hiderLockedRot, hotBarsHider, CancellationTokensSourseDictionary[1], speedHiderPosChanging);
             }
         }
         private void ToggleOpenHotBar()

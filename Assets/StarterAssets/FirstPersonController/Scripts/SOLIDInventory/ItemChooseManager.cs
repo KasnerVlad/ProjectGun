@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
 {
     public class ItemChooseManager : MonoBehaviour
     {
         public static ItemChooseManager instance;
-        private List<GameObject> items = new List<GameObject>();
+        [SerializeField] private List<GameObject> items = new List<GameObject>();
+        [SerializeField] private List<UnityEvent> itemActionsOnActive = new List<UnityEvent>();
+        [SerializeField] private List<UnityEvent> itemActionsOnDisable = new List<UnityEvent>();
         private List<ObjectLicens> itemsLicenses = new List<ObjectLicens>();
         [SerializeField]private GameObject itemChoosePanel;
 
@@ -18,23 +21,22 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             if(instance == null){instance = this;}
             else { Destroy(this); }
             DontDestroyOnLoad(this);
-            foreach (var child in itemChoosePanel.GetComponentsInChildren<ObjectLicens>())
+            for (int i = 0; i < items.Count; i++)
             {
-                itemsLicenses.Add(child);
-                items.Add(child.gameObject);
+                itemsLicenses.Add(items[i].GetComponent<ObjectLicens>());
             }
         }
         public void UpdateChosenItems(int selctedSlot, List<InventorySlots> hotBarSlots)
         {
             for (int i = 0; i < items.Count; i++)
             {
-                items[i].SetActive(false);
+                if(itemActionsOnDisable[i]!=null){ itemActionsOnDisable[i].Invoke();}
             }
             for (int i = 0; i < itemsLicenses.Count; i++)
             {
                 if (hotBarSlots[selctedSlot].Item == itemsLicenses[i].GetItem())
                 {
-                    items[i].SetActive(true);
+                    if(itemActionsOnActive[i]!=null){ itemActionsOnActive[i].Invoke();}
                 }   
             }
         }

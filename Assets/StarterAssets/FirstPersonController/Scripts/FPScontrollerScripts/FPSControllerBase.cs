@@ -73,7 +73,7 @@ namespace StarterAssets.FirstPersonController.Scripts
         [Tooltip("The radius of the grounded check. Should match the radius of the CharacterController")]
         [SerializeField] private float groundRadius;
         public float GroundedRadius=>groundRadius;
-        [SerializeField] protected Scrollbar hpScrollbar;
+        [SerializeField] protected Slider hpScrollbar;
         [Tooltip("What layers the character uses as ground")] 
         [SerializeField] private LayerMask groundLayer;
         public LayerMask GroundLayers => groundLayer;

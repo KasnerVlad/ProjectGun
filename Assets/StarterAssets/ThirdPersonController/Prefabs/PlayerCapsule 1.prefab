@@ -711,7 +711,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Weight: 0
+  m_Weight: 1
   m_Effectors: []
 --- !u!1 &1481229372720023742
 GameObject:
@@ -1656,7 +1656,7 @@ MonoBehaviour:
   maxHitDistance: {fileID: 0}
   mainCamera: {fileID: 0}
   cameraPoint: {fileID: 0}
-  cinemachineCameraAngleCalm: {x: 53, y: -89}
+  cinemachineCameraAngleCalm: {x: 85, y: -89}
   headsImpact: {fileID: 2176469503326387860}
   aimingPoint: {fileID: 5584141754598964808}
   head: {fileID: 8536017272368456698}
@@ -3715,13 +3715,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9206770806435019895}
+  - component: {fileID: 3029906156814339869}
   m_Layer: 6
   m_Name: BarretM9Pivot
   m_TagString: Untagged
   m_Icon: {fileID: -5487077368411116049, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &9206770806435019895
 Transform:
   m_ObjectHideFlags: 0
@@ -3740,6 +3741,20 @@ Transform:
   - {fileID: 5082175116528021648}
   m_Father: {fileID: 7998098907398663187}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3029906156814339869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6863693035701904845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ba5f07fc264f94b935622ba8bf0d26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  item: {fileID: 11400000, guid: 964b5a1c7b2e19549a9f5e05463f313c, type: 2}
+  amount: 1
 --- !u!1 &6909783423992684099
 GameObject:
   m_ObjectHideFlags: 0
@@ -3829,6 +3844,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5038817801552218351}
+  - component: {fileID: 4960894450360295827}
   m_Layer: 3
   m_Name: SpineTarget
   m_TagString: Untagged
@@ -3851,6 +3867,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1638156441211422581}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4960894450360295827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7025928946511907069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea95e9300b0344518fd4b2771da6106c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCamera: {fileID: 0}
+  interpolationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  target: {fileID: 7025928946511907069}
+  startPosition: {x: 0, y: 1.49, z: -0.43}
+  midPosition: {x: 0, y: 1.646, z: 0}
+  endPosition: {x: 0, y: 1.337, z: 0.268}
+  minAngle: -89
+  maxAngle: 85
+  midAngle: 0
 --- !u!1 &7140811521535954037
 GameObject:
   m_ObjectHideFlags: 0
@@ -3962,7 +4022,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Weight: 0
+  m_Weight: 1
   m_Effectors: []
 --- !u!1 &7574924654630245324
 GameObject:
@@ -5049,6 +5109,8 @@ MonoBehaviour:
   reloadTime: 200
   AimPosRig: {fileID: 771654675345483333}
   DefultPosRig: {fileID: 5144846913955870259}
+  armRig: {fileID: 887562721241687101}
+  weaponRig: {fileID: 5568492283706689057}
   ammoText: {fileID: 0}
   maxDefZ: 0.3
   minDefZ: 0.2
