@@ -1,3 +1,4 @@
+using System;
 using UnityEngine.Animations.Rigging;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -17,7 +18,9 @@ namespace StarterAssets.FirstPersonController.Scripts
         [SerializeField] private Transform aimPos;
         public AnimationCurve interpolationCurve = AnimationCurve.Linear(0, 0, 1, 1); // Кривая интерполяции
 
-        protected override void StartLogic()
+        protected override void StartLogic(){ }
+
+        private void Awake()
         {
             _weaponView = new WeaponView(this,ammoText);
             _iAnimationsController = new WeaponAnimationsController(this);

@@ -11,7 +11,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         private readonly List<Text> _slotTexts = new List<Text>();
         private readonly List<Image> _slotImages = new List<Image>();
         
-        private void Awake()
+        private void Start()
         {
             InitializeSlots();
             InventoryEvents.OnInventoryUpdated += UpdateUI;

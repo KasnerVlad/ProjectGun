@@ -41,7 +41,21 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         private List<Image> slotsImages = new List<Image>();
         public void Initialize(List<InventorySlots> _slots)=>slots = _slots;
         private void LoadCurrentHotBarSlot(int num){currentHotBarSlot=num;}
-        private void Awake(){SaveManager._GameSaveManager.InitializeHotBarManager(this, LoadCurrentHotBarSlot);}
+
+        private void Awake()
+        {
+            InventoryEvents.OnInit += Init;
+            InventoryEvents.OnLoad += (() => {               
+                UpdateSlotsPositions();
+                UpdateSlotsSprites();
+                UpdateArmItem(); });
+        }
+
+        private void Init()
+        {
+            SaveManager._GameSaveManager.InitializeHotBarManager(this, LoadCurrentHotBarSlot);
+        }
+        private void OnDisable() => SaveManager._GameSaveManager.SaveCurrentHotBarSlot();
         private void Start() => StartLogic();
         private void StartLogic()
         {
@@ -73,12 +87,12 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 UpdateSlotsPositions();
                 UpdateSlotsSprites();
                 UpdateArmItem();
-            }, 100);
+            }, 1100);
             
             _=CustomInvoke.Invoke(ToggleOpenHotBar, 1000*3);
             InventoryEvents.OnSlotsItemChanged += UpdateArmItem;
         }
-        private void OnDestroy(){InventoryEvents.OnSlotsItemChanged-=UpdateArmItem;}
+        private void OnDestroy(){InventoryEvents.OnSlotsItemChanged-=UpdateArmItem;InventoryEvents.OnInit -= Init;}
         private void Update() => UpdateLogic();
         private void UpdateLogic()
         {

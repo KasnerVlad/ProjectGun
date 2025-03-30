@@ -8,7 +8,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
     public abstract class DragAndDropBase : MonoBehaviour
     {
         protected Canvas Canvas{private set; get;}
-        public List<InventorySlots> InventorySlots{private set; get;}
+        public List<InventorySlots> InventorySlots { private set; get; } = new List<InventorySlots>();
         protected GameObject Inventory{private set; get;}
         protected HashSet<Image> ImageSet{private set; get;}
         protected HashSet<GameObject> SlotSet{private set; get;}

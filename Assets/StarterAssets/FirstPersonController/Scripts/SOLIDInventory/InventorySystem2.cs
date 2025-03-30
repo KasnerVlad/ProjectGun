@@ -6,6 +6,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
 {
     public class InventorySystem2 : InventoryBase
     {
+        private void OnDisable() => SaveManager._GameSaveManager.SaveSlots();
         protected override void InitializeInventory()
         {
             parameters = new InventoryParams(maxSlots, allowStacking);

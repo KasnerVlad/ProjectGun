@@ -12,13 +12,15 @@ public class Presenter
     private GameData _gameData;
     private readonly List<InventorySlots> _slots;
     private readonly Vm<int> _m;
-    public Presenter(View view, ISaveSystem saveSystem, GameData gameData, List<InventorySlots> slots, Vm<int> m)
+    private readonly Transform _playerTransform;
+    public Presenter(View view, ISaveSystem saveSystem, GameData gameData, List<InventorySlots> slots, Vm<int> m, Transform playerTransform)
     {
         _view = view;
         _saveSystem = saveSystem;
         _gameData = gameData;
         _slots = slots;
         _m = m;
+        _playerTransform = playerTransform;
     }
 
     public void UpdateName(string name) => _gameData.SaveName = name;
@@ -30,8 +32,10 @@ public class Presenter
     public void OnLoad()
     {
         _gameData = _saveSystem.Load<GameData>();
-        SaveManager._GameSaveManager.playerPosition.position = _gameData.PlayerPosition;
-        SaveManager._GameSaveManager.playerPosition.rotation = _gameData.PlayerRotation;
+        
+        Debug.Log($"name {_gameData.SaveName}, pos {_gameData.PlayerPosition}, rot {_gameData.PlayerRotation}, items {_gameData.items}, amount {_gameData.itemsAmount}, currentHotBarSlot {_gameData.currentHotBarSlot}");
+        _playerTransform.position = _gameData.PlayerPosition;
+        _playerTransform.rotation = _gameData.PlayerRotation;
         if(_m!=null){ _m.Invoke(_gameData.currentHotBarSlot);}
         else {Debug.LogError("Nothing to load"); }
         UpdateSlotsItems();

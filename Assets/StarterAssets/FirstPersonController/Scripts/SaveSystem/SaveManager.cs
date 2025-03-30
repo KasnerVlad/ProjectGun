@@ -17,22 +17,45 @@ public class SaveManager : MonoBehaviour
     private List<InventorySlots> slots;
     private HotBarManager _hotBarManager;
     private Vm<int> _m;
+    
     public void InitializeSlots(List<InventorySlots> _slots)=>slots = _slots;
     public void InitializeHotBarManager(HotBarManager _hotBarManager, Vm<int> m){this._hotBarManager = _hotBarManager; _m = m;}
     private void Awake(){        
         if (_GameSaveManager == null) { _GameSaveManager = this; } 
         else { Destroy(gameObject); } 
         DontDestroyOnLoad(gameObject);
+        InventoryEvents.InvokeOnInit();
     }
-    public void OnSave()
+    private void OnSave()
+    {
+        SaveName();
+        _presenter.OnSave();
+    }
+
+    private void OnDestroy()
+    {
+        SavePlayerPosition();
+        OnSave();
+    }
+    private void SaveName()
     {
         _presenter.UpdateName((int.Parse(_gameData.SaveName) + 1).ToString());
+    }
+    public void SavePlayerPosition()
+    {
         _presenter.UpdatePosition(playerPosition.position);
         _presenter.UpdateRotation(playerPosition.rotation);
+    }
+
+    public void SaveSlots()
+    {
         _presenter.UpdateSlotsItems(_inventorySystem2.GetSlotsItems());
         _presenter.UpdateSlotItemsAmount(_inventorySystem2.GetSlotsItemAmount());
+    }
+
+    public void SaveCurrentHotBarSlot()
+    {
         _presenter.UpdateCurrentHotBarSlot(_hotBarManager.currentHotBarSlot);
-        _presenter.OnSave();
     }
     private void Start()
     {
@@ -40,12 +63,13 @@ public class SaveManager : MonoBehaviour
         _view = GetComponent<View>();
         _saveSystem = new JsonSaveSystem();
         StartGameData();
-        _presenter = new Presenter(_view, _saveSystem, _gameData, slots, _m);
+        _presenter = new Presenter(_view, _saveSystem, _gameData, slots, _m, playerPosition);
         _=CustomInvoke.Invoke(()=>
         {
             _presenter.OnLoad();
             InventoryEvents.InvokeInventoryUpdated();
-        }, 100);
+            InventoryEvents.InvokeLoad();
+        }, 1000);
         
     }
 

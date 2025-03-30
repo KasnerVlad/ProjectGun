@@ -31,7 +31,13 @@ namespace StarterAssets.FirstPersonController.Scripts
             _iAnimationControllerController.AssignAnimationIDs();
         }
         public void TakeDamage(int damage){_playerHpModel.TakeDamage(damage); _playerHpView.UpdateHp(_playerHpModel.CurrentHealth, _playerHpModel.maxHp);}
-        private void OnDisable() => SaveManager._GameSaveManager.OnSave();
+
+        private void OnApplicationQuit()
+        {
+            SaveManager._GameSaveManager.SavePlayerPosition();
+        }
+
+        
         protected override void UpdateLogic()
         {
 			_iCheckGroundedController.GroundedCheck();

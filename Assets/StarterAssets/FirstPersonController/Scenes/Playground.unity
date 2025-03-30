@@ -2039,6 +2039,10 @@ PrefabInstance:
       propertyPath: playerPosition
       value: 
       objectReference: {fileID: 4416926083347132250}
+    - target: {fileID: 5568167209025445597, guid: 4cde916760d7eee4eb06f45ab86c8bcb, type: 3}
+      propertyPath: _createNullData
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
