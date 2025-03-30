@@ -23,21 +23,21 @@ namespace StarterAssets.FirstPersonController.Scripts
 	        _iMoveController = new MoveController(this, _iJumpAndGravityController as JumpAndGravityController);
 	        _iAnimationControllerController = new AnimationController(this, _iMoveController as MoveController, _iJumpAndGravityController as JumpAndGravityController);
 	        _iCameraController = new CameraController(this);
-	        _iCheckGroundedController = new GroundCheck(this);
+	        _iCheckGroundedController = new GroundCheck(this, setGrounded:SetGrounded);
 
             _playerHpModel = new PlayerHpModel();
             _playerHpView = new PlayerHpView(hpScrollbar);
             _playerHpView.UpdateHp(_playerHpModel.CurrentHealth, _playerHpModel.maxHp);
-            SetInput(GetComponent<StarterAssetsInputs>());
             _iAnimationControllerController.AssignAnimationIDs();
-#if ENABLE_INPUT_SYSTEM
-            SetPlayerInput(GetComponent<PlayerInput>());
-#else
-            Debug.LogError("Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
-#endif
         }
         public void TakeDamage(int damage){_playerHpModel.TakeDamage(damage); _playerHpView.UpdateHp(_playerHpModel.CurrentHealth, _playerHpModel.maxHp);}
-        private void OnDisable() => SaveManager._GameSaveManager.OnSave();
+
+        private void OnApplicationQuit()
+        {
+            SaveManager._GameSaveManager.SavePlayerPosition();
+        }
+
+        
         protected override void UpdateLogic()
         {
 			_iCheckGroundedController.GroundedCheck();
@@ -60,6 +60,7 @@ namespace StarterAssets.FirstPersonController.Scripts
 
             // when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
             Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
+            Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - SecondGroundOffset, transform.position.z), GroundedRadius);
         }
         private void OnFootstep(AnimationEvent animationEvent)
         {

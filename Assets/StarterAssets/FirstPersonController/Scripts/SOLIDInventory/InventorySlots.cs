@@ -10,25 +10,20 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         public int Amount { get; private set; }
         public GameObject Slot { get; private set; }
     
-        public async Task AddItem(Item item, int amount)
+        public void AddItem(Item item, int amount)
         {
             Item = item;
             if(Item!=null&&Amount+amount<=Item.maxStackSize) Amount += amount;
-            await Task.Yield();
         }
-    
-        public async Task RemoveItem(int amount)
+        public void RemoveItem(int amount)
         {
             Amount -= amount;
-            if (Amount <= 0) await ClearSlot();
-            await Task.Yield();
+            if (Amount <= 0) ClearSlot();
         }
-        public async Task ClearSlot()
+        public void ClearSlot()
         {
             Item = null;
             Amount = 0;
-            await Task.Yield();
-
         }
         public void SetGSlot(GameObject slot)=>Slot = slot;
         public bool IsEmpty() => Item == null;

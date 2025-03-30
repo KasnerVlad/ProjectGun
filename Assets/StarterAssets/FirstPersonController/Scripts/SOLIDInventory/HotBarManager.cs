@@ -1,8 +1,10 @@
-using System;
+using UnityEngine.UI;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
+using CInvoke;
+using SmoothAnimationLogic;
+using CTSCancelLogic;
 namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
 {
     public class HotBarManager : MonoBehaviour
@@ -11,72 +13,142 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         [SerializeField] private float scrollSensitivity = 1.0f;
         [SerializeField] private float minScrollStep = 0.1f;
         [SerializeField] private int HotBarsSlotsCount = 4;
-        [SerializeField] private InventorySystem2 inventorySystem2Contains;
-        
+        private List<InventorySlots> slots;
         private List<GameObject> hotBarsChilds = new List<GameObject>();
         [SerializeField] private List<Vector3> hotBarsChildsPositions = new List<Vector3>();
         [SerializeField] private List<InventorySlots> hotBarSlots = new List<InventorySlots>();
-        [SerializeField]private int currentHotBarSlot;
+        public int currentHotBarSlot{get; private set;}
         private bool open=true;
         private bool canScroll = true;
         [SerializeField] private float rateBeforeScroll = 0.1f;
+        [SerializeField] private float rateBeforeScroll2 = 0.1f;
         [SerializeField] private float speedScrolling = 1f;
-        private Dictionary<GameObject, CancellationTokenSource> cancellationTokens = new Dictionary<GameObject, CancellationTokenSource>();
+        private List<Dictionary<GameObject, CancellationTokenSource>> CancellationTokensSourseDictionary = new List<Dictionary<GameObject, CancellationTokenSource>>();
         [SerializeField] private GameObject hotBarsHider;
-        private void Start()
+        [SerializeField] private Vector3 _hotBarLockedPos;
+        [SerializeField] private Vector3 _hotBarOpenPos;
+        [SerializeField] private Quaternion hiderLockedRot;
+        [SerializeField] private Quaternion hiderOpenRot;
+        [SerializeField] private float speedHiderPosChanging;
+        private readonly int _dictinaryAmount = 2;
+        private bool _justHotBarOpened;
+        private bool _wasMomentBeforeOpenValueTrue;
+        private CancellationTokenSource _cts;
+        [SerializeField] private GameObject inventory;
+        private bool _justInventoryOpened;
+        [Tooltip("Add 2 sprite, in first slot drag non Selected Slot Sprites in second drag Selected Slot Sprites")]
+        [SerializeField] private List<Sprite> slotSprites= new List<Sprite>();
+        private List<Image> slotsImages = new List<Image>();
+        public void Initialize(List<InventorySlots> _slots)=>slots = _slots;
+        private void LoadCurrentHotBarSlot(int num){currentHotBarSlot=num;}
+
+        private void Awake()
         {
+            InventoryEvents.OnInit += Init;
+            InventoryEvents.OnLoad += (() => {               
+                UpdateSlotsPositions();
+                UpdateSlotsSprites();
+                UpdateArmItem(); });
+        }
+
+        private void Init()
+        {
+            SaveManager._GameSaveManager.InitializeHotBarManager(this, LoadCurrentHotBarSlot);
+        }
+        private void OnDisable() => SaveManager._GameSaveManager.SaveCurrentHotBarSlot();
+        private void Start() => StartLogic();
+        private void StartLogic()
+        {
+            for (int i = 0; i < HotBarsSlotsCount; i++) { hotBarsChilds.Add(hotBar.transform.GetChild(i).gameObject); }
+            for (int i = 0; i < HotBarsSlotsCount; i++) { hotBarsChildsPositions.Add(hotBarsChilds[i].transform.localPosition); }
+            for(int i = 0; i < HotBarsSlotsCount; i++) {slotsImages.Add(hotBarsChilds[i].transform.gameObject.GetComponent<Image>());}
             for (int i = 0; i < HotBarsSlotsCount; i++)
             {
-                hotBarsChilds.Add(hotBar.transform.GetChild(i).gameObject);
-            }
-            for (int i = 0; i < HotBarsSlotsCount; i++)
-            {
-                Vector3 position = hotBarsChilds[i].transform.localPosition;
-                hotBarsChildsPositions.Add(new Vector3(position.x, position.y, position.z));
-            }
-            for (int i = 0; i < HotBarsSlotsCount; i++)
-            {
-                for (int j = 0; j < inventorySystem2Contains.slots.Count; j++)
+                for (int j = 0; j < slots.Count; j++)
                 {
-                    if (inventorySystem2Contains.slots[j].Slot==hotBarsChilds[i])
+                    if (slots[j].Slot==hotBarsChilds[i])
                     {
-                        hotBarSlots.Add(inventorySystem2Contains.slots[i]);
+                        hotBarSlots.Add(slots[i]);
                     }
                 }
             }
+            _hotBarOpenPos = hotBar.transform.localPosition;
+            hiderLockedRot = hotBar.transform.localRotation;
             hotBarsHider.transform.SetAsLastSibling();
-        }
-        private void Update()
-        {
-            if (open)
+            hotBarsHider.transform.localRotation = hiderOpenRot;
+            for (int i = 0; i < _dictinaryAmount; i++) { CancellationTokensSourseDictionary.Add(new Dictionary<GameObject, CancellationTokenSource>()); }
+            _cts = new CancellationTokenSource();
+            
+            UpdateSlotsSprites();
+            UpdateArmItem();
+            CancelAndRestartTokens.CancelAllAnimations(CancellationTokensSourseDictionary[0]);
+            _=CustomInvoke.Invoke(()=>
             {
-                if (InventoryInput.Scroll * scrollSensitivity > minScrollStep&& canScroll)
-                {
-                    canScroll = false;
-                    SwapPositionsLogic(1);
-                    UpdateArmItem(1);
-                    Invoke(nameof(ScrollTrue), rateBeforeScroll);
-                }
-                else if (InventoryInput.Scroll * scrollSensitivity < minScrollStep*-1&&canScroll)
-                {
-                    canScroll = false;
-                    SwapPositionsLogic(-1);
-                    UpdateArmItem(-1);
-                    Invoke(nameof(ScrollTrue), rateBeforeScroll);
-                }
-            }
-            if(Input.GetKeyDown(KeyCode.H)){ToggleOpenHotBar();}
+                UpdateSlotsPositions();
+                UpdateSlotsSprites();
+                UpdateArmItem();
+            }, 100);
+            
+            _=CustomInvoke.Invoke(ToggleOpenHotBar, 1000*3);
+            InventoryEvents.OnSlotsItemChanged += UpdateArmItem;
         }
-
-        private void ScrollTrue()
+        private void OnDestroy(){InventoryEvents.OnSlotsItemChanged-=UpdateArmItem;InventoryEvents.OnInit -= Init;}
+        private void Update() => UpdateLogic();
+        private void UpdateLogic()
         {
-            canScroll = true;
-            Debug.Log("Scroll True");
+            if (Input2.Scroll * scrollSensitivity > minScrollStep && canScroll) { ScrollMethodInUpdate(1); _wasMomentBeforeOpenValueTrue = true; }
+            else if (Input2.Scroll * scrollSensitivity < minScrollStep * -1 && canScroll) { ScrollMethodInUpdate(-1); _wasMomentBeforeOpenValueTrue = true; }
+            else if(open && _wasMomentBeforeOpenValueTrue&&!inventory.activeSelf) {
+                _ = CustomInvoke.Invoke(()=>
+                {
+                    ToggleOpenHotBar();
+                    if (!_cts.IsCancellationRequested) { _cts.Cancel(); }
+                }, 2000, _cts);
+                _wasMomentBeforeOpenValueTrue = false;
+            }
+            if(Input2.MiddleClick&&!open&&!inventory.activeSelf) {
+                _cts = new CancellationTokenSource();
+                ToggleOpenHotBar(); 
+                _= CustomInvoke.Invoke(()=>
+                {
+                    ToggleOpenHotBar();
+                    if (!_cts.IsCancellationRequested) { _cts.Cancel(); }
+                    
+                }, 4000, _cts);
+            }
+            else if(Input2.MiddleClick&&open&&!inventory.activeSelf) { if (!_cts.IsCancellationRequested) { _cts.Cancel(); } _=CustomInvoke.Invoke(ToggleOpenHotBar, 100); }
+            if(inventory.activeSelf&&!open) { ToggleOpenHotBar(); _justInventoryOpened = true; }
+            if(!inventory.activeSelf&&open&&_justInventoryOpened){ToggleOpenHotBar();_justInventoryOpened = false;}
         }
+        private void UpdateSlotsSprites(){
+            for (int i = 0; i < HotBarsSlotsCount; i++)
+            {
+                ChangeSlotSprite(i==currentHotBarSlot ? slotSprites[1] : slotSprites[0] , slotsImages[i]);
+            }
+        }
+        private void ChangeSlotSprite(Sprite sprite, Image slot){slot.sprite = sprite; }
+        private void ScrollMethodInUpdate(int num)
+        {
+            if(!_cts.IsCancellationRequested){_cts.Cancel();}
+            _cts = new CancellationTokenSource();
+            canScroll = false;
+            if (!open) 
+            {             
+                ToggleOpenHotBar();
+                _justHotBarOpened = false; 
+            }
+
+            _=CustomInvoke.Invoke(SwapPositionsLogic,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000:0),param: num) ;
+            _=CustomInvoke.Invoke(UpdateArmItem,duration: (int)(!_justHotBarOpened? rateBeforeScroll*1000+1 : 0));
+            _=CustomInvoke.Invoke(UpdateSlotsSprites, (int)(!_justHotBarOpened?rateBeforeScroll*1000*2:rateBeforeScroll*1000));
+            _=CustomInvoke.Invoke(ScrollTrue, (int)(rateBeforeScroll*1000+2));
+            if(!_justHotBarOpened) _justHotBarOpened = true;
+        }
+        private void ScrollTrue()=>canScroll = true;
         private void SwapPositionsLogic(int num)
         {
-            currentHotBarSlot = (currentHotBarSlot - num + HotBarsSlotsCount) % HotBarsSlotsCount;
-            CancelAllAnimations();
+            currentHotBarSlot = (currentHotBarSlot + num + HotBarsSlotsCount) % HotBarsSlotsCount;
+            CancelAndRestartTokens.CancelAllAnimations(CancellationTokensSourseDictionary[0]);
             UpdateSlotsPositions();
         }
     
@@ -84,80 +156,45 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         {
             for (int i = 0; i < hotBarsChilds.Count; i++)
             {
-                int newI = (i + currentHotBarSlot) % HotBarsSlotsCount;
-                StartSmoothPositionChange(hotBarsChildsPositions[newI], hotBarsChilds[i]);
+                int newI = (i - currentHotBarSlot + HotBarsSlotsCount) % HotBarsSlotsCount;
+                SmoothChangeValueLogic.StartSmoothPositionChange(hotBarsChildsPositions[newI], hotBarsChilds[i], CancellationTokensSourseDictionary[0], rateBeforeScroll2, speedScrolling);
             }
-        }
-    
-        private void ChangePosFor(Vector3 pos, bool open)
+
+        }   
+        private void UpdateHotBarState()
         {
-            CancelAllAnimations();
+            CancelAndRestartTokens.CancelAllAnimations(CancellationTokensSourseDictionary[0]);
             if (open) 
             {
                 UpdateSlotsPositions();
+                SmoothChangeValueLogic.StartSmoothPositionChange(_hotBarOpenPos, hotBar, CancellationTokensSourseDictionary[1], rateBeforeScroll2, speedScrolling);
+                SmoothChangeValueLogic.StartSmoothRotationChange(hiderOpenRot, hotBarsHider, CancellationTokensSourseDictionary[1],speedHiderPosChanging);
             }
             else
             {
                 foreach(var child in hotBarsChilds)
                 {
-                    StartSmoothPositionChange(pos, child);
+                    SmoothChangeValueLogic.StartSmoothPositionChange(Vector3.zero, child, CancellationTokensSourseDictionary[0], rateBeforeScroll2, speedScrolling);
                 }
+                SmoothChangeValueLogic.StartSmoothPositionChange(_hotBarLockedPos, hotBar, CancellationTokensSourseDictionary[1], rateBeforeScroll2, speedScrolling);
+                SmoothChangeValueLogic.StartSmoothRotationChange(hiderLockedRot, hotBarsHider, CancellationTokensSourseDictionary[1], speedHiderPosChanging);
             }
         }
-    
-        private async Task SmoothPosChanging(Vector3 pos, GameObject target, CancellationToken cancellationToken)
-        {
-            while (target.transform.localPosition != pos && 
-                  !cancellationToken.IsCancellationRequested && 
-                  Application.isPlaying)
-            {
-                target.transform.localPosition = Vector3.MoveTowards(
-                    target.transform.localPosition, 
-                    pos, 
-                    rateBeforeScroll * speedScrolling * 60
-                );
-                await Task.Yield();
-            }
-        }
-    
-        private void StartSmoothPositionChange(Vector3 pos, GameObject target)
-        {
-            if (cancellationTokens.TryGetValue(target, out var cts))
-            {
-                cts.Cancel();
-                cancellationTokens.Remove(target);
-            }
-    
-            var newCts = new CancellationTokenSource();
-            cancellationTokens[target] = newCts;
-            
-            _ = SmoothPosChanging(pos, target, newCts.Token);
-        }
-    
-        private void CancelAllAnimations()
-        {
-            foreach (var cts in cancellationTokens.Values)
-            {
-                cts.Cancel();
-            }
-            cancellationTokens.Clear();
-        }
-    
         private void ToggleOpenHotBar()
         {
             open = !open;
-            CancelAllAnimations();
-            ChangePosFor(Vector3.zero, open);
-            Debug.Log($"open : {open}");
+            CancelAndRestartTokens.CancelAllAnimations(CancellationTokensSourseDictionary[1]);
+            UpdateHotBarState();
         }
 
-        private void UpdateArmItem(int num)
+        private void UpdateArmItem()
         {
-            foreach (var slot in hotBarsChilds)
+            foreach (var slot in hotBarSlots)
             {
-                if (slot.transform.position == hotBarsChildsPositions[0])
+                if (slot == hotBarSlots[currentHotBarSlot])
                 {
                     //There need to be a check of what item there are, and take item logic. But I'm not realized this function yet(I'm about take item logic).
+                    ItemChooseManager.instance.UpdateChosenItems(hotBarSlots.IndexOf(slot), hotBarSlots);
                 }
             }
         }

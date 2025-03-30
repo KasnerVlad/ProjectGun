@@ -31,9 +31,9 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             if (DraggedImage != null && Inventory.activeSelf&&SourceSlot.Item != null)
             {
                 RectTransform rectTransform = DraggedImage.rectTransform;
-                float mouseX = Input.GetAxis("Mouse X") * speed * 10;
-                float mouseY = Input.GetAxis("Mouse Y") * speed * 10;
-                rectTransform.anchoredPosition += new Vector2(mouseX, mouseY);
+                rectTransform.anchoredPosition += Input2.mousePos*speed * 10;;
+                Debug.LogWarning(rectTransform.anchoredPosition);
+                Debug.LogWarning(Input2.mousePos);
             }
             else { DraggedImage.rectTransform.localPosition = Vector3.zero; IsDragging = false; }
         }
@@ -45,22 +45,21 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             {
                 int targetIndex = InventorySlots.FindIndex(s => s.Slot == targetObject);
                 InventorySlots targetSlot = InventorySlots[targetIndex];
-                if (targetSlot.Item != SourceSlot.Item || (targetSlot.Amount == targetSlot.Item.maxStackSize))
-                {
-                    await SwapItems(SourceSlot, targetSlot);
+                if (targetSlot.Item != SourceSlot.Item || (targetSlot.Amount == targetSlot.Item.maxStackSize)) {
+                    SwapItems(SourceSlot, targetSlot);
                 }
-                else if (targetSlot.Amount < targetSlot.Item.maxStackSize&&targetSlot.Item==SourceSlot.Item)
-                {
-                    await MoveItems(SourceSlot, targetSlot);
+                else if (targetSlot.Amount < targetSlot.Item.maxStackSize&&targetSlot.Item==SourceSlot.Item) {
+                    MoveItems(SourceSlot, targetSlot);
                 }
-                InventoryEvents.InvokeInventoryUpdated(InventorySlots);
             }
+            InventoryEvents.InvokeSlotsItemChanged();
             DraggedImage.rectTransform.localPosition = Vector3.zero;
             IsDragging = false;
+            InventoryEvents.InvokeInventoryUpdated();
             await Task.Yield();
         }
         
-        private async Task SwapItems(InventorySlots from, InventorySlots to)
+        private void SwapItems(InventorySlots from, InventorySlots to)
         {
             if (from == to) return;
     
@@ -70,14 +69,14 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             Item newItem = to.Item;
             int newAmount = to.Amount;
             
-            await from.ClearSlot();
-            await to.ClearSlot();
-            
-            await to.AddItem(tempItem, tempAmount);
-            await from.AddItem(newItem, newAmount);
+            from.ClearSlot();
+            to.ClearSlot();
+
+            to.AddItem(tempItem, tempAmount);
+            from.AddItem(newItem, newAmount);
         }
     
-        private async Task MoveItems(InventorySlots from, InventorySlots to)
+        private void MoveItems(InventorySlots from, InventorySlots to)
         {
             if (from == to) return;
             int remainingSpace = to.Item.maxStackSize - to.Amount;
@@ -87,15 +86,15 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             Item targetItem = to.Item;
             int originalAmount = from.Amount;
     
-            await from.RemoveItem(originalAmount);
-            await to.AddItem(targetItem, amountToMove);
-            await from.AddItem(originalItem, sourceNewAmount);
+            from.RemoveItem(originalAmount);
+            to.AddItem(targetItem, amountToMove);
+            from.AddItem(originalItem, sourceNewAmount);
         }
         private GameObject GetClickedSlot()
         {
-            if (InventoryInput.StartDragging)
+            if (Input2.StartDragging)
             {
-                Vector2 mousePos = Input.mousePosition;
+                Vector2 mousePos = UnityEngine.Input.mousePosition;
                 GraphicRaycaster raycaster = Canvas.GetComponent<GraphicRaycaster>();
                 
                 var pointerEventData = new UnityEngine.EventSystems.PointerEventData(
@@ -121,7 +120,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
     
         private GameObject GetHoveredSlot()
         {
-            Vector2 mousePos = Input.mousePosition;
+            Vector2 mousePos = UnityEngine.Input.mousePosition;
             GraphicRaycaster raycaster = Canvas.GetComponent<GraphicRaycaster>();
             
             var pointerEventData = new UnityEngine.EventSystems.PointerEventData(

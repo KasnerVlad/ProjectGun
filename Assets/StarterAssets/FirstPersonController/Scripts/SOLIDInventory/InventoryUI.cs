@@ -11,7 +11,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         private readonly List<Text> _slotTexts = new List<Text>();
         private readonly List<Image> _slotImages = new List<Image>();
         
-        private void Awake()
+        private void Start()
         {
             InitializeSlots();
             InventoryEvents.OnInventoryUpdated += UpdateUI;
@@ -27,13 +27,13 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             }
         }
         private void OnDestroy() { InventoryEvents.OnInventoryUpdated -= UpdateUI; }
-        private async Task UpdateUI(List<InventorySlots> slots)
+        private async Task UpdateUI()
         {
-            for (int i = 0; i < slots.Count; i++)
+            for (int i = 0; i < _slots.Count; i++)
             {
-                _slotTexts[i].text = slots[i].Amount<=1?"" : slots[i].Amount.ToString();
-                _slotImages[i].sprite =slots[i].Amount<=0? null : slots[i].Item.icon;
-                _slotImages[i].enabled = !(slots[i].Amount<=0);
+                _slotTexts[i].text = _slots[i].Amount<=1?"" : _slots[i].Amount.ToString();
+                _slotImages[i].sprite =_slots[i].Amount<=0? null : _slots[i].Item.icon;
+                _slotImages[i].enabled = !(_slots[i].Amount<=0);
             }
             Debug.Log("Inventory Updated");
             await Task.Yield();

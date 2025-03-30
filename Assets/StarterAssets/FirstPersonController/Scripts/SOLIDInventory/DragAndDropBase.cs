@@ -8,7 +8,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
     public abstract class DragAndDropBase : MonoBehaviour
     {
         protected Canvas Canvas{private set; get;}
-        public List<InventorySlots> InventorySlots{private set; get;}
+        public List<InventorySlots> InventorySlots { private set; get; } = new List<InventorySlots>();
         protected GameObject Inventory{private set; get;}
         protected HashSet<Image> ImageSet{private set; get;}
         protected HashSet<GameObject> SlotSet{private set; get;}
@@ -24,7 +24,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
         public void SetSlotSet(HashSet<GameObject> slots) => SlotSet = slots;
         public virtual async Task DragAndDropManager(float dragSpeed)
         {
-            if (!IsDragging && InventoryInput.StartDragging)
+            if (!IsDragging && Input2.StartDragging)
             {
                 await StartDrag();
             }
@@ -33,7 +33,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
             {
                 Dragging(dragSpeed);
                 
-                if (InventoryInput.EndDragging)
+                if (Input2.EndDragging)
                 {
                     await EndDrag();
                 }
