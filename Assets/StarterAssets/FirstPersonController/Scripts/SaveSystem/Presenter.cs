@@ -21,6 +21,7 @@ public class Presenter
         _slots = slots;
         _m = m;
         _playerTransform = playerTransform;
+        _playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     public void UpdateName(string name) => _gameData.SaveName = name;

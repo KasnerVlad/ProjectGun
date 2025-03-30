@@ -87,7 +87,7 @@ namespace StarterAssets.FirstPersonController.Scripts.SOLIDInventory
                 UpdateSlotsPositions();
                 UpdateSlotsSprites();
                 UpdateArmItem();
-            }, 1100);
+            }, 100);
             
             _=CustomInvoke.Invoke(ToggleOpenHotBar, 1000*3);
             InventoryEvents.OnSlotsItemChanged += UpdateArmItem;

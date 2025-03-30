@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace StarterAssets.FirstPersonController.Scripts
 {
-    [RequireComponent(typeof(CharacterController))]
+    /*[RequireComponent(typeof(CharacterController))]*/
     public abstract class FPSControllerBase : MonoBehaviour
     {
         [Header("Player")]

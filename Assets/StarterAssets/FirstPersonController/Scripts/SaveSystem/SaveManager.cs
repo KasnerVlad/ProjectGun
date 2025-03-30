@@ -26,12 +26,11 @@ public class SaveManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         InventoryEvents.InvokeOnInit();
     }
-    private void OnSave()
+    public void OnSave()
     {
         SaveName();
         _presenter.OnSave();
     }
-
     private void OnDestroy()
     {
         SavePlayerPosition();
@@ -43,10 +42,12 @@ public class SaveManager : MonoBehaviour
     }
     public void SavePlayerPosition()
     {
-        _presenter.UpdatePosition(playerPosition.position);
-        _presenter.UpdateRotation(playerPosition.rotation);
+        if (playerPosition != null)
+        {
+            _presenter.UpdatePosition(playerPosition.position);
+            _presenter.UpdateRotation(playerPosition.rotation);
+        }
     }
-
     public void SaveSlots()
     {
         _presenter.UpdateSlotsItems(_inventorySystem2.GetSlotsItems());
@@ -57,6 +58,7 @@ public class SaveManager : MonoBehaviour
     {
         _presenter.UpdateCurrentHotBarSlot(_hotBarManager.currentHotBarSlot);
     }
+    public void OnLoad()=>_presenter.OnLoad();
     private void Start()
     {
         _inventorySystem2 = GetComponent<InventorySystem2>();
@@ -64,12 +66,10 @@ public class SaveManager : MonoBehaviour
         _saveSystem = new JsonSaveSystem();
         StartGameData();
         _presenter = new Presenter(_view, _saveSystem, _gameData, slots, _m, playerPosition);
-        _=CustomInvoke.Invoke(()=>
-        {
+
             _presenter.OnLoad();
-            InventoryEvents.InvokeInventoryUpdated();
+            _=CustomInvoke.Invoke(InventoryEvents.InvokeInventoryUpdated, 10); 
             InventoryEvents.InvokeLoad();
-        }, 1000);
         
     }
 
