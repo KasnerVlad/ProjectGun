@@ -999,13 +999,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1288579402}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28dbee48a3654728b4624f8b5bd5e41e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   timeMiddleTask: 100
-  work: 1
+  work: 0
 --- !u!1 &1515463756 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1246070856638492602, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
