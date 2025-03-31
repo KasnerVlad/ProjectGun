@@ -13,11 +13,14 @@ namespace StarterAssets.FirstPersonController.Scripts
         [Header("Rigidbody Settings")]
         [SerializeField] private float _maxSlopeAngle = 45f;
         [SerializeField] private float _airControlForce = 5f;
-        [SerializeField] private float _groundFriction = 0.1f;
-
+        [SerializeField] private float _groundFriction = 0.3f;
+        [SerializeField] private float speedMultiplier = 0.3f;
+        [SerializeField] private float jumpForce = 100f;
         public float MaxSlopeAngle => _maxSlopeAngle;
         public float AirControlForce => _airControlForce;
         public float GroundFriction => _groundFriction;
+        public float SpeedMultiplier => speedMultiplier;
+        public float JumpForce => jumpForce;
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
         [SerializeField] private float moveSpeed;

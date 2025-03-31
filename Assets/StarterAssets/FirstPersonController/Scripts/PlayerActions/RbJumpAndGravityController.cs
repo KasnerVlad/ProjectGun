@@ -30,8 +30,8 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
                 {
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     VerticalVelocity = Mathf.Sqrt(_fpsController.JumpHeight * -2f * _fpsController.Gravity); 
-                    _moveController._rbCharacterController.Move(Vector3.up * VerticalVelocity, 
-                        ForceMode.VelocityChange);
+                    _moveController._rbController.Move(Vector3.up * (VerticalVelocity*_fpsController.JumpForce), 
+                        ForceMode.VelocityChange, _fpsController.Grounded);
                 }
                 if (JumpTimeoutDelta >= 0.0f)
                 {
