@@ -10,6 +10,14 @@ namespace StarterAssets.FirstPersonController.Scripts
     /*[RequireComponent(typeof(CharacterController))]*/
     public abstract class FPSControllerBase : MonoBehaviour
     {
+        [Header("Rigidbody Settings")]
+        [SerializeField] private float _maxSlopeAngle = 45f;
+        [SerializeField] private float _airControlForce = 5f;
+        [SerializeField] private float _groundFriction = 0.1f;
+
+        public float MaxSlopeAngle => _maxSlopeAngle;
+        public float AirControlForce => _airControlForce;
+        public float GroundFriction => _groundFriction;
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
         [SerializeField] private float moveSpeed;

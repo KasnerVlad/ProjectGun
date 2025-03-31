@@ -19,11 +19,11 @@ namespace StarterAssets.FirstPersonController.Scripts
         private PlayerHpView _playerHpView;
         protected override void InitializeStart()
         {
-	        _iJumpAndGravityController = new JumpAndGravityController(this);
-	        _iMoveController = new MoveController(this, _iJumpAndGravityController as JumpAndGravityController);
-	        _iAnimationControllerController = new AnimationController(this, _iMoveController as MoveController, _iJumpAndGravityController as JumpAndGravityController);
+            _iMoveController = new RbMoveController(this);
+	        _iJumpAndGravityController = new RbJumpAndGravityController(this, _iMoveController as RbMoveController);
+	        _iAnimationControllerController = new AnimationController(this, _iMoveController as RbMoveController, _iJumpAndGravityController as RbJumpAndGravityController);
 	        _iCameraController = new CameraController(this);
-	        _iCheckGroundedController = new GroundCheck(this, setGrounded:SetGrounded);
+	        _iCheckGroundedController = new RbGroundCheck(setGrounded:SetGrounded, _iMoveController as RbMoveController);
 
             _playerHpModel = new PlayerHpModel();
             _playerHpView = new PlayerHpView(hpScrollbar);
@@ -62,6 +62,12 @@ namespace StarterAssets.FirstPersonController.Scripts
             Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
             Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - SecondGroundOffset, transform.position.z), GroundedRadius);
         }
+
+        public void OnCollisionStay(Collision collision)
+        {
+            _iMoveController.OnCollisionStay(collision);
+        }
+
         private void OnFootstep(AnimationEvent animationEvent)
         {
             if (animationEvent.animatorClipInfo.weight > 0.5f)
@@ -69,7 +75,7 @@ namespace StarterAssets.FirstPersonController.Scripts
                 if (FootstepAudioClips.Length > 0)
                 {
                     var index = Random.Range(0, FootstepAudioClips.Length);
-                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint((_iMoveController as MoveController).ControllerCenter), FootstepAudioVolume);
+                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.localPosition, FootstepAudioVolume);
                 }
             }
         }
@@ -77,7 +83,7 @@ namespace StarterAssets.FirstPersonController.Scripts
         {
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
-                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint((_iMoveController as MoveController).ControllerCenter), FootstepAudioVolume);
+                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.localPosition, FootstepAudioVolume);
             }
         }
     }

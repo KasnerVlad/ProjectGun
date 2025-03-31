@@ -1,8 +1,10 @@
+using UnityEngine;
 namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
 {
     public interface IMove
     {
-        public void Move();
+        void Move();
+        void OnCollisionStay(Collision collision);
     }
     public interface IJumpAndGravity
     {

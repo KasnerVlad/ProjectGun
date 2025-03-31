@@ -15,8 +15,8 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
         public Vector3 ControllerCenter =>_controller.center;
         public MoveController(FPSControllerBase fpsController, JumpAndGravityController jumpAndGravityController)
         {
-            this._fpsController = fpsController;
-            this._jumpAndGravityController = jumpAndGravityController;
+            _fpsController = fpsController;
+            _jumpAndGravityController = jumpAndGravityController;
             _controller = fpsController.GetComponent<CharacterController>();
         }
         public void Move()
@@ -49,5 +49,7 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
 
             _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _jumpAndGravityController.VerticalVelocity, 0.0f) * Time.deltaTime);
         }
+
+        public void OnCollisionStay(Collision collision) { }
     }
 }

@@ -5,8 +5,8 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
     public class AnimationController : IAnimationController
     {
         private readonly FPSControllerBase _fpsController;
-        private readonly MoveController _moveController;
-        private readonly JumpAndGravityController _jumpAndGravityController;
+        private readonly RbMoveController _moveController;
+        private readonly RbJumpAndGravityController _jumpAndGravityController;
         private int _animIDSpeed;
         private int _animIDGrounded;
         private int _animIDJump;
@@ -19,11 +19,11 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
         private bool _hasAnimator;
         private Animator _animator;
         
-        public AnimationController(FPSControllerBase fpsController, MoveController moveController, JumpAndGravityController jumpAndGravityController)
+        public AnimationController(FPSControllerBase fpsController, RbMoveController moveController, RbJumpAndGravityController jumpAndGravityController)
         {
-            this._fpsController = fpsController;
-            this._moveController = moveController;
-            this._jumpAndGravityController = jumpAndGravityController;
+            _fpsController = fpsController;
+            _moveController = moveController;
+            _jumpAndGravityController = jumpAndGravityController;
         }
         public void AssignAnimationIDs()
         {
