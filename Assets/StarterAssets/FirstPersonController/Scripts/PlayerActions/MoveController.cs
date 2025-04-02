@@ -1,3 +1,4 @@
+using CustomDelegats;
 using UnityEngine;
 
 namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
@@ -8,6 +9,7 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
         private readonly JumpAndGravityController _jumpAndGravityController;
         public float TargetSpeed{get; private set;} 
         public float InputMagnitude{get; private set;}
+        public event Vm<Collision> onStay;
 
         private float _speed;
 
@@ -50,6 +52,8 @@ namespace StarterAssets.FirstPersonController.Scripts.PlayerActions
             _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _jumpAndGravityController.VerticalVelocity, 0.0f) * Time.deltaTime);
         }
 
-        public void OnCollisionStay(Collision collision) { }
+        public void InvokeOnStay(Collision collision) { }
+        public void Draw(){}
+        public void InvokeOnExit(Collision collision){}
     }
 }

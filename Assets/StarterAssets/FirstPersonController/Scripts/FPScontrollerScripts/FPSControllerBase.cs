@@ -16,6 +16,12 @@ namespace StarterAssets.FirstPersonController.Scripts
         [SerializeField] private float _groundFriction = 0.3f;
         [SerializeField] private float speedMultiplier = 0.3f;
         [SerializeField] private float jumpForce = 100f;
+        [SerializeField] private float _airHorizontalSpeedLimit = 5f; // НОВОЕ ПОЛЕ
+        [SerializeField] private float _airVerticalSpeedLimit = 15f; // НОВОЕ ПОЛЕ
+
+        public float AirHorizontalSpeedLimit => _airHorizontalSpeedLimit;
+        public float AirVerticalSpeedLimit => _airVerticalSpeedLimit;
+
         public float MaxSlopeAngle => _maxSlopeAngle;
         public float AirControlForce => _airControlForce;
         public float GroundFriction => _groundFriction;

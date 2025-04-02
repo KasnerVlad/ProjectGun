@@ -1708,7 +1708,11 @@ PrefabInstance:
       objectReference: {fileID: 8944336656349189697}
     - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: jumpForce
-      value: 0.01
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
+      propertyPath: jumpHeight
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: mainCamera
@@ -1723,6 +1727,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 601457460}
     - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
+      propertyPath: _airSpeedLimit
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: maxHitDistance
       value: 
       objectReference: {fileID: 490934638}
@@ -1732,11 +1740,15 @@ PrefabInstance:
       objectReference: {fileID: 1515463756}
     - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: _groundFriction
-      value: 0.1
+      value: 0.02
       objectReference: {fileID: 0}
     - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: speedMultiplier
-      value: 0.1
+      value: 0.035
+      objectReference: {fileID: 0}
+    - target: {fileID: 7892690093817319881, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
+      propertyPath: _airControlForce
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8197846159539573642, guid: 39f32e08e6fb8434db5893edfece8eab, type: 3}
       propertyPath: m_Data.m_SourceObjects.m_Item0.transform

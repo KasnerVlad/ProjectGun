@@ -1,54 +1,58 @@
 using UnityEngine;
 using System.Collections.Generic;
 using StarterAssets.FirstPersonController.Scripts;
+using StarterAssets.FirstPersonController.Scripts.PlayerActions;
+
 namespace Rb.Move
 {
     public class SurfaceCheck : ISurfaceCheck
     {
-        
-        private class TimedContact
+        public void Draw()
         {
-            public Vector3 Normal;
-            public float TimeAlive;
+            Debug.DrawLine(_controller.transform.position, _controller.transform.position + CalculateAverageNormal() * 3, Color.green);
+            foreach (var contact in _contacts)
+            {
+                Debug.DrawLine(_controller.transform.position, _controller.transform.position + contact * 3, Color.red);
+            }
         }
-
-        private readonly List<TimedContact> _contacts = new List<TimedContact>();
-        private readonly float _maxSlopeAngle;
-        private const float ContactLifetime = 0.2f;
-
+        private readonly List<Vector3> _contacts = new List<Vector3>();
+        private readonly RbMoveController _rbMoveController;
+        private readonly FPSControllerBase _controller;
         public bool HasGroundContacts => _contacts.Count > 0;
 
-        public SurfaceCheck(FPSControllerBase fpsController)
+        public SurfaceCheck(FPSControllerBase fpsController, RbMoveController rbMoveController)
         {
-            _maxSlopeAngle = fpsController.MaxSlopeAngle;
-        }
-
-        public void UpdateContacts()
-        {
-            for (int i = _contacts.Count - 1; i >= 0; i--)
-            {
-                _contacts[i].TimeAlive += Time.deltaTime;
-                if (_contacts[i].TimeAlive > ContactLifetime)
-                {
-                    _contacts.RemoveAt(i);
-                }
-            }
+            _controller = fpsController;
+            _rbMoveController = rbMoveController;
+            _rbMoveController.onStay += OnCollisionStay;
+            _rbMoveController.onExit += OnCollisionExit;
         }
 
         public Vector3 CalculateAverageNormal()
         {
             if (_contacts.Count == 0) return Vector3.up;
-            
+    
             Vector3 sum = Vector3.zero;
+            int validContacts = 0;
+    
             foreach (var contact in _contacts)
             {
-                sum += contact.Normal;
+                // Ослаблен фильтр до 25 градусов
+                if(Vector3.Angle(contact, Vector3.up) < 25f) 
+                {
+                    sum += contact;
+                    validContacts++;
+                }
             }
-            return (sum / _contacts.Count).normalized;
+    
+            return validContacts > 0 
+                ? (sum / validContacts).normalized 
+                : Vector3.up;
         }
 
-        public void OnCollisionStay(Collision collision)
+        private void OnCollisionStay(Collision collision)
         {
+            ClearContactNormals();
             foreach (ContactPoint contact in collision.contacts)
             {
                 if (IsValidSlope(contact.normal))
@@ -57,21 +61,15 @@ namespace Rb.Move
                 }
             }
         }
-
         private bool IsValidSlope(Vector3 normal) => 
-            Vector3.Angle(normal, Vector3.up) <= _maxSlopeAngle;
-
+            Vector3.Angle(normal, Vector3.up) <= 90;
+        private void OnCollisionExit(Collision collision)
+        {
+            ClearContactNormals();
+        }
         private void AddContact(Vector3 normal)
         {
-            foreach (var existing in _contacts)
-            {
-                if (Vector3.Distance(existing.Normal, normal) < 0.01f)
-                {
-                    existing.TimeAlive = 0;
-                    return;
-                }
-            }
-            _contacts.Add(new TimedContact { Normal = normal, TimeAlive = 0 });
+            _contacts.Add(normal);
         }
 
         public void ClearContactNormals() => _contacts.Clear();
@@ -80,9 +78,8 @@ namespace Rb.Move
     public interface ISurfaceCheck
     {
         public bool HasGroundContacts { get; }
-        void OnCollisionStay(Collision collision);
         Vector3 CalculateAverageNormal();
         void ClearContactNormals();
-        void UpdateContacts();
+        void Draw();
     }
 }

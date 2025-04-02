@@ -20,11 +20,12 @@ namespace StarterAssets.FirstPersonController.Scripts
         protected override void InitializeStart()
         {
             _iMoveController = new RbMoveController(this);
-	        _iJumpAndGravityController = new RbJumpAndGravityController(this, _iMoveController as RbMoveController);
+	        _iJumpAndGravityController = new RbJumpAndGravityController(this, _iMoveController as RbMoveController, SetGrounded,
+                (_iMoveController as RbMoveController)._surfaceCheck.ClearContactNormals);
 	        _iAnimationControllerController = new AnimationController(this, _iMoveController as RbMoveController, _iJumpAndGravityController as RbJumpAndGravityController);
 	        _iCameraController = new CameraController(this);
 	        _iCheckGroundedController = new RbGroundCheck(setGrounded:SetGrounded, _iMoveController as RbMoveController);
-
+            
             _playerHpModel = new PlayerHpModel();
             _playerHpView = new PlayerHpView(hpScrollbar);
             _playerHpView.UpdateHp(_playerHpModel.CurrentHealth, _playerHpModel.maxHp);
@@ -61,11 +62,14 @@ namespace StarterAssets.FirstPersonController.Scripts
             // when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
             Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
             Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - SecondGroundOffset, transform.position.z), GroundedRadius);
+            
         }
 
-        public void OnCollisionStay(Collision collision)
+        public void OnCollisionStay(Collision collision)=>_iMoveController.InvokeOnStay(collision);
+
+        public void OnCollisionExit(Collision other)
         {
-            _iMoveController.OnCollisionStay(collision);
+            _iMoveController.InvokeOnExit(other);
         }
 
         private void OnFootstep(AnimationEvent animationEvent)
